@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased text-[#2c3e50] bg-[#f4f7f9] dark:bg-[#0b0f19] dark:text-[#cbd5e1] font-sans selection:bg-[#00b4d8] selection:text-white transition-colors duration-200;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight text-slate-900 dark:text-white;
+  }
+}
+
+/* Clever Course Signature Design Utilities */
+@layer components {
+  /* Clever Course Section Title */
+  .clever-section-title {
+    @apply relative font-heading font-extrabold text-slate-800 dark:text-slate-100 tracking-wide uppercase;
+  }
+
+  .clever-title-underline {
+    @apply relative after:content-[''] after:block after:w-12 after:h-0.5 after:bg-[#00b4d8] after:mt-2;
+  }
+
+  /* Clever Course Price Badge */
+  .clever-price-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-heading font-bold text-white shadow-xs;
+    background-color: #00b4d8;
+  }
+
+  .clever-price-badge-gold {
+    @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-heading font-bold text-white shadow-xs bg-[#f59e0b];
+  }
+
+  .clever-price-badge-free {
+    @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-heading font-bold text-white shadow-xs bg-[#20b2aa];
+  }
+
+  /* Clever Course Button */
+  .clever-btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-heading font-bold text-xs uppercase tracking-wider rounded-lg transition-all duration-200 shadow-xs active:translate-y-px;
+  }
+
+  .clever-btn-primary {
+    @apply clever-btn bg-[#00b4d8] hover:bg-[#0096c7] text-white;
+  }
+
+  .clever-btn-dark {
+    @apply clever-btn bg-[#1e2738] hover:bg-[#151b26] text-white;
+  }
+
+  .clever-btn-gold {
+    @apply clever-btn bg-[#f59e0b] hover:bg-[#d97706] text-white;
+  }
+
+  .clever-btn-outline {
+    @apply clever-btn bg-white dark:bg-[#1e2738] hover:bg-slate-50 dark:hover:bg-[#283548] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700;
+  }
+
+  /* Clever Course Card */
+  .clever-card {
+    @apply bg-white dark:bg-[#151b26] rounded-xl border border-slate-200/90 dark:border-[#2a354b] shadow-xs hover:shadow-md transition-all duration-200;
+  }
+}
+
+/* ========================================================================= */
+/* CLEVER COURSE GLOBAL DARK MODE SYSTEM                                     */
+/* ========================================================================= */
+.dark .bg-white {
+  background-color: #151b26 !important;
+  border-color: #283548 !important;
+}
+
+.dark .bg-slate-50 {
+  background-color: #1a2334 !important;
+  border-color: #283548 !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #1e283d !important;
+}
+
+.dark .bg-slate-100\/90 {
+  background-color: #151b26 !important;
+}
+
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-50\/60:hover,
+.dark .hover\:bg-slate-50\/80:hover {
+  background-color: #1f2b3e !important;
+}
+
+.dark .hover\:bg-slate-100:hover {
+  background-color: #243248 !important;
+}
+
+.dark .text-slate-900,
+.dark .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-slate-200\/80,
+.dark .border-slate-200\/90,
+.dark .border-slate-300 {
+  border-color: #2a354b !important;
+}
+
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #2a354b !important;
+}
+
+.dark thead,
+.dark thead.bg-slate-50,
+.dark th {
+  background-color: #121824 !important;
+  color: #94a3b8 !important;
+  border-color: #2a354b !important;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #1a2232 !important;
+  border-color: #2d3b52 !important;
+  color: #f8fafc !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+.dark select option {
+  background-color: #151b26;
+  color: #f8fafc;
+}
+
+/* Modals & Dialogs in dark mode */
+.dark .bg-white.rounded-3xl,
+.dark .bg-white.rounded-2xl {
+  background-color: #151b26 !important;
+  border-color: #2a354b !important;
+}
+
+/* Clean Dark Mode Scrollbars */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

@@ -1,0 +1,33 @@
+{
+  "_huong_dan": "ĐIỀN TẤT CẢ THÔNG TIN CỦA BẠN VÀO ĐÂY, SAU ĐÓ CHẠY FILE apply-config.ps1 ĐỂ TỰ ĐỘNG CẬP NHẬT TOÀN BỘ DỰ ÁN",
+
+  "centerInformation": {
+    "centerName": "TOEIC MR.NAM",
+    "adminEmail": "dotuannamwork2809@gmail.com",
+    "managementReportEmail": "dotuannamwork2809@gmail.com"
+  },
+
+  "firebase": {
+    "_mo_ta": "Lấy trong Firebase Console > Project Settings > General > Your apps (Web)",
+    "apiKey": "AIzaSyDnJ0Y2bI09ZLmnPMRtoN2qXyH_9dkG4cc",
+    "authDomain": "auto-lms-43b1d.firebaseapp.com",
+    "projectId": "auto-lms-43b1d",
+    "storageBucket": "auto-lms-43b1d.firebasestorage.app",
+    "messagingSenderId": "109707658171",
+    "appId": "1:109707658171:web:a4d20cbf52298eea98ba9e"
+  },
+
+  "googleAppsScript": {
+    "_mo_ta": "Triển khai từ gas-backend/Code.gs (Miễn phí 100% không cần thẻ tín dụng)",
+    "webAppUrl": "https://script.google.com/macros/s/AKfycbxxzJsYWS8O6BirSoUEvuPGC53EP2HD-5lRD4UhpM-X6UdKtVADjx3_VXzsi8INGJQ/exec",
+    "apiSecret": "TheArchangel"
+  },
+
+  "bankingVietQR": {
+    "_mo_ta": "Thông tin tài khoản ngân hàng để học viên quét mã QR chuyển khoản học phí",
+    "bankId": "TCB",
+    "accountNo": "280931081998",
+    "accountName": "TOEIC MR.NAM",
+    "template": "compact2"
+  }
+}

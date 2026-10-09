@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function: Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function: Check if user is Super Admin
+    function isSuperAdmin() {
+      return isAuthenticated() && request.auth.token.email == 'dotuannamwork2809@gmail.com';
+    }
+
+    // Helper function: Check if user is Staff (Admin, Consultant, Instructor)
+    function isStaff() {
+      return isAuthenticated() && (
+        isSuperAdmin() ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin', 'consultant', 'instructor']))
+      );
+    }
+
+    // Helper function: Check if user is an Admin
+    function isAdmin() {
+      return isStaff();
+    }
+
+    // 1. Users collection: User can read/write their own profile; Admin has full access
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // 2. Classes collection: Authenticated users can read classes; Only Admin can create/edit/delete
+    match /classes/{classId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // 3. Students collection: Admin has full access; Student can read their profile
+    match /students/{studentId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // 4. Attendance Sessions: Admin has full access; Students can read their class sessions
+    match /attendance_sessions/{sessionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // 5. Scores collection: Admin has full access; Students can read their own scores
+    match /scores/{scoreId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // 6. Tuitions collection: Admin has full access; Students can read their own tuition
+    match /tuitions/{tuitionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // 7. Ledger & Summaries: ADMIN ONLY (Confidential internal accounting)
+    match /ledger/{txId} {
+      allow read, write: if isAdmin();
+    }
+    match /ledger_summaries/{summaryId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 8. System Reports: ADMIN ONLY
+    match /system_reports/{reportId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 9. System Settings (Email Templates, Shifts, Center Configurations)
+    match /system_settings/{settingId=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() || isAdmin();
+    }
+
+    // 10. Staff Collection: Staff can read; Only Super Admin can write/delete
+    match /staff/{staffId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin();
+    }
+  }
+}

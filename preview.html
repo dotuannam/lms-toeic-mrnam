@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS Interactive Preview - Dual Portal</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
+
+  <!-- Top Portal Switcher Bar -->
+  <header class="bg-slate-900 text-white px-6 py-3.5 flex flex-wrap items-center justify-between border-b border-slate-800 sticky top-0 z-50 shadow-md">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center font-bold text-white shadow-md">
+        LMS
+      </div>
+      <div>
+        <h1 class="text-sm font-bold text-white">LMS Education Platform</h1>
+        <p class="text-[11px] text-indigo-400">Live Interactive Prototype Preview</p>
+      </div>
+    </div>
+
+    <!-- Portal Mode Switcher -->
+    <div class="flex items-center gap-2 bg-slate-800 p-1 rounded-xl">
+      <button id="btnPortalAdmin" onclick="switchPortal('admin')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm transition">
+        🛡️ Admin Dashboard
+      </button>
+      <button id="btnPortalStudent" onclick="switchPortal('student')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition">
+        🎓 Student Portal
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== 1. ADMIN DASHBOARD VIEW ==================== -->
+  <div id="viewAdmin" class="flex flex-col md:flex-row min-h-[calc(100vh-60px)]">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-64 bg-slate-900 text-slate-300 p-4 border-r border-slate-800 flex flex-col justify-between">
+      <div class="space-y-1">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 px-3 py-2">Quản lý trung tâm</div>
+        <button onclick="switchAdminTab('students')" id="adminTabBtn_students" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm transition">
+          <span>👥</span><span>Học viên (Auto-ID)</span>
+        </button>
+        <button onclick="switchAdminTab('classes')" id="adminTabBtn_classes" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <span>📚</span><span>Lớp học (Classroom)</span>
+        </button>
+        <button onclick="switchAdminTab('attendance')" id="adminTabBtn_attendance" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <span>📅</span><span>Điểm danh (1-Read)</span>
+        </button>
+        <button onclick="switchAdminTab('scores')" id="adminTabBtn_scores" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <span>🎯</span><span>Điểm thi (TOEIC/IELTS)</span>
+        </button>
+        <button onclick="switchAdminTab('finance')" id="adminTabBtn_finance" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <span>💰</span><span>Học phí & Sổ Thu-Chi</span>
+        </button>
+        <button onclick="switchAdminTab('reports')" id="adminTabBtn_reports" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <span>📊</span><span>Báo cáo tuần (Email)</span>
+        </button>
+      </div>
+
+      <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800 text-xs">
+        <div class="font-bold text-white">Admin Account</div>
+        <div class="text-slate-400 text-[11px]">admin@center.edu.vn</div>
+      </div>
+    </aside>
+
+    <!-- Admin Content Area -->
+    <main class="flex-1 p-6 max-w-6xl w-full mx-auto">
+
+      <!-- Admin Tab: STUDENTS -->
+      <section id="adminTab_students" class="space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Danh sách Học Viên</h2>
+            <p class="text-xs text-slate-500">Tự động sinh mã học viên (e.g. TO55001HV01) và phân lớp</p>
+          </div>
+          <button onclick="openModalAddStudent()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition">
+            + Thêm Học Viên Mới
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 border-b border-slate-200 uppercase font-bold text-slate-500">
+              <tr>
+                <th class="py-3 px-4">Mã HV</th>
+                <th class="py-3 px-4">Họ và tên</th>
+                <th class="py-3 px-4">Email / Phone</th>
+                <th class="py-3 px-4">Lớp hiện tại</th>
+                <th class="py-3 px-4">Học phí</th>
+                <th class="py-3 px-4">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Admin Tab: CLASSES -->
+      <section id="adminTab_classes" class="hidden space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Danh mục Lớp học</h2>
+            <p class="text-xs text-slate-500">Tự động tạo Google Classroom & Folder Drive qua Google Apps Script Web App</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold rounded-lg text-xs font-mono">TO55001</span>
+              <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full">Đang học</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900">TOEIC Target 550 - K01</h3>
+            <p class="text-xs text-slate-500">Giảng viên: <span class="font-semibold text-slate-700">Ms. Emily</span></p>
+            <div class="text-xs text-slate-600 space-y-1 border-t border-slate-100 pt-2">
+              <div>Lịch học: <b>Thứ 2 - 4 - 6 (18:00 - 20:00)</b></div>
+              <div>Học viên: <b class="text-indigo-600">24 học viên</b></div>
+              <div>Học phí: <b>4,500,000 ₫</b></div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
+              <a href="https://classroom.google.com" target="_blank" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg text-xs font-semibold border border-emerald-200 transition">
+                🏫 Classroom
+              </a>
+              <a href="https://drive.google.com" target="_blank" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg text-xs font-semibold border border-blue-200 transition">
+                📁 Google Drive
+              </a>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold rounded-lg text-xs font-mono">IE65001</span>
+              <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full">Đang học</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900">IELTS Intensive 6.5+</h3>
+            <p class="text-xs text-slate-500">Giảng viên: <span class="font-semibold text-slate-700">Mr. David</span></p>
+            <div class="text-xs text-slate-600 space-y-1 border-t border-slate-100 pt-2">
+              <div>Lịch học: <b>Thứ 3 - 5 - 7 (19:30 - 21:30)</b></div>
+              <div>Học viên: <b class="text-indigo-600">18 học viên</b></div>
+              <div>Học phí: <b>8,500,000 ₫</b></div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
+              <a href="https://classroom.google.com" target="_blank" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg text-xs font-semibold border border-emerald-200 transition">
+                🏫 Classroom
+              </a>
+              <a href="https://drive.google.com" target="_blank" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg text-xs font-semibold border border-blue-200 transition">
+                📁 Google Drive
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Admin Tab: ATTENDANCE -->
+      <section id="adminTab_attendance" class="hidden space-y-5">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div>
+              <label class="text-[11px] font-bold uppercase text-slate-500 block mb-1">Lớp học</label>
+              <select class="py-1.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+                <option>TO55001 - TOEIC Target 550</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] font-bold uppercase text-slate-500 block mb-1">Ngày học</label>
+              <input type="date" value="2026-10-05" class="py-1.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="alert('Đã đánh dấu tất cả có mặt!')" class="py-2 px-3 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">
+              Đánh dấu tất cả Có Mặt
+            </button>
+            <button onclick="alert('Đã lưu dữ liệu điểm danh vào 1 document duy nhất!')" class="py-2 px-4 bg-indigo-600 text-white rounded-xl text-xs font-bold">
+              Lưu Buổi Học
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-4">
+          <div class="text-xs font-semibold text-slate-500 mb-3">Danh sách điểm danh buổi học hôm nay:</div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div>
+                <span class="font-bold text-slate-800 text-xs">Nguyễn Văn A</span>
+                <span class="ml-2 font-mono text-[11px] text-indigo-600">TO55001HV01</span>
+              </div>
+              <div class="flex gap-1">
+                <button class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-semibold">Có mặt</button>
+                <button class="px-2.5 py-1 bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold">Trễ</button>
+                <button class="px-2.5 py-1 bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold">Có phép</button>
+                <button class="px-2.5 py-1 bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold">Vắng</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div>
+                <span class="font-bold text-slate-800 text-xs">Trần Thị B</span>
+                <span class="ml-2 font-mono text-[11px] text-indigo-600">TO55001HV02</span>
+              </div>
+              <div class="flex gap-1">
+                <button class="px-2.5 py-1 bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold">Có mặt</button>
+                <button class="px-2.5 py-1 bg-amber-500 text-white rounded-lg text-xs font-semibold">Trễ 15p</button>
+                <button class="px-2.5 py-1 bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold">Có phép</button>
+                <button class="px-2.5 py-1 bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold">Vắng</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Admin Tab: SCORES -->
+      <section id="adminTab_scores" class="hidden space-y-5">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Nhập điểm thi đợt Progress Test</h3>
+              <p class="text-xs text-slate-500">Tự động tính tổng điểm và cập nhật biểu đồ Radar của học viên</p>
+            </div>
+            <button onclick="alert('Đã cập nhật điểm thi vào Firestore batch write!')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">
+              Lưu Tất Cả Điểm
+            </button>
+          </div>
+
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 border-b border-slate-200 uppercase font-bold text-slate-500">
+              <tr>
+                <th class="py-3 px-4">Học viên</th>
+                <th class="py-3 px-4 text-center">Listening (495)</th>
+                <th class="py-3 px-4 text-center">Reading (495)</th>
+                <th class="py-3 px-4 text-center">Tổng điểm (990)</th>
+                <th class="py-3 px-4">Nhận xét của GV</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="py-3 px-4 font-bold text-slate-800">Nguyễn Văn A</td>
+                <td class="py-3 px-4 text-center"><input type="number" value="380" class="w-16 text-center py-1 bg-slate-50 border rounded-lg"></td>
+                <td class="py-3 px-4 text-center"><input type="number" value="310" class="w-16 text-center py-1 bg-slate-50 border rounded-lg"></td>
+                <td class="py-3 px-4 text-center font-bold text-indigo-600 text-sm">690</td>
+                <td class="py-3 px-4"><input type="text" value="Tiến bộ nghe tốt. Ôn thêm Part 7" class="w-full py-1 px-2 bg-slate-50 border rounded-lg text-xs"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Admin Tab: FINANCE -->
+      <section id="adminTab_finance" class="hidden space-y-5">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-emerald-600 uppercase">Tổng Thu Tháng 10</span>
+            <div class="text-2xl font-bold text-slate-900 mt-1">48,500,000 ₫</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-rose-600 uppercase">Tổng Chi Tháng 10</span>
+            <div class="text-2xl font-bold text-slate-900 mt-1">21,300,000 ₫</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-indigo-600 uppercase">Lợi Nhuận Thuần</span>
+            <div class="text-2xl font-bold text-indigo-600 mt-1">+27,200,000 ₫</div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <h3 class="text-base font-bold text-slate-900 mb-4">Sổ Học Phí & Tạo Mã VietQR</h3>
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 border-b border-slate-200 uppercase font-bold text-slate-500">
+              <tr>
+                <th class="py-3 px-4">Học viên</th>
+                <th class="py-3 px-4">Tổng học phí</th>
+                <th class="py-3 px-4 text-emerald-600">Đã nộp</th>
+                <th class="py-3 px-4 text-rose-600">Còn nợ</th>
+                <th class="py-3 px-4 text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="py-3 px-4 font-bold text-slate-800">Nguyễn Văn A (TO55001HV01)</td>
+                <td class="py-3 px-4">4,500,000 ₫</td>
+                <td class="py-3 px-4 text-emerald-600 font-bold">2,500,000 ₫</td>
+                <td class="py-3 px-4 text-rose-600 font-bold">2,000,000 ₫</td>
+                <td class="py-3 px-4 text-right">
+                  <button onclick="openVietQrDemo('Nguyễn Văn A', 'TO55001HV01', 2000000)" class="px-3 py-1 bg-indigo-600 text-white rounded-lg font-bold">
+                    Tạo VietQR
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Admin Tab: REPORTS -->
+      <section id="adminTab_reports" class="hidden space-y-5">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Báo cáo tuần tự động</h3>
+              <p class="text-xs text-slate-500">Gửi trực tiếp qua Gmail bằng Google Apps Script API</p>
+            </div>
+            <button onclick="alert('Đã gửi báo cáo qua Gmail thành công!')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">
+              Gửi Email Báo Cáo Ngay
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-3 bg-slate-50 rounded-xl">
+              <span class="text-[11px] text-slate-500 font-semibold uppercase">Học viên mới</span>
+              <div class="text-xl font-bold text-slate-900">8 bạn</div>
+            </div>
+            <div class="p-3 bg-emerald-50 rounded-xl">
+              <span class="text-[11px] text-emerald-600 font-semibold uppercase">Học phí thu về</span>
+              <div class="text-xl font-bold text-emerald-700">32,000,000 ₫</div>
+            </div>
+            <div class="p-3 bg-rose-50 rounded-xl">
+              <span class="text-[11px] text-rose-600 font-semibold uppercase">Công nợ còn lại</span>
+              <div class="text-xl font-bold text-rose-700">12,500,000 ₫</div>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-xl">
+              <span class="text-[11px] text-amber-600 font-semibold uppercase">Số buổi vắng</span>
+              <div class="text-xl font-bold text-amber-700">14 buổi</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==================== 2. STUDENT PORTAL VIEW ==================== -->
+  <div id="viewStudent" class="hidden min-h-[calc(100vh-60px)] p-6 max-w-6xl mx-auto space-y-6">
+
+    <!-- Class Banner -->
+    <div class="bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="space-y-2">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-indigo-200">
+          <span>TO55001</span> &bull; <span>TOEIC Target 550 - K01</span>
+        </div>
+        <h2 class="text-2xl font-bold">Xin chào, Nguyễn Văn A!</h2>
+        <p class="text-xs text-slate-300">Giảng viên: Ms. Emily &bull; Lịch học: Thứ 2 - 4 - 6 (18:00 - 20:00)</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="https://classroom.google.com" target="_blank" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+          <span>🏫</span><span>Vào Google Classroom</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Radar Chart & Tuition Overview -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Dynamic Radar Chart Card -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-between">
+        <div class="w-full flex items-center justify-between mb-2">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Biểu đồ Năng Lực (Radar Chart)</h3>
+            <p class="text-xs text-slate-500">Kết quả đợt thi: Progress Test 02 (690/990)</p>
+          </div>
+          <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-lg">Đạt Target</span>
+        </div>
+
+        <!-- SVG Radar Visualization -->
+        <div class="py-4">
+          <svg width="280" height="280" viewBox="0 0 280 280">
+            <!-- Grid concentric circles -->
+            <polygon points="140,40 240,140 140,240 40,140" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+            <polygon points="140,65 215,140 140,215 65,140" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+            <polygon points="140,90 190,140 140,190 90,140" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+
+            <!-- Axis lines -->
+            <line x1="140" y1="40" x2="140" y2="240" stroke="#cbd5e1" stroke-dasharray="2 2"/>
+            <line x1="40" y1="140" x2="240" y2="140" stroke="#cbd5e1" stroke-dasharray="2 2"/>
+
+            <!-- Performance polygon (Listening 380/495 ~ 76%, Reading 310/495 ~ 62%) -->
+            <polygon points="140,64 216,140 140,216 78,140" fill="rgba(99, 102, 241, 0.3)" stroke="#4f46e5" stroke-width="2.5"/>
+            <circle cx="140" cy="64" r="4" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+            <circle cx="216" cy="140" r="4" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+            <circle cx="140" cy="216" r="4" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+            <circle cx="78" cy="140" r="4" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+
+            <!-- Labels -->
+            <text x="140" y="24" text-anchor="middle" fill="#334155" font-size="11" font-weight="bold">Listening (380/495)</text>
+            <text x="250" y="144" text-anchor="start" fill="#334155" font-size="11" font-weight="bold">Accuracy</text>
+            <text x="140" y="260" text-anchor="middle" fill="#334155" font-size="11" font-weight="bold">Target (550)</text>
+            <text x="28" y="144" text-anchor="end" fill="#334155" font-size="11" font-weight="bold">Reading (310/495)</text>
+          </svg>
+        </div>
+
+        <div class="w-full p-3 bg-indigo-50 rounded-xl text-xs text-indigo-900">
+          <b>Nhận xét của giáo viên:</b> Tiến bộ vượt bậc kỹ năng Listening Part 3 & 4. Cần rèn thêm kỹ năng đọc quét Part 7.
+        </div>
+      </div>
+
+      <!-- Tuition & VietQR Card -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 mb-1">Thông tin Học phí & Thanh toán</h3>
+          <p class="text-xs text-slate-500 mb-5">Thanh toán tự động bằng mã VietQR liên ngân hàng</p>
+
+          <div class="space-y-3 mb-6">
+            <div class="flex justify-between p-3 bg-slate-50 rounded-xl text-xs">
+              <span class="text-slate-500">Tổng học phí khóa học:</span>
+              <span class="font-bold text-slate-800">4,500,000 ₫</span>
+            </div>
+            <div class="flex justify-between p-3 bg-emerald-50 rounded-xl text-xs">
+              <span class="text-emerald-700">Đã hoàn thành:</span>
+              <span class="font-bold text-emerald-700">2,500,000 ₫</span>
+            </div>
+            <div class="flex justify-between p-3 bg-rose-50 rounded-xl text-xs">
+              <span class="text-rose-700">Học phí còn lại:</span>
+              <span class="font-bold text-rose-700">2,000,000 ₫</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-2xl border border-indigo-100 text-center">
+          <p class="text-xs font-semibold text-slate-700 mb-3">Quét mã QR để thanh toán 2,000,000 ₫</p>
+          <button onclick="openVietQrDemo('Nguyễn Văn A', 'TO55001HV01', 2000000)" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/30 transition flex items-center justify-center gap-2">
+            <span>📱</span><span>Mở Mã VietQR Chuyển Khoản</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Attendance and Score Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-900 mb-3">Lịch sử Điểm thi</h3>
+        <table class="w-full text-left text-xs text-slate-600">
+          <thead class="bg-slate-50 text-[11px] uppercase font-bold text-slate-500">
+            <tr>
+              <th class="py-2.5 px-3">Ngày thi</th>
+              <th class="py-2.5 px-3">Đợt thi</th>
+              <th class="py-2.5 px-3 text-right">Tổng điểm</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="py-2.5 px-3">2026-09-25</td>
+              <td class="py-2.5 px-3 font-semibold">Progress Test 02</td>
+              <td class="py-2.5 px-3 text-right font-bold text-indigo-600">690 / 990</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3">2026-09-10</td>
+              <td class="py-2.5 px-3 font-semibold">Entry Test Đầu vào</td>
+              <td class="py-2.5 px-3 text-right font-bold text-slate-700">480 / 990</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-900 mb-3">Nhật ký Điểm danh (Chuyên cần: 95%)</h3>
+        <table class="w-full text-left text-xs text-slate-600">
+          <thead class="bg-slate-50 text-[11px] uppercase font-bold text-slate-500">
+            <tr>
+              <th class="py-2.5 px-3">Ngày học</th>
+              <th class="py-2.5 px-3">Trạng thái</th>
+              <th class="py-2.5 px-3">Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="py-2.5 px-3">2026-10-05</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-bold rounded-full text-[10px]">Có mặt</span></td>
+              <td class="py-2.5 px-3 text-slate-400">Đúng giờ</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3">2026-10-03</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-amber-50 text-amber-700 font-bold rounded-full text-[10px]">Trễ</span></td>
+              <td class="py-2.5 px-3 text-slate-400">Trễ 10 phút</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3">2026-10-01</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-bold rounded-full text-[10px]">Có mặt</span></td>
+              <td class="py-2.5 px-3 text-slate-400">Đúng giờ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== VIETQR MODAL ==================== -->
+  <div id="modalVietQr" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center">
+      <h3 class="text-base font-bold text-slate-900 mb-1">Mã Chuyển Khoản VietQR</h3>
+      <p class="text-xs text-slate-500 mb-4">Quét bằng ứng dụng của bất kỳ ngân hàng nào tại VN</p>
+
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl inline-block mb-4">
+        <img id="vietQrImg" src="" alt="VietQR" class="w-60 h-60 object-contain mx-auto rounded-xl">
+      </div>
+
+      <div class="text-xs text-slate-700 space-y-1 mb-5 text-left bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+        <div><strong>Học viên:</strong> <span id="vietQrStudentName"></span></div>
+        <div><strong>Số tiền:</strong> <span id="vietQrAmount" class="font-bold text-rose-600"></span></div>
+        <div><strong>Ngân hàng:</strong> MBBank (970422)</div>
+        <div><strong>Số tài khoản:</strong> <span class="font-mono font-semibold">0987654321</span></div>
+        <div><strong>Chủ tài khoản:</strong> TRUNG TAM NGOAI NGU</div>
+        <div><strong>Nội dung CK:</strong> <span id="vietQrDesc" class="font-mono text-indigo-600 font-bold"></span></div>
+      </div>
+
+      <button onclick="closeVietQrModal()" class="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold">
+        Đóng / Hoàn tất
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== ADD STUDENT MODAL ==================== -->
+  <div id="modalAddStudent" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+      <h3 class="text-base font-bold text-slate-900 mb-1">Thêm Học Viên Mới</h3>
+      <p class="text-xs text-slate-500 mb-4">Hệ thống tự động sinh ID dựa trên mã lớp học</p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Chọn Lớp</label>
+          <select id="selectClassModal" onchange="autoComputeId()" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-semibold">
+            <option value="TO55001">TO55001 - TOEIC Target 550</option>
+            <option value="IE65001">IE65001 - IELTS Intensive 6.5</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Mã Học Viên Tự Động (Auto-ID)</label>
+          <input type="text" id="inputAutoId" value="TO55001HV03" class="w-full px-3 py-2 bg-slate-100 border rounded-xl text-xs font-mono font-bold text-indigo-700" readonly>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Họ và tên *</label>
+          <input type="text" id="inputFullName" placeholder="e.g. Lê Văn C" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Email *</label>
+          <input type="email" id="inputEmail" placeholder="student@gmail.com" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModalAddStudent()" class="flex-1 py-2 border rounded-xl text-xs font-semibold">Hủy</button>
+          <button onclick="confirmAddStudent()" class="flex-1 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Lưu Học Viên</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // In-memory data store for the live prototype
+    let students = [
+      { id: "TO55001HV01", name: "Nguyễn Văn A", email: "nguyenvana@gmail.com", phone: "0912 345 678", classCode: "TO55001", className: "TOEIC Target 550", debt: 2000000, status: "Đang học" },
+      { id: "TO55001HV02", name: "Trần Thị B", email: "tranthib@gmail.com", phone: "0987 654 321", classCode: "TO55001", className: "TOEIC Target 550", debt: 0, status: "Đang học" },
+      { id: "IE65001HV01", name: "Hoàng Minh C", email: "hoangminhc@gmail.com", phone: "0909 112 233", classCode: "IE65001", className: "IELTS Intensive 6.5", debt: 4500000, status: "Đang học" }
+    ];
+
+    function renderStudents() {
+      const tbody = document.getElementById("studentTableBody");
+      tbody.innerHTML = students.map(s => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-mono font-bold text-indigo-700">${s.id}</td>
+          <td class="py-3 px-4 font-bold text-slate-800">${s.name}</td>
+          <td class="py-3 px-4 text-slate-500">${s.email}<br><span class="text-slate-400">${s.phone}</span></td>
+          <td class="py-3 px-4 font-semibold text-slate-700">${s.classCode} - ${s.className}</td>
+          <td class="py-3 px-4">
+            ${s.debt > 0 
+              ? `<span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-100 rounded-full font-bold">Nợ: ${s.debt.toLocaleString('vi-VN')} ₫</span>` 
+              : `<span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full font-bold">Đã xong</span>`}
+          </td>
+          <td class="py-3 px-4">
+            <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full font-semibold">${s.status}</span>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    // Portal Switching
+    function switchPortal(portal) {
+      const viewAdmin = document.getElementById("viewAdmin");
+      const viewStudent = document.getElementById("viewStudent");
+      const btnAdmin = document.getElementById("btnPortalAdmin");
+      const btnStudent = document.getElementById("btnPortalStudent");
+
+      if (portal === "admin") {
+        viewAdmin.classList.remove("hidden");
+        viewStudent.classList.add("hidden");
+        btnAdmin.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm transition";
+        btnStudent.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition";
+      } else {
+        viewAdmin.classList.add("hidden");
+        viewStudent.classList.remove("hidden");
+        btnStudent.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm transition";
+        btnAdmin.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition";
+      }
+    }
+
+    // Admin Tab Switching
+    function switchAdminTab(tabName) {
+      const tabs = ["students", "classes", "attendance", "scores", "finance", "reports"];
+      tabs.forEach(t => {
+        const sec = document.getElementById("adminTab_" + t);
+        const btn = document.getElementById("adminTabBtn_" + t);
+        if (t === tabName) {
+          sec.classList.remove("hidden");
+          btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm transition";
+        } else {
+          sec.classList.add("hidden");
+          btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition";
+        }
+      });
+    }
+
+    // VietQR Modal Trigger
+    function openVietQrDemo(name, id, amount) {
+      const desc = `HP ${id}`;
+      const url = `https://img.vietqr.io/image/MB-0987654321-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(desc)}&accountName=TRUNG%20TAM%20NGOAI%20NGU`;
+      document.getElementById("vietQrImg").src = url;
+      document.getElementById("vietQrStudentName").innerText = name;
+      document.getElementById("vietQrAmount").innerText = amount.toLocaleString("vi-VN") + " ₫";
+      document.getElementById("vietQrDesc").innerText = desc;
+      document.getElementById("modalVietQr").classList.remove("hidden");
+    }
+
+    function closeVietQrModal() {
+      document.getElementById("modalVietQr").classList.add("hidden");
+    }
+
+    // Add Student Modal Logic
+    function openModalAddStudent() {
+      autoComputeId();
+      document.getElementById("modalAddStudent").classList.remove("hidden");
+    }
+
+    function closeModalAddStudent() {
+      document.getElementById("modalAddStudent").classList.add("hidden");
+    }
+
+    function autoComputeId() {
+      const selClass = document.getElementById("selectClassModal").value;
+      const count = students.filter(s => s.classCode === selClass).length + 1;
+      const nextId = `${selClass}HV${count.toString().padStart(2, "0")}`;
+      document.getElementById("inputAutoId").value = nextId;
+    }
+
+    function confirmAddStudent() {
+      const name = document.getElementById("inputFullName").value.trim();
+      const email = document.getElementById("inputEmail").value.trim();
+      const classCode = document.getElementById("selectClassModal").value;
+      const id = document.getElementById("inputAutoId").value;
+
+      if (!name || !email) {
+        alert("Vui lòng nhập họ tên và email!");
+        return;
+      }
+
+      students.push({
+        id,
+        name,
+        email,
+        phone: "0900 000 000",
+        classCode,
+        className: classCode === "TO55001" ? "TOEIC Target 550" : "IELTS Intensive 6.5",
+        debt: classCode === "TO55001" ? 4500000 : 8500000,
+        status: "Đang học"
+      });
+
+      renderStudents();
+      closeModalAddStudent();
+      alert(`Đã tạo thành công học viên ${name} với mã ${id}!`);
+    }
+
+    // Init
+    renderStudents();
+  </script>
+</body>
+</html>
