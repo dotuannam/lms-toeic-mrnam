@@ -736,9 +736,9 @@ export const StudentsPage = () => {
                         <option value="TARGET_650">3. Target 650+ - 16 buổi (100.000đ/buổi - 1.600.000đ)</option>
                       </optgroup>
                       <optgroup label={lang === "vi" ? "--- COMBO LỘ TRÌNH (BULK DISCOUNT 1) ---" : "--- COMBO PACKAGES ---"}>
-                        <option value="COMBO_FO_550">Combo 2 khóa: Foundation + Target 550 (48b - Giảm 10% -> 3.240.000đ)</option>
-                        <option value="COMBO_550_650">Combo 2 khóa: Target 550 + Target 650+ (40b - Giảm 10% -> 3.168.000đ)</option>
-                        <option value="COMBO_FULL_3">Combo 3 khóa: Trọn lộ trình Foundation->650+ (64b - Giảm 15% -> 4.420.000đ)</option>
+                        <option value="COMBO_FO_550">Combo 2 khóa: Foundation + Target 550 (48b - Giảm 10% → 3.240.000đ)</option>
+                        <option value="COMBO_550_650">Combo 2 khóa: Target 550 + Target 650+ (40b - Giảm 10% → 3.168.000đ)</option>
+                        <option value="COMBO_FULL_3">Combo 3 khóa: Trọn lộ trình Foundation → 650+ (64b - Giảm 15% → 4.420.000đ)</option>
                         <option value="CUSTOM">Khóa khác (TOSW / APTIS / IELTS - Nhập tay)</option>
                       </optgroup>
                     </select>
