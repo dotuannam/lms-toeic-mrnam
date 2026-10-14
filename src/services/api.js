@@ -16,10 +16,18 @@ export const getActiveGasConfig = () => {
       }
     }
   } catch (e) {}
-  return {
-    webAppUrl: (import.meta.env.VITE_GAS_API_URL || "https://script.google.com/macros/s/AKfycbxxzJsYWS8O6BirSoUEvuPGC53EP2HD-5lRD4UhpM-X6UdKtVADjx3_VXzsi8INGJQ/exec").trim(),
-    apiSecret: (import.meta.env.VITE_GAS_API_SECRET || "TheArchangel").trim(),
-  };
+  const envUrl = import.meta.env.VITE_GAS_API_URL;
+  const envSecret = import.meta.env.VITE_GAS_API_SECRET;
+  const webAppUrl =
+    envUrl && !envUrl.includes("YOUR_SCRIPT_ID_HERE")
+      ? envUrl.trim()
+      : "https://script.google.com/macros/s/AKfycbxxzJsYWS8O6BirSoUEvuPGC53EP2HD-5lRD4UhpM-X6UdKtVADjx3_VXzsi8INGJQ/exec";
+  const apiSecret =
+    envSecret && !envSecret.includes("your_secret_passphrase")
+      ? envSecret.trim()
+      : "TheArchangel";
+
+  return { webAppUrl, apiSecret };
 };
 
 /**

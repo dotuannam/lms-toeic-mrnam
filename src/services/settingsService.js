@@ -353,9 +353,18 @@ export const saveTeachingShifts = async (shiftsList) => {
 const GAS_CONFIG_DOC_ID = "gas_config";
 const LOCAL_GAS_CONFIG_KEY = "lms_gas_config_cache";
 
+const envGasUrl = import.meta.env.VITE_GAS_API_URL;
+const envGasSecret = import.meta.env.VITE_GAS_API_SECRET;
+
 export const DEFAULT_GAS_CONFIG = {
-  webAppUrl: import.meta.env.VITE_GAS_API_URL || "https://script.google.com/macros/s/AKfycbxxzJsYWS8O6BirSoUEvuPGC53EP2HD-5lRD4UhpM-X6UdKtVADjx3_VXzsi8INGJQ/exec",
-  apiSecret: import.meta.env.VITE_GAS_API_SECRET || "TheArchangel",
+  webAppUrl:
+    envGasUrl && !envGasUrl.includes("YOUR_SCRIPT_ID_HERE")
+      ? envGasUrl.trim()
+      : "https://script.google.com/macros/s/AKfycbxxzJsYWS8O6BirSoUEvuPGC53EP2HD-5lRD4UhpM-X6UdKtVADjx3_VXzsi8INGJQ/exec",
+  apiSecret:
+    envGasSecret && !envGasSecret.includes("your_secret_passphrase")
+      ? envGasSecret.trim()
+      : "TheArchangel",
 };
 
 export const getLocalGasConfig = () => {
