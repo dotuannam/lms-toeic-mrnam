@@ -1,0 +1,8 @@
+{
+  "name": "LMS TOEIC Mr Nam",
+  "description": "Learning Management System for TOEIC classes, student tracking, attendance, scores, and class management.",
+  "requestFeedback": false,
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

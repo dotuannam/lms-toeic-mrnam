@@ -9,6 +9,16 @@ import {
 } from "../../services/studentService";
 import { subscribeClasses } from "../../services/classService";
 import { generateStudentId, formatPhoneNumber } from "../../utils/idGenerator";
+import {
+  PRICING_PACKAGES,
+  SINGLE_COURSES,
+  COMBO_PACKAGES,
+  GROUP_DISCOUNTS,
+  REFERRAL_UPGRADE_REWARDS,
+  PROFIT_GUARDRAILS,
+  calculateTuitionBreakdown,
+  detectPackageFromClassCode,
+} from "../../constants/pricingPolicy";
 
 export const StudentsPage = () => {
   const { t, lang } = useLanguage();
@@ -31,10 +41,19 @@ export const StudentsPage = () => {
     classId: "",
     status: "active",
     sendClassroomInvite: true,
+    packageCode: "FOUNDATION",
+    customBaseFee: 1680000,
+    customSessions: 24,
+    groupDiscountType: "NONE",
+    isReferredByOldStudent: false,
+    referrerCode: "",
+    referrerUpgradeRewardType: "NONE",
     tuitionStatus: "completed", // "completed" | "debt" | "installment"
-    tuitionFee: 0,
-    paidAmount: 0,
+    tuitionFee: 1680000,
+    paidAmount: 1680000,
     installmentNote: "",
+    referralCount: 0,
+    referralCreditsAvailable: 0,
   });
 
   useEffect(() => {
@@ -52,6 +71,17 @@ export const StudentsPage = () => {
     };
   }, []);
 
+  // Compute live breakdown based on current formData
+  const activeBreakdown = calculateTuitionBreakdown({
+    packageCode: formData.packageCode,
+    customBaseFee: formData.customBaseFee,
+    customSessions: formData.customSessions,
+    groupDiscountType: formData.groupDiscountType,
+    isReferredByOldStudent: formData.isReferredByOldStudent,
+    referrerCode: formData.referrerCode,
+    referrerUpgradeRewardType: formData.referrerUpgradeRewardType,
+  });
+
   const handleClassSelectionChange = (selectedClassId) => {
     const selectedClass = classes.find((c) => c.classId === selectedClassId);
     let nextId = formData.studentId;
@@ -61,13 +91,48 @@ export const StudentsPage = () => {
       nextId = generateStudentId(selectedClass.code, allStudentIds);
     }
 
-    const classFee = selectedClass?.tuitionFee || 0;
+    const detectedPkg = selectedClass ? detectPackageFromClassCode(selectedClass.code) : "FOUNDATION";
+    const newBreakdown = calculateTuitionBreakdown({
+      packageCode: detectedPkg,
+      customBaseFee: selectedClass?.tuitionFee || 0,
+      customSessions: 24,
+      groupDiscountType: formData.groupDiscountType || "NONE",
+      isReferredByOldStudent: formData.isReferredByOldStudent,
+      referrerCode: formData.referrerCode,
+      referrerUpgradeRewardType: formData.referrerUpgradeRewardType,
+    });
+
     setFormData((prev) => ({
       ...prev,
       classId: selectedClassId,
       studentId: nextId,
-      tuitionFee: classFee,
-      paidAmount: prev.tuitionStatus === "completed" ? classFee : prev.paidAmount,
+      packageCode: detectedPkg,
+      customBaseFee: newBreakdown.baseFee,
+      customSessions: newBreakdown.sessions,
+      tuitionFee: newBreakdown.totalFee,
+      paidAmount: prev.tuitionStatus === "completed" ? newBreakdown.totalFee : prev.paidAmount,
+    }));
+  };
+
+  const handlePackageChange = (newPackageCode) => {
+    const pkg = PRICING_PACKAGES[newPackageCode] || PRICING_PACKAGES.FOUNDATION;
+    const newBreakdown = calculateTuitionBreakdown({
+      packageCode: newPackageCode,
+      customBaseFee: pkg.baseFee,
+      customSessions: pkg.sessions,
+      groupDiscountType: formData.groupDiscountType,
+      isReferredByOldStudent: formData.isReferredByOldStudent,
+      referrerCode: formData.referrerCode,
+      referrerUpgradeRewardType: formData.referrerUpgradeRewardType,
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      packageCode: newPackageCode,
+      customBaseFee: pkg.baseFee,
+      customSessions: pkg.sessions,
+      tuitionFee: newBreakdown.totalFee,
+      paidAmount: prev.tuitionStatus === "completed" ? newBreakdown.totalFee : prev.paidAmount,
     }));
   };
 
@@ -79,7 +144,16 @@ export const StudentsPage = () => {
       ? generateStudentId(defaultClass.code, allStudentIds)
       : generateStudentId("GEN", allStudentIds);
 
-    const defaultFee = defaultClass?.tuitionFee || 0;
+    const detectedPkg = defaultClass ? detectPackageFromClassCode(defaultClass.code) : "FOUNDATION";
+    const initialBreakdown = calculateTuitionBreakdown({
+      packageCode: detectedPkg,
+      customBaseFee: defaultClass?.tuitionFee || 0,
+      customSessions: 24,
+      groupDiscountType: "NONE",
+      isReferredByOldStudent: false,
+      referrerCode: "",
+      referrerUpgradeRewardType: "NONE",
+    });
 
     setFormData({
       studentId: initialId,
@@ -90,16 +164,42 @@ export const StudentsPage = () => {
       classId: defaultClass ? defaultClass.classId : "",
       status: "active",
       sendClassroomInvite: true,
+      packageCode: detectedPkg,
+      customBaseFee: initialBreakdown.baseFee,
+      customSessions: initialBreakdown.sessions,
+      groupDiscountType: "NONE",
+      isReferredByOldStudent: false,
+      referrerCode: "",
+      referrerUpgradeRewardType: "NONE",
       tuitionStatus: "completed",
-      tuitionFee: defaultFee,
-      paidAmount: defaultFee,
+      tuitionFee: initialBreakdown.totalFee,
+      paidAmount: initialBreakdown.totalFee,
       installmentNote: "",
+      referralCount: 0,
+      referralCreditsAvailable: 0,
     });
     setShowModal(true);
   };
 
   const openEditModal = (std) => {
     setEditingStudent(std);
+    const overview = std.tuitionOverview || {};
+    const pkgCode = overview.packageCode || "FOUNDATION";
+    const grp = overview.groupDiscountType || "NONE";
+    const isRef = Boolean(overview.isReferredByOldStudent);
+    const refCode = overview.referrerCode || "";
+    const refUp = overview.referrerUpgradeRewardType || "NONE";
+
+    const initialBreakdown = calculateTuitionBreakdown({
+      packageCode: pkgCode,
+      customBaseFee: overview.baseFee || overview.totalAmount || 0,
+      customSessions: overview.sessions || 24,
+      groupDiscountType: grp,
+      isReferredByOldStudent: isRef,
+      referrerCode: refCode,
+      referrerUpgradeRewardType: refUp,
+    });
+
     setFormData({
       studentId: std.studentId,
       fullName: std.fullName || "",
@@ -109,10 +209,19 @@ export const StudentsPage = () => {
       classId: std.currentClassIds?.[0] || "",
       status: std.status || "active",
       sendClassroomInvite: false,
-      tuitionStatus: std.tuitionOverview?.tuitionStatus || "completed",
-      tuitionFee: std.tuitionOverview?.totalAmount || 0,
-      paidAmount: std.tuitionOverview?.paidAmount || 0,
+      packageCode: pkgCode,
+      customBaseFee: overview.baseFee || initialBreakdown.baseFee,
+      customSessions: overview.sessions || initialBreakdown.sessions,
+      groupDiscountType: grp,
+      isReferredByOldStudent: isRef,
+      referrerCode: refCode,
+      referrerUpgradeRewardType: refUp,
+      tuitionStatus: overview.tuitionStatus || "completed",
+      tuitionFee: overview.totalFee ?? overview.totalAmount ?? initialBreakdown.totalFee,
+      paidAmount: overview.paidAmount ?? overview.paid ?? 0,
       installmentNote: "",
+      referralCount: std.referralCount || 0,
+      referralCreditsAvailable: std.referralCreditsAvailable || 0,
     });
     setShowModal(true);
   };
@@ -131,6 +240,48 @@ export const StudentsPage = () => {
           phone: formData.phone,
           dob: formData.dob,
           status: formData.status,
+          tuitionOverview: {
+            ...(editingStudent.tuitionOverview || {}),
+            packageCode: activeBreakdown.packageCode,
+            packageName: activeBreakdown.packageName,
+            sessions: activeBreakdown.sessions,
+            baseFee: activeBreakdown.baseFee,
+            comboDiscountPct: activeBreakdown.comboDiscountPct,
+            groupDiscountType: activeBreakdown.groupDiscountType,
+            groupDiscountPct: activeBreakdown.groupDiscountPct,
+            isReferredByOldStudent: activeBreakdown.isReferredByOldStudent,
+            referrerCode: activeBreakdown.referrerCode,
+            referrerUpgradeRewardType: activeBreakdown.referrerUpgradeRewardType,
+            totalDiscountAmount: activeBreakdown.totalDiscountAmount,
+            effectivePricePerSession: activeBreakdown.effectivePricePerSession,
+            isCappedAt20Pct: activeBreakdown.isCappedAt20Pct,
+            isFloorEnforced: activeBreakdown.isFloorEnforced,
+            totalFee: activeBreakdown.totalFee,
+            totalAmount: activeBreakdown.totalFee,
+            tuitionStatus: formData.tuitionStatus,
+            paidAmount:
+              formData.tuitionStatus === "completed"
+                ? activeBreakdown.totalFee
+                : Number(formData.paidAmount) || 0,
+            paid:
+              formData.tuitionStatus === "completed"
+                ? activeBreakdown.totalFee
+                : Number(formData.paidAmount) || 0,
+            totalDebt: Math.max(
+              0,
+              activeBreakdown.totalFee -
+                (formData.tuitionStatus === "completed"
+                  ? activeBreakdown.totalFee
+                  : Number(formData.paidAmount) || 0)
+            ),
+            debt: Math.max(
+              0,
+              activeBreakdown.totalFee -
+                (formData.tuitionStatus === "completed"
+                  ? activeBreakdown.totalFee
+                  : Number(formData.paidAmount) || 0)
+            ),
+          },
         });
       } else {
         await createStudent(
@@ -142,12 +293,20 @@ export const StudentsPage = () => {
             dob: formData.dob,
             status: formData.status,
             tuitionStatus: formData.tuitionStatus,
-            tuitionFee: Number(formData.tuitionFee) || 0,
+            tuitionFee: activeBreakdown.totalFee,
             paidAmount:
               formData.tuitionStatus === "completed"
-                ? Number(formData.tuitionFee) || 0
+                ? activeBreakdown.totalFee
                 : Number(formData.paidAmount) || 0,
             installmentNote: formData.installmentNote || "",
+            packageCode: activeBreakdown.packageCode,
+            baseFee: activeBreakdown.baseFee,
+            sessions: activeBreakdown.sessions,
+            groupDiscountType: activeBreakdown.groupDiscountType,
+            isReferredByOldStudent: activeBreakdown.isReferredByOldStudent,
+            referrerCode: activeBreakdown.referrerCode,
+            referrerUpgradeRewardType: activeBreakdown.referrerUpgradeRewardType,
+            pricingBreakdown: activeBreakdown,
           },
           selectedClass,
           formData.sendClassroomInvite
@@ -271,8 +430,28 @@ export const StudentsPage = () => {
                           {std.studentId}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 font-semibold text-slate-900">
-                        {std.fullName}
+                      <td className="py-3.5 px-4">
+                        <div className="font-semibold text-slate-900 flex items-center gap-1.5 flex-wrap">
+                          <span>{std.fullName}</span>
+                          {(std.referralCount > 0 || std.referralCreditsAvailable > 0) && (
+                            <span
+                              className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 font-bold border border-amber-200"
+                              title={`Đã giới thiệu ${std.referralCount || 0} học viên (${std.referralCreditsAvailable || 0} lượt thưởng khả dụng)`}
+                            >
+                              👑 {std.referralCount || 0} GT ({std.referralCreditsAvailable || 0} khả dụng)
+                            </span>
+                          )}
+                        </div>
+                        {std.tuitionOverview?.packageCode && (
+                          <div className="text-[11px] text-[#00b4d8] font-medium mt-0.5">
+                            🏷️ {std.tuitionOverview.packageName || std.tuitionOverview.packageCode}
+                            {std.tuitionOverview.effectivePricePerSession ? (
+                              <span className="text-slate-400 ml-1">
+                                ({std.tuitionOverview.effectivePricePerSession.toLocaleString("vi-VN")}đ/b)
+                              </span>
+                            ) : null}
+                          </div>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 text-xs text-slate-500">
                         <div>{std.email}</div>
@@ -523,162 +702,385 @@ export const StudentsPage = () => {
                 </div>
               </div>
 
-              {!editingStudent && formData.classId && (
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-heading font-bold text-slate-800 uppercase tracking-wide">
-                      {lang === "vi" ? "Tình trạng học phí" : "Tuition Payment Status"}
-                    </label>
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      {lang === "vi" ? "Ghi danh khóa học" : "Enrollment"}
+              {/* SMART PRICING & DISCOUNT CALCULATOR (PHƯƠNG ÁN B - PHÂN TẦNG) */}
+              {formData.classId && (
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
+                    <div>
+                      <h4 className="text-xs font-heading font-extrabold text-[#1e2738] uppercase tracking-wider flex items-center gap-1.5">
+                        <span>🏷️</span>
+                        <span>{lang === "vi" ? "Chính sách Học phí & Ưu đãi Phân tầng" : "Tiered Pricing & Discount Engine"}</span>
+                      </h4>
+                      <p className="text-[11px] text-slate-500">
+                        {lang === "vi" ? "Phương án B: Bảo toàn đơn giá sàn >= 56.000đ/buổi, trần giảm tối đa 20%" : "Method B: Profit guardrails enforced"}
+                      </p>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 uppercase">
+                      {formData.packageCode}
                     </span>
                   </div>
 
-                  {/* 3 Status choices: Completed, Debt, Installment */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const fee = Number(formData.tuitionFee) || 0;
-                        setFormData((prev) => ({
-                          ...prev,
-                          tuitionStatus: "completed",
-                          paidAmount: fee,
-                        }));
-                      }}
-                      className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 border ${
-                        formData.tuitionStatus === "completed"
-                          ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
-                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
-                      }`}
-                    >
-                      <span>✓</span>
-                      <span>{lang === "vi" ? "Đã hoàn tất" : "Completed"}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          tuitionStatus: "debt",
-                          paidAmount: 0,
-                        }));
-                      }}
-                      className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 border ${
-                        formData.tuitionStatus === "debt"
-                          ? "bg-rose-600 text-white border-rose-600 shadow-sm"
-                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
-                      }`}
-                    >
-                      <span>⚠️</span>
-                      <span>{lang === "vi" ? "Còn nợ" : "Debt"}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const fee = Number(formData.tuitionFee) || 0;
-                        setFormData((prev) => ({
-                          ...prev,
-                          tuitionStatus: "installment",
-                          paidAmount: prev.paidAmount > 0 ? prev.paidAmount : Math.round(fee / 2),
-                        }));
-                      }}
-                      className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 border ${
-                        formData.tuitionStatus === "installment"
-                          ? "bg-amber-500 text-white border-amber-500 shadow-sm"
-                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
-                      }`}
-                    >
-                      <span>💳</span>
-                      <span>{lang === "vi" ? "Trả góp" : "Installment"}</span>
-                    </button>
-                  </div>
-
-                  {/* Fee input */}
+                  {/* 1. Chọn Gói Học (packageCode) */}
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">
-                      {lang === "vi" ? "Học phí trọn khóa (VNĐ)" : "Course Tuition Fee (VND)"}
+                    <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wide mb-1">
+                      1. {lang === "vi" ? "Chọn Gói Học & Lộ trình (Package):" : "Select Course / Combo Package:"}
                     </label>
-                    <input
-                      type="number"
-                      value={formData.tuitionFee}
-                      onChange={(e) => {
-                        const val = Number(e.target.value) || 0;
-                        setFormData((prev) => ({
-                          ...prev,
-                          tuitionFee: val,
-                          paidAmount: prev.tuitionStatus === "completed" ? val : prev.paidAmount,
-                        }));
-                      }}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
-                    />
+                    <select
+                      value={formData.packageCode}
+                      onChange={(e) => handlePackageChange(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    >
+                      <optgroup label={lang === "vi" ? "--- KHÓA LẺ (SINGLE COURSES) ---" : "--- SINGLE COURSES ---"}>
+                        <option value="FOUNDATION">1. Foundation - 24 buổi (70.000đ/buổi - 1.680.000đ)</option>
+                        <option value="TARGET_550">2. Target 550 - 24 buổi (80.000đ/buổi - 1.920.000đ)</option>
+                        <option value="TARGET_650">3. Target 650+ - 16 buổi (100.000đ/buổi - 1.600.000đ)</option>
+                      </optgroup>
+                      <optgroup label={lang === "vi" ? "--- COMBO LỘ TRÌNH (BULK DISCOUNT 1) ---" : "--- COMBO PACKAGES ---"}>
+                        <option value="COMBO_FO_550">Combo 2 khóa: Foundation + Target 550 (48b - Giảm 10% -> 3.240.000đ)</option>
+                        <option value="COMBO_550_650">Combo 2 khóa: Target 550 + Target 650+ (40b - Giảm 10% -> 3.168.000đ)</option>
+                        <option value="COMBO_FULL_3">Combo 3 khóa: Trọn lộ trình Foundation->650+ (64b - Giảm 15% -> 4.420.000đ)</option>
+                        <option value="CUSTOM">Khóa khác (TOSW / APTIS / IELTS - Nhập tay)</option>
+                      </optgroup>
+                    </select>
                   </div>
 
-                  {/* If Debt or Installment: Show Paid amount & Remaining balance */}
-                  {formData.tuitionStatus !== "completed" && (
-                    <>
+                  {/* Custom course fields if CUSTOM */}
+                  {formData.packageCode === "CUSTOM" && (
+                    <div className="grid grid-cols-2 gap-3 p-3 bg-white border border-slate-200 rounded-xl">
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">
-                          {formData.tuitionStatus === "installment"
-                            ? lang === "vi"
-                              ? "Số tiền đóng đợt 1 / đặt cọc (VNĐ)"
-                              : "Initial Payment / Deposit (VND)"
-                            : lang === "vi"
-                            ? "Số tiền đã trả trước (nếu có) (VNĐ)"
-                            : "Prepaid Amount (if any) (VND)"}
+                        <label className="block text-[10px] font-semibold text-slate-600 uppercase mb-1">
+                          {lang === "vi" ? "Học phí gốc (VNĐ)" : "Base Fee (VND)"}
                         </label>
                         <input
                           type="number"
-                          value={formData.paidAmount}
+                          value={formData.customBaseFee}
                           onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, paidAmount: Number(e.target.value) || 0 }))
+                            setFormData((prev) => ({ ...prev, customBaseFee: Number(e.target.value) || 0 }))
                           }
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
                         />
                       </div>
-
-                      {/* Dynamic Remaining Balance Badge with revenue note */}
-                      <div className="p-3 bg-amber-50/90 border border-amber-200 rounded-xl space-y-1">
-                        <div className="flex items-center justify-between text-xs font-bold text-amber-900">
-                          <span>{lang === "vi" ? "Số tiền còn lại (Còn nợ):" : "Remaining Balance (Debt):"}</span>
-                          <span className="text-rose-600 font-extrabold text-sm">
-                            {Math.max(
-                              0,
-                              (Number(formData.tuitionFee) || 0) - (Number(formData.paidAmount) || 0)
-                            ).toLocaleString("vi-VN")}{" "}
-                            ₫
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-amber-800 leading-tight">
-                          🛡️{" "}
-                          {lang === "vi"
-                            ? "Quy tắc tài chính: Số tiền còn nợ sẽ KHÔNG được tính vào doanh thu trung tâm cho đến khi hoàn tất."
-                            : "Financial Rule: Remaining debt will NOT be counted into center revenue until paid."}
-                        </p>
-                      </div>
-
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">
-                          {lang === "vi" ? "Ghi chú kỳ hạn đóng / Trả góp" : "Installment Note / Due Date"}
+                        <label className="block text-[10px] font-semibold text-slate-600 uppercase mb-1">
+                          {lang === "vi" ? "Số buổi học" : "Sessions"}
                         </label>
                         <input
-                          type="text"
-                          placeholder={
-                            lang === "vi"
-                              ? "VD: Đợt 2 hạn chót ngày 15/10/2026..."
-                              : "e.g. Next installment due on Oct 15, 2026..."
-                          }
-                          value={formData.installmentNote}
+                          type="number"
+                          value={formData.customSessions}
                           onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, installmentNote: e.target.value }))
+                            setFormData((prev) => ({ ...prev, customSessions: Number(e.target.value) || 1 }))
                           }
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
                         />
                       </div>
-                    </>
+                    </div>
                   )}
+
+                  {/* 2. Ưu đãi Nhóm (Bulk Discount 2) */}
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wide mb-1.5">
+                      2. {lang === "vi" ? "Ưu đãi đăng ký theo Nhóm (Bulk Discount 2):" : "Group Discount:"}
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {Object.values(GROUP_DISCOUNTS).map((grp) => {
+                        const isSelected = formData.groupDiscountType === grp.code;
+                        return (
+                          <button
+                            key={grp.code}
+                            type="button"
+                            onClick={() => setFormData((prev) => ({ ...prev, groupDiscountType: grp.code }))}
+                            className={`py-2 px-2 rounded-xl text-xs font-heading font-bold transition flex flex-col items-center justify-center border ${
+                              isSelected
+                                ? "bg-[#1e2738] text-white border-[#1e2738] shadow-sm"
+                                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                            }`}
+                          >
+                            <span>{grp.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 3. Ưu đãi Học viên mới (Referral - New Student) */}
+                  <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.isReferredByOldStudent}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            isReferredByOldStudent: e.target.checked,
+                            referrerCode: e.target.checked ? prev.referrerCode : "",
+                          }))
+                        }
+                        className="w-4 h-4 text-[#00b4d8] rounded focus:ring-[#00b4d8]"
+                      />
+                      <span className="text-xs font-heading font-bold text-slate-800 uppercase tracking-wide">
+                        3. {lang === "vi" ? "Có HV cũ giới thiệu (-5% học phí)" : "Referred by old student (-5%)"}
+                      </span>
+                    </label>
+
+                    {formData.isReferredByOldStudent && (
+                      <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                        <label className="block text-[11px] font-semibold text-slate-600">
+                          {lang === "vi" ? "Mã Học viên người giới thiệu (referrerCode):" : "Referrer Student Code:"}
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="VD: TO55001HV01..."
+                            value={formData.referrerCode}
+                            onChange={(e) =>
+                              setFormData((prev) => ({ ...prev, referrerCode: e.target.value.toUpperCase() }))
+                            }
+                            className="flex-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-[#1e2738] uppercase"
+                          />
+                          {students.length > 0 && (
+                            <select
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  setFormData((prev) => ({ ...prev, referrerCode: e.target.value }));
+                                }
+                              }}
+                              className="px-2 py-1.5 bg-slate-100 border border-slate-200 rounded-lg text-xs text-slate-700 max-w-[150px]"
+                            >
+                              <option value="">{lang === "vi" ? "Chọn HV cũ..." : "Pick student..."}</option>
+                              {students.map((s) => (
+                                <option key={s.studentId} value={s.studentId}>
+                                  {s.studentId} - {s.fullName}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-emerald-600 font-medium">
+                          💡 {lang === "vi" ? "Khi ghi danh thành công, học viên giới thiệu sẽ tự động được tích lũy 1 lượt thưởng (referralCount +1) để dùng khi học lên khóa sau!" : "Referrer will be credited +1 referral reward point automatically."}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4. Quyền lợi Người giới thiệu học lên khóa sau (Referral Upgrade) */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wide">
+                        4. {lang === "vi" ? "Quyền lợi Người giới thiệu học lên khóa sau:" : "Referral Reward Upgrade:"}
+                      </label>
+                      {formData.referralCreditsAvailable > 0 && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                          🎁 {formData.referralCreditsAvailable} {lang === "vi" ? "lượt khả dụng" : "available"}
+                        </span>
+                      )}
+                    </div>
+                    <select
+                      value={formData.referrerUpgradeRewardType}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, referrerUpgradeRewardType: e.target.value }))
+                      }
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    >
+                      <option value="NONE">{lang === "vi" ? "Không áp dụng" : "None"}</option>
+                      <option value="PERCENT_5">{lang === "vi" ? "Dùng thưởng 5% (-5% học phí)" : "Use 5% discount"}</option>
+                      <option value="FLAT_100K">{lang === "vi" ? "Dùng thưởng 100.000đ (-100.000đ trực tiếp)" : "Use 100,000 VND flat deduction"}</option>
+                    </select>
+                  </div>
+
+                  {/* 5. Real-time Guardrail & Summary Box */}
+                  <div className="p-3.5 bg-gradient-to-br from-slate-900 to-[#1e2738] text-white rounded-xl space-y-2.5 shadow-sm">
+                    <div className="flex items-center justify-between text-xs border-b border-white/10 pb-2">
+                      <span className="text-slate-300">{lang === "vi" ? "Học phí gốc:" : "Base Fee:"}</span>
+                      <span className="font-bold font-mono">
+                        {activeBreakdown.baseFee.toLocaleString("vi-VN")} ₫ ({activeBreakdown.sessions} {lang === "vi" ? "buổi" : "sessions"})
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-300">{lang === "vi" ? "Tổng mức giảm & Tiết kiệm:" : "Discount & Savings:"}</span>
+                      <div className="text-right">
+                        <span className="font-bold text-amber-300 mr-2">
+                          -{activeBreakdown.rawPercentDiscount}%
+                          {activeBreakdown.useFlat100kReward ? " + 100k" : ""}
+                        </span>
+                        <span className="font-bold font-mono text-emerald-400">
+                          (-{activeBreakdown.totalDiscountAmount.toLocaleString("vi-VN")} ₫)
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-300">{lang === "vi" ? "Đơn giá thực tế TB/buổi:" : "Effective per Session:"}</span>
+                      <span className={`font-bold font-mono ${activeBreakdown.effectivePricePerSession >= 56000 ? "text-cyan-300" : "text-rose-400"}`}>
+                        {activeBreakdown.effectivePricePerSession.toLocaleString("vi-VN")} ₫/buổi
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm font-heading font-extrabold pt-2 border-t border-white/10 text-white">
+                      <span className="uppercase tracking-wider">{lang === "vi" ? "Học phí thực thu (totalFee):" : "Final Tuition Due:"}</span>
+                      <span className="text-xl text-[#00b4d8] font-mono">
+                        {activeBreakdown.totalFee.toLocaleString("vi-VN")} ₫
+                      </span>
+                    </div>
+
+                    {/* Warning Guardrail: 20% Max Discount Cap */}
+                    {activeBreakdown.isCappedAt20Pct && (
+                      <div className="p-2 bg-amber-500/20 border border-amber-400/40 rounded-lg text-[11px] text-amber-200 flex items-start gap-1.5">
+                        <span className="shrink-0 text-sm">⚠️</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Đã chạm trần ưu đãi tối đa 20%/HV (Đơn giá bảo toàn >= 56.000đ/buổi theo quy chuẩn trung tâm)."
+                            : "Hit max 20% discount cap. Session rate preserved >= 56,000 VND."}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Floor price enforced notice */}
+                    {activeBreakdown.isFloorEnforced && (
+                      <div className="p-2 bg-cyan-500/20 border border-cyan-400/40 rounded-lg text-[11px] text-cyan-200 flex items-start gap-1.5">
+                        <span className="shrink-0 text-sm">🛡️</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Đã kích hoạt bảo toàn giá sàn 56.000đ/buổi để đảm bảo biên lợi nhuận lớp."
+                            : "Floor rate 56,000 VND/session enforced."}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 6. Tình trạng thanh toán & Đóng tiền */}
+                  <div className="space-y-3 pt-2 border-t border-slate-200">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-heading font-bold text-slate-800 uppercase tracking-wide">
+                        {lang === "vi" ? "Tình trạng thanh toán" : "Payment Status"}
+                      </label>
+                    </div>
+
+                    {/* 3 Status choices: Completed, Debt, Installment */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            tuitionStatus: "completed",
+                            paidAmount: activeBreakdown.totalFee,
+                          }));
+                        }}
+                        className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 border ${
+                          formData.tuitionStatus === "completed"
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        <span>✓</span>
+                        <span>{lang === "vi" ? "Đã hoàn tất" : "Completed"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            tuitionStatus: "debt",
+                            paidAmount: 0,
+                          }));
+                        }}
+                        className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 border ${
+                          formData.tuitionStatus === "debt"
+                            ? "bg-rose-600 text-white border-rose-600 shadow-sm"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        <span>⚠️</span>
+                        <span>{lang === "vi" ? "Còn nợ" : "Debt"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            tuitionStatus: "installment",
+                            paidAmount:
+                              prev.paidAmount > 0 && prev.paidAmount < activeBreakdown.totalFee
+                                ? prev.paidAmount
+                                : Math.round(activeBreakdown.totalFee / 2),
+                          }));
+                        }}
+                        className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1 border ${
+                          formData.tuitionStatus === "installment"
+                            ? "bg-amber-500 text-white border-amber-500 shadow-sm"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        <span>💳</span>
+                        <span>{lang === "vi" ? "Trả góp" : "Installment"}</span>
+                      </button>
+                    </div>
+
+                    {formData.tuitionStatus !== "completed" && (
+                      <div className="space-y-3 pt-2">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">
+                            {formData.tuitionStatus === "installment"
+                              ? lang === "vi"
+                                ? "Số tiền đóng đợt 1 / đặt cọc (VNĐ)"
+                                : "Initial Payment / Deposit (VND)"
+                              : lang === "vi"
+                              ? "Số tiền đã trả trước (nếu có) (VNĐ)"
+                              : "Prepaid Amount (if any) (VND)"}
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.paidAmount}
+                            onChange={(e) =>
+                              setFormData((prev) => ({ ...prev, paidAmount: Number(e.target.value) || 0 }))
+                            }
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                          />
+                        </div>
+
+                        <div className="p-3 bg-amber-50/90 border border-amber-200 rounded-xl space-y-1">
+                          <div className="flex items-center justify-between text-xs font-bold text-amber-900">
+                            <span>{lang === "vi" ? "Số tiền còn lại (Còn nợ):" : "Remaining Balance (Debt):"}</span>
+                            <span className="text-rose-600 font-extrabold text-sm">
+                              {Math.max(
+                                0,
+                                activeBreakdown.totalFee - (Number(formData.paidAmount) || 0)
+                              ).toLocaleString("vi-VN")}{" "}
+                              ₫
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-amber-800 leading-tight">
+                            🛡️{" "}
+                            {lang === "vi"
+                              ? "Quy tắc tài chính: Số tiền còn nợ sẽ KHÔNG được tính vào doanh thu trung tâm cho đến khi hoàn tất."
+                              : "Financial Rule: Remaining debt will NOT be counted into center revenue until paid."}
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 uppercase mb-1">
+                            {lang === "vi" ? "Ghi chú kỳ hạn đóng / Trả góp" : "Installment Note / Due Date"}
+                          </label>
+                          <input
+                            type="text"
+                            placeholder={
+                              lang === "vi"
+                                ? "VD: Đợt 2 hạn chót ngày 15/10/2026..."
+                                : "e.g. Next installment due on Oct 15, 2026..."
+                            }
+                            value={formData.installmentNote}
+                            onChange={(e) =>
+                              setFormData((prev) => ({ ...prev, installmentNote: e.target.value }))
+                            }
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 

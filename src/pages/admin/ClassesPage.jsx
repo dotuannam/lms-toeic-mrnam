@@ -14,6 +14,7 @@ import {
   getLocalDateString,
   sortClassesByTime,
 } from "../../utils/scheduleUtils";
+import { checkClassRevenueHealth, PROFIT_GUARDRAILS } from "../../constants/pricingPolicy";
 
 export const ClassesPage = () => {
   const { t, lang } = useLanguage();
@@ -372,6 +373,41 @@ export const ClassesPage = () => {
         </div>
       ) : (
         <>
+          {/* Class Revenue Health Standard Ribbon (Kiểm định Doanh thu >= 500.000đ/buổi) */}
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs mb-5">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 bg-[#00b4d8]/10 text-[#00b4d8] rounded-xl text-base font-bold shadow-2xs">
+                📈
+              </span>
+              <div>
+                <span className="font-heading font-extrabold text-slate-800 uppercase tracking-wide block">
+                  {isVi ? "Chuẩn kiểm định Doanh thu Lớp học (Phương án B)" : "Class Revenue Health Benchmark"}
+                </span>
+                <span className="text-slate-500 text-[11px]">
+                  {isVi
+                    ? "Mục tiêu 8-10 học viên/lớp & Doanh thu thực thu >= 500.000 ₫/buổi (bảo toàn đơn giá sàn 56k/b)"
+                    : "Standard: 8-10 students, Revenue >= 500k VND/session"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>
+                  {classes.filter((c) => checkClassRevenueHealth(allStudents.filter((s) => s.currentClassIds?.includes(c.classId))).isHealthy).length}{" "}
+                  {isVi ? "Đạt chuẩn (>= 500k)" : "Healthy"}
+                </span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>
+                  {classes.filter((c) => !checkClassRevenueHealth(allStudents.filter((s) => s.currentClassIds?.includes(c.classId))).isHealthy).length}{" "}
+                  {isVi ? "Cần tuyển sinh thêm" : "Below target"}
+                </span>
+              </span>
+            </div>
+          </div>
+
           {/* ======================================================== */}
           {/* 1. MẶC ĐỊNH (DEFAULT CARDS GRID VIEW)                    */}
           {/* ======================================================== */}
@@ -380,6 +416,8 @@ export const ClassesPage = () => {
               {filteredClasses.map((cls) => {
                 const hasClassroom = Boolean(cls.integrations?.googleClassroom?.alternateLink);
                 const hasDrive = Boolean(cls.integrations?.googleDrive?.folderLink);
+                const classStudents = allStudents.filter((s) => s.currentClassIds?.includes(cls.classId));
+                const revenueHealth = checkClassRevenueHealth(classStudents);
 
                 return (
                   <div
@@ -451,6 +489,30 @@ export const ClassesPage = () => {
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400">👥 {t("enrolled")}:</span>
                             <span className="font-heading font-bold text-[#00b4d8]">{cls.studentCount || 0} students</span>
+                          </div>
+
+                          {/* Class Revenue Health Metric Badge */}
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                            <span className="text-slate-400 font-medium">💰 {isVi ? "Doanh thu/buổi:" : "Rev/session:"}</span>
+                            {revenueHealth.isHealthy ? (
+                              <span
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-heading font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                title={`Đạt chuẩn lợi nhuận (>= 500.000đ/buổi). Thực tế: ${revenueHealth.sessionRevenue.toLocaleString("vi-VN")} ₫/buổi với ${revenueHealth.studentCount} học viên`}
+                              >
+                                <span>✓</span>
+                                <span>{revenueHealth.sessionRevenue.toLocaleString("vi-VN")} ₫/buổi</span>
+                                <span className="text-[10px] opacity-75">({isVi ? "Đạt chuẩn" : "Healthy"})</span>
+                              </span>
+                            ) : (
+                              <span
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-heading font-bold bg-amber-50 text-amber-700 border border-amber-200"
+                                title={`Chưa đạt mốc 500.000đ/buổi. Thực tế: ${revenueHealth.sessionRevenue.toLocaleString("vi-VN")} ₫/buổi (Cần thêm học viên)`}
+                              >
+                                <span>⚠️</span>
+                                <span>{revenueHealth.sessionRevenue.toLocaleString("vi-VN")} ₫/buổi</span>
+                                <span className="text-[10px] opacity-75">({isVi ? "< 500k" : "< 500k"})</span>
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>

@@ -70,14 +70,17 @@ export const recordTuitionPayment = async ({
   const tuitionSnap = await getDoc(tuitionRef);
   if (!tuitionSnap.exists()) throw new Error("Tuition record not found.");
 
-  const currentData = tuitionSnap.data();
-  const newPaid = (currentData.paidAmount || 0) + numAmount;
-  const newDebt = Math.max(0, (currentData.finalAmount || currentData.totalAmount || 0) - newPaid);
+  const currentTotalFee = currentData.totalFee ?? currentData.finalAmount ?? currentData.totalAmount ?? 0;
+  const newPaid = (currentData.paidAmount || currentData.paid || 0) + numAmount;
+  const newDebt = Math.max(0, currentTotalFee - newPaid);
   const newStatus = newDebt === 0 ? "paid" : newPaid > 0 ? "partial" : "unpaid";
 
   await updateDoc(tuitionRef, {
     paidAmount: newPaid,
+    paid: newPaid,
     debtAmount: newDebt,
+    debt: newDebt,
+    totalFee: currentTotalFee,
     status: newStatus,
     paymentHistory: arrayUnion(receipt),
     updatedAt: serverTimestamp(),
@@ -87,7 +90,11 @@ export const recordTuitionPayment = async ({
   if (studentId) {
     const studentRef = doc(db, "students", studentId);
     await updateDoc(studentRef, {
+      "tuitionOverview.paidAmount": newPaid,
+      "tuitionOverview.paid": newPaid,
       "tuitionOverview.totalDebt": newDebt,
+      "tuitionOverview.debt": newDebt,
+      "tuitionOverview.totalFee": currentTotalFee,
       "tuitionOverview.lastPaymentDate": now.toISOString(),
       updatedAt: serverTimestamp(),
     });

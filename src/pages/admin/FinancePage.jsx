@@ -10,6 +10,7 @@ import {
 import { subscribeClasses } from "../../services/classService";
 import { VIETQR_CONFIG, buildVietQrUrl } from "../../config/vietqr";
 import { useSettings } from "../../context/SettingsContext";
+import { PROFIT_GUARDRAILS, checkClassRevenueHealth } from "../../constants/pricingPolicy";
 
 export const FinancePage = () => {
   const { t, lang } = useLanguage();
@@ -276,22 +277,69 @@ export const FinancePage = () => {
           })()}
 
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-slate-500 uppercase">
-                {lang === "vi" ? "Lọc theo lớp:" : "Class Filter:"}
-              </label>
-              <select
-                value={selectedClassFilter}
-                onChange={(e) => setSelectedClassFilter(e.target.value)}
-                className="py-1.5 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700"
-              >
-                <option value="all">{t("allClasses")}</option>
-                {classes.map((c) => (
-                  <option key={c.classId} value={c.classId}>
-                    {c.code} - {c.name}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-500 uppercase">
+                  {lang === "vi" ? "Lọc theo lớp:" : "Class Filter:"}
+                </label>
+                <select
+                  value={selectedClassFilter}
+                  onChange={(e) => setSelectedClassFilter(e.target.value)}
+                  className="py-1.5 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700"
+                >
+                  <option value="all">{t("allClasses")}</option>
+                  {classes.map((c) => (
+                    <option key={c.classId} value={c.classId}>
+                      {c.code} - {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Class Revenue Health Check (Kiểm định Doanh thu >= 500.000đ/buổi) */}
+              {(() => {
+                const filteredClassTuitions =
+                  selectedClassFilter === "all"
+                    ? tuitions
+                    : tuitions.filter((t) => t.classId === selectedClassFilter);
+                const classSessionRevenue = filteredClassTuitions.reduce((sum, t) => {
+                  const perSession =
+                    t.effectivePricePerSession ||
+                    (t.sessions
+                      ? Math.round((t.totalFee || t.finalAmount || t.totalAmount || 0) / t.sessions)
+                      : Math.round((t.totalFee || t.finalAmount || 0) / 24));
+                  return sum + (Number(perSession) || 0);
+                }, 0);
+                const isHealthy = classSessionRevenue >= PROFIT_GUARDRAILS.MIN_CLASS_SESSION_REVENUE;
+
+                return (
+                  <div className="flex items-center gap-1.5">
+                    {isHealthy ? (
+                      <span
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-heading font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        title={`Đạt chuẩn lợi nhuận (>= 500.000đ/buổi). Thực tế: ${classSessionRevenue.toLocaleString("vi-VN")} ₫/buổi`}
+                      >
+                        <span>✓</span>
+                        <span>{classSessionRevenue.toLocaleString("vi-VN")} ₫/buổi</span>
+                        <span className="text-[10px] opacity-80 font-normal">
+                          ({selectedClassFilter === "all" ? "Trung bình hệ thống" : "Đạt chuẩn >= 500k"})
+                        </span>
+                      </span>
+                    ) : (
+                      <span
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-heading font-bold bg-amber-50 text-amber-700 border border-amber-200"
+                        title={`Chưa đạt mốc 500.000đ/buổi. Thực tế: ${classSessionRevenue.toLocaleString("vi-VN")} ₫/buổi (Mục tiêu 8-10 HV)`}
+                      >
+                        <span>⚠️</span>
+                        <span>{classSessionRevenue.toLocaleString("vi-VN")} ₫/buổi</span>
+                        <span className="text-[10px] opacity-80 font-normal">
+                          ({lang === "vi" ? "Chưa đạt mốc 500k/b" : "< 500k/session"})
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
             <button
               onClick={loadData}
@@ -315,8 +363,8 @@ export const FinancePage = () => {
                   <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase font-semibold text-slate-500 tracking-wider">
                     <tr>
                       <th className="py-3.5 px-4">{lang === "vi" ? "Học viên" : "Student"}</th>
-                      <th className="py-3.5 px-4">{lang === "vi" ? "Lớp học" : "Class"}</th>
-                      <th className="py-3.5 px-4 text-right">{lang === "vi" ? "Tổng học phí" : "Total Fee"}</th>
+                      <th className="py-3.5 px-4">{lang === "vi" ? "Lớp học & Gói" : "Class & Package"}</th>
+                      <th className="py-3.5 px-4 text-right">{lang === "vi" ? "Học phí thực thu" : "Total Fee"}</th>
                       <th className="py-3.5 px-4 text-right">{lang === "vi" ? "Đã thu (Doanh thu)" : "Paid (Revenue)"}</th>
                       <th className="py-3.5 px-4 text-right">{lang === "vi" ? "Còn lại (Công nợ)" : "Remaining Debt"}</th>
                       <th className="py-3.5 px-4 text-center">{lang === "vi" ? "Tình trạng" : "Status"}</th>
@@ -328,19 +376,36 @@ export const FinancePage = () => {
                       <tr key={t.tuitionId} className="hover:bg-slate-50/60 transition">
                         <td className="py-3.5 px-4">
                           <div className="font-semibold text-slate-900">{t.studentName}</div>
-                          <div className="text-xs font-mono font-medium text-slate-500">{t.studentId}</div>
+                          <div className="text-xs font-mono font-medium text-slate-500">{t.studentCode || t.studentId}</div>
                         </td>
                         <td className="py-3.5 px-4 text-xs font-medium text-slate-700">
-                          {t.className || t.classId}
+                          <div>{t.className || t.classId}</div>
+                          {t.packageCode && (
+                            <div className="text-[11px] text-[#00b4d8] font-bold mt-0.5">
+                              🏷️ {t.packageName || t.packageCode}
+                              {t.effectivePricePerSession ? (
+                                <span className="text-slate-400 font-normal ml-1">
+                                  ({t.effectivePricePerSession.toLocaleString("vi-VN")}đ/b)
+                                </span>
+                              ) : null}
+                            </div>
+                          )}
                         </td>
                         <td className="py-3.5 px-4 text-xs font-semibold text-slate-800 text-right">
-                          {(t.finalAmount || t.totalAmount || 0).toLocaleString("vi-VN")} ₫
+                          <div className="font-bold">
+                            {(t.totalFee || t.finalAmount || t.totalAmount || 0).toLocaleString("vi-VN")} ₫
+                          </div>
+                          {(t.totalDiscountAmount > 0 || t.discountAmount > 0) && (
+                            <div className="text-[10px] text-emerald-600 font-medium">
+                              Giảm: -{(t.totalDiscountAmount || t.discountAmount).toLocaleString("vi-VN")} ₫
+                            </div>
+                          )}
                         </td>
                         <td className="py-3.5 px-4 text-xs font-semibold text-emerald-600 text-right">
-                          {(t.paidAmount || 0).toLocaleString("vi-VN")} ₫
+                          {(t.paid ?? t.paidAmount ?? 0).toLocaleString("vi-VN")} ₫
                         </td>
                         <td className="py-3.5 px-4 text-xs font-bold text-rose-600 text-right">
-                          {(t.debtAmount || 0).toLocaleString("vi-VN")} ₫
+                          {(t.debt ?? t.debtAmount ?? 0).toLocaleString("vi-VN")} ₫
                         </td>
                         <td className="py-3.5 px-4 text-center">
                           {(() => {

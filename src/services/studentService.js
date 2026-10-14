@@ -15,6 +15,7 @@ import {
 import { inviteStudentToClassroom, shareDriveFolderWithStudent } from "./api";
 import { addLedgerTransaction } from "./financeService";
 import { db } from "../config/firebase";
+import { calculateTuitionBreakdown, detectPackageFromClassCode } from "../constants/pricingPolicy";
 
 const COLLECTION_NAME = "students";
 
@@ -65,7 +66,24 @@ export const createStudent = async (studentData, selectedClass = null, sendClass
       ]
     : [];
 
-  const totalFee = Number(studentData.tuitionFee ?? selectedClass?.tuitionFee ?? 0);
+  // Compute or extract pricing breakdown based on Tiered Policy (Phương án B)
+  const breakdown =
+    studentData.pricingBreakdown ||
+    calculateTuitionBreakdown({
+      packageCode: studentData.packageCode || detectPackageFromClassCode(selectedClass?.code),
+      customBaseFee: studentData.baseFee ?? studentData.tuitionFee ?? selectedClass?.tuitionFee ?? 0,
+      customSessions: studentData.sessions || 24,
+      groupDiscountType: studentData.groupDiscountType || "NONE",
+      isReferredByOldStudent: Boolean(studentData.isReferredByOldStudent),
+      referrerCode: studentData.referrerCode || "",
+      referrerUpgradeRewardType: studentData.referrerUpgradeRewardType || "NONE",
+    });
+
+  const totalFee = Number(
+    breakdown.totalFee !== undefined
+      ? breakdown.totalFee
+      : studentData.tuitionFee ?? selectedClass?.tuitionFee ?? 0
+  );
   const tuitionStatus = studentData.tuitionStatus || "debt"; // "completed" | "debt" | "installment"
   let initialPaid = 0;
   if (tuitionStatus === "completed") {
@@ -74,22 +92,65 @@ export const createStudent = async (studentData, selectedClass = null, sendClass
     initialPaid = Number(studentData.paidAmount || 0);
   }
   const remainingDebt = Math.max(0, totalFee - initialPaid);
-  const statusStr = tuitionStatus === "completed" || remainingDebt === 0 ? "paid" : initialPaid > 0 ? "partial" : "unpaid";
+  const statusStr =
+    tuitionStatus === "completed" || remainingDebt === 0
+      ? "paid"
+      : initialPaid > 0
+      ? "partial"
+      : "unpaid";
+
+  // Handle Referrer Credit Increment: If referred by an existing student, increment their referral count & credits
+  if (breakdown.isReferredByOldStudent && breakdown.referrerCode) {
+    try {
+      const refCode = breakdown.referrerCode.trim().toUpperCase();
+      const refDocRef = doc(db, COLLECTION_NAME, refCode);
+      const refSnap = await getDoc(refDocRef);
+      if (refSnap.exists()) {
+        await updateDoc(refDocRef, {
+          referralCount: increment(1),
+          referralCreditsAvailable: increment(1),
+          updatedAt: serverTimestamp(),
+        });
+      }
+    } catch (refErr) {
+      console.warn("Could not credit referrer student:", refErr);
+    }
+  }
 
   const newStudent = {
     studentId,
+    studentCode: studentId,
     fullName: studentData.fullName.trim(),
     email: studentData.email.trim().toLowerCase(),
     phone: studentData.phone ? studentData.phone.trim() : "",
     dob: studentData.dob || "",
     status: studentData.status || "active",
+    referralCount: Number(studentData.referralCount) || 0,
+    referralCreditsAvailable: Number(studentData.referralCreditsAvailable) || 0,
     currentClassIds: selectedClass ? [selectedClass.classId] : [],
     enrolledClasses,
     tuitionOverview: {
       tuitionStatus,
       totalAmount: totalFee,
+      totalFee,
       paidAmount: initialPaid,
+      paid: initialPaid,
       totalDebt: remainingDebt,
+      debt: remainingDebt,
+      packageCode: breakdown.packageCode,
+      packageName: breakdown.packageName,
+      sessions: breakdown.sessions,
+      baseFee: breakdown.baseFee,
+      comboDiscountPct: breakdown.comboDiscountPct,
+      groupDiscountType: breakdown.groupDiscountType,
+      groupDiscountPct: breakdown.groupDiscountPct,
+      isReferredByOldStudent: breakdown.isReferredByOldStudent,
+      referrerCode: breakdown.referrerCode,
+      referrerUpgradeRewardType: breakdown.referrerUpgradeRewardType,
+      totalDiscountAmount: breakdown.totalDiscountAmount,
+      effectivePricePerSession: breakdown.effectivePricePerSession,
+      isCappedAt20Pct: breakdown.isCappedAt20Pct,
+      isFloorEnforced: breakdown.isFloorEnforced,
       lastPaymentDate: initialPaid > 0 ? new Date().toISOString() : null,
     },
     createdAt: serverTimestamp(),
@@ -106,7 +167,7 @@ export const createStudent = async (studentData, selectedClass = null, sendClass
         studentCount: increment(1),
       });
 
-      // Initialize tuition record
+      // Initialize tuition record in 'tuitions' collection
       const tuitionRef = doc(db, "tuitions", `${studentId}_${selectedClass.classId}`);
       const paymentHistory = [];
       if (initialPaid > 0) {
@@ -116,24 +177,47 @@ export const createStudent = async (studentData, selectedClass = null, sendClass
           method: "bank_transfer",
           paidAt: new Date().toISOString(),
           receivedBy: "Admin",
-          note: tuitionStatus === "completed" ? "Đã hoàn tất học phí khi ghi danh" : "Thanh toán đợt 1 / đặt cọc",
+          note:
+            tuitionStatus === "completed"
+              ? "Đã hoàn tất học phí khi ghi danh"
+              : "Thanh toán đợt 1 / đặt cọc",
         });
       }
 
       await setDoc(tuitionRef, {
         tuitionId: `${studentId}_${selectedClass.classId}`,
         studentId,
+        studentCode: studentId,
         studentName: newStudent.fullName,
         studentEmail: newStudent.email,
         classId: selectedClass.classId,
         className: selectedClass.name,
         tuitionStatus, // "completed" | "debt" | "installment"
+        // Legacy & compatibility aliases
         totalAmount: totalFee,
-        discountAmount: 0,
+        totalFee,
+        discountAmount: breakdown.totalDiscountAmount,
+        totalDiscountAmount: breakdown.totalDiscountAmount,
         finalAmount: totalFee,
         paidAmount: initialPaid,
+        paid: initialPaid,
         debtAmount: remainingDebt,
+        debt: remainingDebt,
         status: statusStr,
+        // Breakdown fields for Tiered Policy
+        packageCode: breakdown.packageCode,
+        packageName: breakdown.packageName,
+        sessions: breakdown.sessions,
+        baseFee: breakdown.baseFee,
+        comboDiscountPct: breakdown.comboDiscountPct,
+        groupDiscountType: breakdown.groupDiscountType,
+        groupDiscountPct: breakdown.groupDiscountPct,
+        isReferredByOldStudent: breakdown.isReferredByOldStudent,
+        referrerCode: breakdown.referrerCode,
+        referrerUpgradeRewardType: breakdown.referrerUpgradeRewardType,
+        effectivePricePerSession: breakdown.effectivePricePerSession,
+        isCappedAt20Pct: breakdown.isCappedAt20Pct,
+        isFloorEnforced: breakdown.isFloorEnforced,
         installmentNote: studentData.installmentNote || "",
         paymentHistory,
         createdAt: serverTimestamp(),

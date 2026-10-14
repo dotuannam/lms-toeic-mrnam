@@ -547,11 +547,88 @@ export const StudentDashboard = () => {
                   </div>
                 )}
 
-                <div className="space-y-3 mb-6">
+                {/* Referral Rewards Available Banner */}
+                {(student?.referralCreditsAvailable > 0 || student?.referralCount > 0) && (
+                  <div className="mb-4 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg">🎁</span>
+                      <div>
+                        <span className="font-heading font-bold text-amber-950 block">
+                          {isVi ? "Ưu đãi Giới thiệu bạn bè (Referral)" : "Referral Rewards Balance"}
+                        </span>
+                        <p className="text-[11px] text-amber-800">
+                          {isVi
+                            ? `Đã giới thiệu ${student.referralCount || 0} bạn. Dùng giảm học phí khi lên khóa Target 550 / 650+!`
+                            : `Referred ${student.referralCount || 0} friends.`}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-lg bg-amber-500 text-white font-bold text-xs shadow-2xs whitespace-nowrap">
+                      {student.referralCreditsAvailable || 0} {isVi ? "lượt thưởng" : "credits"}
+                    </span>
+                  </div>
+                )}
+
+                <div className="space-y-2.5 mb-6">
+                  {/* Gói đăng ký & Số buổi */}
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl text-xs">
-                    <span className="text-slate-500 font-medium">{t("totalCourseFee")}</span>
-                    <span className="font-bold text-slate-800">
+                    <span className="text-slate-500 font-medium">
+                      {isVi ? "Gói đăng ký & Số buổi:" : "Package & Sessions:"}
+                    </span>
+                    <span className="font-bold text-slate-800 text-right">
+                      {tuition?.packageName || tuition?.packageCode || activeClass?.name || "Khóa học"}
+                      <span className="text-[#00b4d8] ml-1">
+                        ({tuition?.sessions || 24} {isVi ? "buổi" : "sessions"})
+                      </span>
+                    </span>
+                  </div>
+
+                  {/* Học phí gốc */}
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl text-xs">
+                    <span className="text-slate-500 font-medium">
+                      {isVi ? "Học phí gốc:" : "Base Fee:"}
+                    </span>
+                    <span className="font-bold text-slate-700 font-mono">
                       {(
+                        tuition?.baseFee ||
+                        (tuition?.totalFee ? tuition.totalFee + (tuition.totalDiscountAmount || 0) : null) ||
+                        tuition?.finalAmount ||
+                        activeClass?.tuitionFee ||
+                        0
+                      ).toLocaleString("vi-VN")}{" "}
+                      ₫
+                    </span>
+                  </div>
+
+                  {/* Ưu đãi áp dụng */}
+                  {(tuition?.totalDiscountAmount > 0 || tuition?.discountAmount > 0) && (
+                    <div className="flex items-center justify-between p-3 bg-emerald-50/80 border border-emerald-100 rounded-xl text-xs">
+                      <div>
+                        <span className="text-emerald-800 font-medium block">
+                          {isVi ? "Ưu đãi áp dụng (Tiết kiệm):" : "Applied Discounts:"}
+                        </span>
+                        <div className="text-[10px] text-emerald-600 flex items-center gap-1.5 flex-wrap mt-0.5">
+                          {tuition.comboDiscountPct > 0 && <span>• Combo -{tuition.comboDiscountPct}%</span>}
+                          {tuition.groupDiscountPct > 0 && <span>• Nhóm -{tuition.groupDiscountPct}%</span>}
+                          {tuition.isReferredByOldStudent && <span>• Giới thiệu -5%</span>}
+                          {tuition.referrerUpgradeRewardType === "PERCENT_5" && <span>• Thưởng HV cũ -5%</span>}
+                          {tuition.referrerUpgradeRewardType === "FLAT_100K" && <span>• Thưởng HV cũ -100k</span>}
+                        </div>
+                      </div>
+                      <span className="font-bold text-emerald-700 font-mono text-sm">
+                        -{(tuition.totalDiscountAmount || tuition.discountAmount).toLocaleString("vi-VN")} ₫
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Học phí thực đóng */}
+                  <div className="flex items-center justify-between p-3.5 bg-gradient-to-r from-cyan-50 to-blue-50 border border-[#00b4d8]/20 rounded-xl text-xs">
+                    <span className="text-slate-800 font-heading font-extrabold uppercase tracking-wide">
+                      {isVi ? "Học phí thực đóng:" : "Total Tuition Due:"}
+                    </span>
+                    <span className="font-heading font-extrabold text-[#00b4d8] text-base font-mono">
+                      {(
+                        tuition?.totalFee ||
                         tuition?.finalAmount ||
                         tuition?.totalAmount ||
                         activeClass?.tuitionFee ||
@@ -560,21 +637,25 @@ export const StudentDashboard = () => {
                       ₫
                     </span>
                   </div>
+
+                  {/* Đã đóng */}
                   <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-xl text-xs">
                     <span className="text-emerald-700 font-medium">{t("amountPaid")}</span>
-                    <span className="font-bold text-emerald-700">
-                      {(tuition?.paidAmount || 0).toLocaleString("vi-VN")} ₫
+                    <span className="font-bold text-emerald-700 font-mono">
+                      {(tuition?.paid ?? tuition?.paidAmount ?? 0).toLocaleString("vi-VN")} ₫
                     </span>
                   </div>
+
+                  {/* Còn nợ */}
                   <div className="flex items-center justify-between p-3 bg-rose-50 rounded-xl text-xs">
                     <span className="text-rose-700 font-medium">
                       {tuition?.tuitionStatus === "installment"
                         ? isVi
-                          ? "Số tiền còn lại cần trả"
-                          : "Remaining Installment Due"
+                          ? "Số tiền còn lại cần trả:"
+                          : "Remaining Installment Due:"
                         : t("remainingDebt")}
                     </span>
-                    <span className="font-bold text-rose-700">
+                    <span className="font-bold text-rose-700 font-mono text-sm">
                       {debt.toLocaleString("vi-VN")} ₫
                     </span>
                   </div>

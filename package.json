@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node -e \"require('fs').copyFileSync('dist/index.html', 'dist/404.html')\"",
-    "preview": "vite preview",
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 3000",
     "deploy:gh": "npm run build && gh-pages -d dist -b gh-pages",
     "deploy:firebase": "npm run build && firebase deploy --only hosting",
     "deploy:all": "npm run build && gh-pages -d dist -b gh-pages && firebase deploy --only hosting"
