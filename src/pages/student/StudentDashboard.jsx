@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { RadarChart } from "../../components/charts/RadarChart";
-import { getStudentScores } from "../../services/scoreService";
+import { getStudentScores, getStudentClassroomGrades, syncStudentClassroomGrades } from "../../services/scoreService";
 import { VIETQR_CONFIG, buildVietQrUrl } from "../../config/vietqr";
 import { useSettings } from "../../context/SettingsContext";
 import { DEFAULT_CENTER_CONFIG } from "../../services/settingsService";
@@ -34,6 +34,9 @@ export const StudentDashboard = () => {
   const [attendanceLogs, setAttendanceLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [classroomGrades, setClassroomGrades] = useState([]);
+  const [syncingClassroom, setSyncingClassroom] = useState(false);
+  const [syncStatusMsg, setSyncStatusMsg] = useState(null);
 
   useEffect(() => {
     const fetchStudentData = async () => {
@@ -112,6 +115,34 @@ export const StudentDashboard = () => {
         // 5. Fetch Score History
         const scoreList = await getStudentScores(studentId);
         setScores(scoreList);
+
+        // 6. Fetch / Sync Google Classroom Homework & Grades
+        if (currentSelectedClass) {
+          try {
+            const cachedGrades = await getStudentClassroomGrades({
+              studentId,
+              classId: currentSelectedClass.classId,
+            });
+            if (cachedGrades && cachedGrades.length > 0) {
+              setClassroomGrades(cachedGrades);
+            } else {
+              const syncRes = await syncStudentClassroomGrades({
+                studentId,
+                studentEmail: studentData.email || currentUser?.email || "",
+                classId: currentSelectedClass.classId,
+                courseId:
+                  currentSelectedClass.integrations?.googleClassroom?.courseId ||
+                  currentSelectedClass.code ||
+                  "COURSE",
+              });
+              if (syncRes?.grades) {
+                setClassroomGrades(syncRes.grades);
+              }
+            }
+          } catch (cgErr) {
+            console.warn("Classroom grades initial load error:", cgErr);
+          }
+        }
       } catch (err) {
         console.error("Student portal load failed:", err);
       } finally {
@@ -153,11 +184,84 @@ export const StudentDashboard = () => {
         });
         studentAttLogs.sort((a, b) => b.date.localeCompare(a.date));
         setAttendanceLogs(studentAttLogs);
+
+        // Switch cached classroom grades
+        try {
+          const cachedGrades = await getStudentClassroomGrades({
+            studentId: student.studentId,
+            classId,
+          });
+          if (cachedGrades && cachedGrades.length > 0) {
+            setClassroomGrades(cachedGrades);
+          } else {
+            const syncRes = await syncStudentClassroomGrades({
+              studentId: student.studentId,
+              studentEmail: student.email || currentUser?.email || "",
+              classId,
+              courseId:
+                selected.integrations?.googleClassroom?.courseId ||
+                selected.code ||
+                "COURSE",
+            });
+            if (syncRes?.grades) {
+              setClassroomGrades(syncRes.grades);
+            }
+          }
+        } catch (cgErr) {
+          console.warn("Classroom grades switch error:", cgErr);
+        }
       } catch (err) {
         console.error("Error switching student class:", err);
       }
     }
   };
+
+  const handleManualSyncClassroom = async () => {
+    if (!student?.studentId || !activeClass?.classId) return;
+    setSyncingClassroom(true);
+    setSyncStatusMsg(null);
+    try {
+      const res = await syncStudentClassroomGrades({
+        studentId: student.studentId,
+        studentEmail: student.email || currentUser?.email || "",
+        classId: activeClass.classId,
+        courseId:
+          activeClass.integrations?.googleClassroom?.courseId ||
+          activeClass.code ||
+          "COURSE",
+      });
+      if (res?.grades) {
+        setClassroomGrades(res.grades);
+        setSyncStatusMsg({
+          type: "success",
+          text: isVi
+            ? `Đã đồng bộ thành công ${res.grades.length} bài tập từ Google Classroom!`
+            : `Synced ${res.grades.length} items from Classroom!`,
+        });
+      }
+    } catch (err) {
+      setSyncStatusMsg({
+        type: "error",
+        text: isVi ? `Lỗi đồng bộ: ${err.message}` : `Sync failed: ${err.message}`,
+      });
+    } finally {
+      setSyncingClassroom(false);
+      setTimeout(() => setSyncStatusMsg(null), 5000);
+    }
+  };
+
+  const pendingHomeworks = useMemo(() => {
+    return classroomGrades.filter(
+      (g) => g.state !== "TURNED_IN" && g.state !== "RETURNED"
+    );
+  }, [classroomGrades]);
+
+  const overdueHomeworks = useMemo(() => {
+    const now = new Date();
+    return pendingHomeworks.filter(
+      (g) => g.late || (g.dueDate && new Date(g.dueDate) < now)
+    );
+  }, [pendingHomeworks]);
 
   if (loading) {
     return (
@@ -360,51 +464,254 @@ export const StudentDashboard = () => {
               </div>
 
               {/* Quick Launch Buttons */}
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("classroom_grades")}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-lg shadow-amber-500/20 transition active:translate-y-px cursor-pointer"
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* 1. Google Meet Direct Room */}
+                <a
+                  href={activeClass?.meetLink || activeClass?.integrations?.googleMeet?.link || "https://meet.google.com/new"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider shadow-lg shadow-emerald-900/40 transition active:translate-y-px border border-emerald-400/30"
+                  title="Vào lớp trực tuyến qua Google Meet"
                 >
-                  <span>📝</span>
-                  <span>{isVi ? "Điểm Classroom" : "Classroom Grades"}</span>
-                </button>
+                  <span className="w-2 h-2 rounded-full bg-emerald-200 animate-ping"></span>
+                  <span>🎥 {isVi ? "Vào Meet Trực Tuyến" : "Join Meet Room"}</span>
+                </a>
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("materials")}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-lg shadow-amber-600/20 transition active:translate-y-px"
-                >
-                  <span>📂</span>
-                  <span>{t("tabMaterials")}</span>
-                </button>
+                {/* 2. Vocabulary Sheet */}
+                {activeClass?.integrations?.vocabularySheet?.sheetUrl && (
+                  <a
+                    href={activeClass.integrations.vocabularySheet.sheetUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-[#c27803] hover:bg-[#b45309] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-lg shadow-amber-900/30 transition active:translate-y-px border border-amber-400/30"
+                    title="Mở Sổ tay từ vựng Google Sheet (3 cột: Từ vựng - IPA - Nghĩa tự động)"
+                  >
+                    <span>📖</span>
+                    <span>{isVi ? "Sổ Từ Vựng" : "Vocab Sheet"}</span>
+                  </a>
+                )}
 
+                {/* 3. Google Classroom (Hệ thống sao lưu) */}
                 {activeClass?.integrations?.googleClassroom?.alternateLink && (
                   <a
                     href={activeClass.integrations.googleClassroom.alternateLink}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#20b2aa] hover:bg-[#1a938c] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-lg shadow-teal-500/20 transition active:translate-y-px"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#20b2aa]/20 hover:bg-[#20b2aa] text-[#4dd0e1] hover:text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition border border-[#20b2aa]/40"
+                    title="Google Classroom (Hệ Thống Sao Lưu / Backup)"
                   >
                     <span>🏫</span>
                     <span>Classroom</span>
+                    <span className="text-[10px] px-1 py-0.2 bg-teal-950/60 text-teal-200 rounded font-normal lowercase">backup</span>
                   </a>
                 )}
 
+                {/* 4. Drive Folders */}
                 {activeClass?.integrations?.googleDrive?.folderLink && (
                   <a
                     href={activeClass.integrations.googleDrive.folderLink}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-heading font-semibold uppercase tracking-wider backdrop-blur-md border border-white/15 transition"
+                    className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-heading font-semibold uppercase tracking-wider backdrop-blur-md border border-white/15 transition"
                   >
                     <span>📁</span>
                     <span>Drive</span>
                   </a>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("materials")}
+                  className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white rounded-xl text-xs font-heading font-semibold uppercase tracking-wider backdrop-blur-md border border-white/15 transition"
+                >
+                  <span>📂</span>
+                  <span>{t("tabMaterials")}</span>
+                </button>
               </div>
             </div>
           </div>
+
+          {/* 1.1 ONLINE LEARNING & BACKUP SYSTEM STRIP */}
+          <div className="p-4 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-[#c27803]/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-2xs">
+            <div className="flex items-center gap-3">
+              <span className="w-9 h-9 rounded-xl bg-[#c27803]/15 text-[#c27803] flex items-center justify-center text-lg shrink-0">
+                🌐
+              </span>
+              <div>
+                <div className="font-heading font-bold text-slate-900 flex items-center gap-2">
+                  <span>{isVi ? "Định hướng vận hành: LMS là hệ thống học tập chính yếu" : "Operating Workflow: Primary LMS"}</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#c27803]/15 text-[#c27803]">
+                    Official LMS
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  {isVi
+                    ? "Học viên học trực tuyến qua Google Meet và truy cập tài liệu tại LMS. Google Classroom đóng vai trò hệ thống sao lưu và đồng bộ điểm số bài tập."
+                    : "Attend live classes via Google Meet & access lectures on LMS. Google Classroom serves as the backup system for homework synchronization."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+              <a
+                href={activeClass?.meetLink || activeClass?.integrations?.googleMeet?.link || "https://meet.google.com/new"}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-heading font-bold uppercase tracking-wider text-[11px] transition shadow-xs flex items-center gap-1"
+              >
+                <span>🎥</span>
+                <span>{isVi ? "Vào Meet" : "Meet Room"}</span>
+              </a>
+              {activeClass?.integrations?.vocabularySheet?.sheetUrl && (
+                <a
+                  href={activeClass.integrations.vocabularySheet.sheetUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 bg-[#c27803] hover:bg-[#b45309] text-white rounded-lg font-heading font-bold uppercase tracking-wider text-[11px] transition shadow-xs flex items-center gap-1"
+                >
+                  <span>📖</span>
+                  <span>{isVi ? "Sổ Từ Vựng" : "Vocab"}</span>
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* 1.2 PENDING HOMEWORK & DUE DATE ALERT BANNER */}
+          {pendingHomeworks.length > 0 ? (
+            <div className={`p-5 rounded-2xl border transition-all shadow-sm ${
+              overdueHomeworks.length > 0
+                ? "bg-rose-50/80 border-rose-300 text-rose-950"
+                : "bg-amber-50/80 border-amber-300 text-amber-950"
+            }`}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/10">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl animate-bounce">
+                    {overdueHomeworks.length > 0 ? "🚨" : "⚠️"}
+                  </span>
+                  <div>
+                    <h3 className="font-heading font-extrabold text-sm uppercase tracking-wide flex items-center gap-2">
+                      <span>{isVi ? "Nhắc nhở Bài tập về nhà chưa hoàn thành" : "Pending Homework Reminder"}</span>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${
+                        overdueHomeworks.length > 0 ? "bg-rose-600 text-white" : "bg-[#c27803] text-white"
+                      }`}>
+                        {pendingHomeworks.length} {isVi ? "bài" : "tasks"}
+                      </span>
+                    </h3>
+                    <p className="text-xs opacity-85 mt-0.5">
+                      {overdueHomeworks.length > 0
+                        ? isVi
+                          ? `Chú ý: Bạn có ${overdueHomeworks.length} bài tập đã QUÁ HẠN! Hãy khẩn trương hoàn thành và nộp qua Google Classroom.`
+                          : `Warning: You have ${overdueHomeworks.length} OVERDUE homework tasks! Please complete and submit.`
+                        : isVi
+                          ? "Bạn có bài tập về nhà đang chờ nộp. Hãy hoàn thành đúng hạn để giáo viên chấm điểm nhé!"
+                          : "You have pending homework. Please submit on time for teacher evaluation!"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleManualSyncClassroom}
+                    disabled={syncingClassroom}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white text-slate-800 border border-slate-200 text-xs font-semibold shadow-xs hover:bg-slate-50 transition disabled:opacity-50"
+                    title="Đồng bộ lại điểm & trạng thái nộp bài từ Google Classroom"
+                  >
+                    <span className={syncingClassroom ? "animate-spin" : ""}>🔄</span>
+                    <span>{syncingClassroom ? (isVi ? "Đang đồng bộ..." : "Syncing...") : (isVi ? "Đồng bộ lại" : "Sync")}</span>
+                  </button>
+
+                  {activeClass?.integrations?.googleClassroom?.alternateLink && (
+                    <a
+                      href={activeClass.integrations.googleClassroom.alternateLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#20b2aa] hover:bg-[#1a938c] text-white text-xs font-heading font-bold uppercase tracking-wider shadow-xs transition"
+                    >
+                      <span>🏫</span>
+                      <span>{isVi ? "Mở Classroom" : "Classroom"}</span>
+                      <span>→</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* List of Pending Homework Tasks */}
+              <div className="mt-3.5 space-y-2">
+                {pendingHomeworks.slice(0, 4).map((hw, idx) => {
+                  const isLate = hw.late || (hw.dueDate && new Date(hw.dueDate) < new Date());
+                  return (
+                    <div
+                      key={hw.submissionId || hw.courseWorkId || idx}
+                      className="p-3 bg-white/90 rounded-xl border border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isLate ? "bg-rose-500 animate-pulse" : "bg-amber-500"}`}></span>
+                        <div>
+                          <div className="font-bold text-slate-900 line-clamp-1">{hw.title}</div>
+                          <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
+                            <span>📅 {isVi ? "Hạn nộp" : "Due"}: <strong className="font-mono text-slate-700">{hw.dueDate || "Không giới hạn"}</strong></span>
+                            <span>&bull;</span>
+                            <span>🎯 {isVi ? "Thang điểm" : "Max"}: {hw.maxPoints || 100}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                        <span className={`px-2 py-0.5 rounded-md font-heading font-bold text-[10px] uppercase tracking-wider ${
+                          isLate
+                            ? "bg-rose-100 text-rose-700 border border-rose-200"
+                            : "bg-amber-100 text-amber-800 border border-amber-200"
+                        }`}>
+                          {isLate ? (isVi ? "Quá hạn" : "Overdue") : (isVi ? "Chưa nộp" : "Pending")}
+                        </span>
+
+                        <a
+                          href={hw.alternateLink || activeClass?.integrations?.googleClassroom?.alternateLink || "https://classroom.google.com"}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-2.5 py-1 bg-slate-900 hover:bg-[#c27803] text-white rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider transition"
+                        >
+                          {isVi ? "Nộp bài" : "Turn In"} →
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {pendingHomeworks.length > 4 && (
+                  <div className="text-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("classroom_grades")}
+                      className="text-xs font-heading font-bold uppercase tracking-wider text-[#c27803] hover:underline"
+                    >
+                      {isVi ? `Xem thêm ${pendingHomeworks.length - 4} bài tập khác →` : `View ${pendingHomeworks.length - 4} more tasks →`}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="p-3.5 bg-emerald-50/80 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs text-emerald-900 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="text-base">🎉</span>
+                <span>
+                  <strong>{isVi ? "Rất tốt!" : "Great job!"}</strong>{" "}
+                  {isVi ? "Bạn đã nộp đầy đủ tất cả các bài tập về nhà được giao." : "You have completed all assigned coursework."}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleManualSyncClassroom}
+                disabled={syncingClassroom}
+                className="text-[11px] font-bold text-emerald-700 hover:underline flex items-center gap-1"
+              >
+                <span className={syncingClassroom ? "animate-spin" : ""}>🔄</span>
+                <span>{isVi ? "Đồng bộ điểm" : "Sync grades"}</span>
+              </button>
+            </div>
+          )}
 
           {/* 2. CLEVER COURSE STATS OVERVIEW CARDS */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

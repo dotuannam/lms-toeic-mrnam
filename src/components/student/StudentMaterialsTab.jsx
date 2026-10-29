@@ -28,6 +28,27 @@ export const StudentMaterialsTab = ({
   const folderId = activeClass?.integrations?.googleDrive?.folderId || "";
   const folderLink = activeClass?.integrations?.googleDrive?.folderLink || "";
   const classroomLink = activeClass?.integrations?.googleClassroom?.alternateLink || "";
+  const vocabSheet = activeClass?.integrations?.vocabularySheet;
+  const meetLink = activeClass?.meetLink || activeClass?.integrations?.googleMeet?.link || "";
+
+  const totalSessionsCount = Number(activeClass?.totalSessions) || Number(activeClass?.integrations?.googleDrive?.totalSessions) || 24;
+  const sessionFolders = useMemo(() => {
+    if (activeClass?.integrations?.googleDrive?.sessionFolders?.length > 0) {
+      return activeClass.integrations.googleDrive.sessionFolders;
+    }
+    const rootLink = folderLink || "https://drive.google.com";
+    const list = [];
+    for (let i = 1; i <= totalSessionsCount; i++) {
+      const numStr = i < 10 ? `0${i}` : `${i}`;
+      list.push({
+        sessionNumber: i,
+        name: `Buổi ${numStr} - Bài giảng & Tài liệu`,
+        folderId: `sim_session_${numStr}`,
+        folderLink: rootLink,
+      });
+    }
+    return list;
+  }, [activeClass, totalSessionsCount, folderLink]);
 
   // Load materials from Google Drive strictly matching 2 conditions:
   // 1. Owned by dotuannamwork2809@gmail.com
@@ -241,6 +262,32 @@ export const StudentMaterialsTab = ({
               </p>
 
               <div className="flex flex-wrap items-center gap-2 shrink-0">
+                {meetLink && (
+                  <a
+                    href={meetLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                    title="Vào lớp trực tuyến qua Google Meet"
+                  >
+                    <span>🎥</span>
+                    <span>Meet</span>
+                  </a>
+                )}
+
+                {vocabSheet?.sheetUrl && (
+                  <a
+                    href={vocabSheet.sheetUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#c27803] hover:bg-[#b45309] text-white rounded-xl text-xs font-bold transition shadow-sm"
+                    title="Mở Sổ tay Từ Vựng Google Sheet"
+                  >
+                    <span>📖</span>
+                    <span>{isVi ? "Sổ Từ Vựng" : "Vocab Sheet"}</span>
+                  </a>
+                )}
+
                 <button
                   type="button"
                   onClick={() => fetchMaterials(true)}
@@ -278,10 +325,11 @@ export const StudentMaterialsTab = ({
                     href={classroomLink}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#20b2aa]/30 hover:bg-[#20b2aa] text-white rounded-xl text-xs font-bold transition border border-[#20b2aa]/40"
+                    title="Google Classroom (Hệ Thống Sao Lưu / Backup)"
                   >
                     <span>🏫</span>
-                    <span>Classroom</span>
+                    <span>Classroom (Backup)</span>
                   </a>
                 )}
               </div>
@@ -377,6 +425,162 @@ export const StudentMaterialsTab = ({
           />
         </div>
       )}
+
+      {/* 2.1 VOCABULARY GOOGLE SHEET (3 COLUMNS: VOCAB - IPA - AUTO MEANING) */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-amber-500/15 border-2 border-amber-300/80 rounded-3xl p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-[#c27803] text-white flex items-center justify-center text-base shadow-xs">
+                📖
+              </span>
+              <span className="font-heading font-extrabold text-sm sm:text-base text-slate-900 uppercase">
+                {vocabSheet?.name || `Sổ Tay Từ Vựng - ${activeClass?.name || "Lớp Học"}`}
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-200">
+                3 Cột Chuẩn Hóa • Tự Động Dịch
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+              {isVi
+                ? "File Google Sheet từ vựng được thiết lập sẵn 3 cột tiêu chuẩn: Cột A (Từ vựng) - Cột B (Phiên âm IPA) - Cột C (Nghĩa tiếng Việt tự động cập nhật qua hàm =GOOGLETRANSLATE). Học viên tra cứu và nạp từ mới mỗi ngày."
+                : "Standardized 3-column Vocabulary Google Sheet: Col A (Vocabulary) - Col B (IPA Pronunciation) - Col C (Auto Vietnamese Meaning via GOOGLETRANSLATE formula)."}
+            </p>
+
+            {/* 3-Column Visual Representation */}
+            <div className="grid grid-cols-3 gap-2 max-w-lg pt-1">
+              <div className="p-2 bg-white/90 rounded-xl border border-amber-200 text-center">
+                <span className="block text-[10px] font-bold text-amber-800 uppercase">Cột A</span>
+                <span className="text-xs font-semibold text-slate-800">Từ vựng</span>
+                <span className="block text-[9px] text-slate-400">Vocabulary</span>
+              </div>
+              <div className="p-2 bg-white/90 rounded-xl border border-amber-200 text-center">
+                <span className="block text-[10px] font-bold text-amber-800 uppercase">Cột B</span>
+                <span className="text-xs font-semibold text-slate-800">Phiên âm IPA</span>
+                <span className="block text-[9px] text-slate-400">/faɪnd/</span>
+              </div>
+              <div className="p-2 bg-white/90 rounded-xl border border-amber-200 text-center">
+                <span className="block text-[10px] font-bold text-amber-800 uppercase">Cột C</span>
+                <span className="text-xs font-semibold text-emerald-700">Nghĩa tự động</span>
+                <span className="block text-[9px] text-emerald-600 font-mono">GOOGLETRANSLATE</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+            <a
+              href={vocabSheet?.sheetUrl || `https://docs.google.com/spreadsheets/d/sim_sheet_${activeClass?.code || "COURSE"}/edit`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#c27803] hover:bg-[#b45309] text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider shadow-md shadow-amber-900/20 transition active:translate-y-px"
+            >
+              <span>Mở Google Sheet Từ Vựng</span>
+              <span>↗</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={() => {
+                const link = vocabSheet?.sheetUrl || `https://docs.google.com/spreadsheets/d/sim_sheet_${activeClass?.code || "COURSE"}/edit`;
+                navigator.clipboard.writeText(link);
+                setCopiedId("vocab_sheet");
+                setTimeout(() => setCopiedId(null), 2500);
+              }}
+              className="px-3.5 py-3 bg-white hover:bg-amber-50 text-slate-700 border border-amber-200 rounded-xl text-xs font-semibold transition text-center"
+            >
+              {copiedId === "vocab_sheet" ? "✓ Đã sao chép link" : "Sao chép link"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2.2 N SESSION LECTURE FOLDERS GRID (BUỔI 01 -> BUỔI N) */}
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-base font-heading font-extrabold text-slate-900 uppercase flex items-center gap-2">
+              <span>📚</span>
+              <span>{isVi ? `Thư Mục Bài Giảng Từng Buổi Học (${sessionFolders.length} Buổi)` : `Lecture Folders by Session (${sessionFolders.length} Sessions)`}</span>
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {isVi
+                ? "Tự động phân bổ bài giảng, slide và tài liệu theo từng ngày học để học viên chủ động ôn bài."
+                : "Each session contains lecture slides, practice audio, and materials for that specific class day."}
+            </p>
+          </div>
+
+          {folderLink && (
+            <a
+              href={folderLink}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition self-start sm:self-auto"
+            >
+              <span>📁</span>
+              <span>{isVi ? "Thư mục Drive gốc của lớp" : "Root Drive Folder"}</span>
+              <span>↗</span>
+            </a>
+          )}
+        </div>
+
+        {/* Session Folders Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
+          {sessionFolders.map((sf) => {
+            const num = sf.sessionNumber || 1;
+            const numStr = num < 10 ? `0${num}` : `${num}`;
+            const link = sf.folderLink || sf.url || folderLink || "https://drive.google.com";
+
+            return (
+              <div
+                key={sf.folderId || sf.sessionNumber || numStr}
+                className="p-3.5 bg-slate-50 hover:bg-amber-50/50 rounded-2xl border border-slate-200 hover:border-amber-300 transition-all flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold bg-[#c27803] text-white">
+                      Buổi {numStr}
+                    </span>
+                    <span className="text-xs opacity-60 group-hover:opacity-100 transition">
+                      📁
+                    </span>
+                  </div>
+
+                  <h4 className="text-xs font-bold text-slate-800 line-clamp-2 group-hover:text-[#c27803] transition mb-1">
+                    {sf.name || `Buổi ${numStr} - Bài giảng & Tài liệu`}
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    Slide bài giảng & Audio
+                  </p>
+                </div>
+
+                <div className="pt-2.5 mt-2 border-t border-slate-200/80 flex items-center justify-between gap-1 text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(link);
+                      setCopiedId(`sf_${num}`);
+                      setTimeout(() => setCopiedId(null), 2000);
+                    }}
+                    className="text-slate-400 hover:text-slate-700 font-medium"
+                  >
+                    {copiedId === `sf_${num}` ? "✓ Đã chép" : "Copy"}
+                  </button>
+
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 font-heading font-bold uppercase text-[10px] text-[#c27803] hover:text-[#b45309]"
+                  >
+                    <span>Mở Buổi</span>
+                    <span>↗</span>
+                  </a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Loading indicator */}
       {loading ? (

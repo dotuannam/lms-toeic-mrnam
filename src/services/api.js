@@ -130,6 +130,37 @@ export const createGoogleClassroomCourse = async ({
 };
 
 /**
+ * 2b. Automatically provision full Class Structure with:
+ * - Google Drive Root Folder
+ * - N subfolders for N class sessions
+ * - Vocabulary Google Sheet (3 columns: Vocabulary - IPA - Meaning auto formula)
+ * - Google Classroom Course (marked as Backup system)
+ */
+export const createClassStructure = async ({
+  name,
+  section = "",
+  totalSessions = 24,
+  meetLink = "",
+  descriptionHeading = "Google Classroom Backup - LMS chính thức tại hệ thống trung tâm",
+  room = "Hybrid",
+  createDriveFolders = true,
+  createVocabSheet = true,
+  createClassroom = true,
+}) => {
+  return await callGasApi("createClassStructure", {
+    name,
+    section,
+    totalSessions,
+    meetLink,
+    descriptionHeading,
+    room,
+    createDriveFolders,
+    createVocabSheet,
+    createClassroom,
+  });
+};
+
+/**
  * 3. Invite student to an active Google Classroom Course and grant Drive folder view access
  * @param {Object} params
  * @param {string} [params.courseId] - Google Classroom Course ID
@@ -351,6 +382,48 @@ function simulateGasResponse(action, data) {
             },
           });
           break;
+        case "createClassStructure": {
+          const totalSessions = Number(data.totalSessions) || 24;
+          const rootFolderId = "drive_root_" + Date.now().toString().slice(-6);
+          const rootFolderLink = "https://drive.google.com/drive/folders/" + rootFolderId;
+          const sessionFolders = [];
+          for (let i = 1; i <= totalSessions; i++) {
+            const numStr = i < 10 ? `0${i}` : `${i}`;
+            const subId = `drive_session_${numStr}_${Date.now().toString().slice(-4)}`;
+            sessionFolders.push({
+              sessionNumber: i,
+              name: `Buổi ${numStr} - Bài giảng & Tài liệu`,
+              folderId: subId,
+              folderLink: `https://drive.google.com/drive/folders/${subId}`,
+            });
+          }
+
+          const vocabSheetId = "sheet_vocab_" + Date.now().toString().slice(-6);
+          const vocabSheetUrl = `https://docs.google.com/spreadsheets/d/${vocabSheetId}/edit`;
+
+          resolve({
+            classroom: data.createClassroom !== false ? {
+              courseId: "mock_course_" + Date.now(),
+              name: data.name,
+              section: data.section,
+              enrollmentCode: "sim" + Math.floor(100 + Math.random() * 900),
+              alternateLink: "https://classroom.google.com/c/mock-course-id",
+              isBackup: true,
+            } : null,
+            driveFolder: {
+              folderId: rootFolderId,
+              folderLink: rootFolderLink,
+              totalSessions,
+              sessionFolders,
+            },
+            vocabSheet: data.createVocabSheet !== false ? {
+              sheetId: vocabSheetId,
+              sheetUrl: vocabSheetUrl,
+              name: `Sổ tay Từ Vựng - ${data.name} (${data.section || "LMS"})`,
+            } : null,
+          });
+          break;
+        }
         case "inviteStudentToCourse":
           resolve({
             invitationId: "mock_inv_" + Date.now(),
@@ -485,6 +558,42 @@ function simulateGasResponse(action, data) {
               workType: "ASSIGNMENT",
               dueDate: "2026-10-25 23:59",
               updateTime: new Date().toISOString(),
+            },
+            {
+              submissionId: "sub_sim_05",
+              courseWorkId: "cw_sim_05",
+              courseId: data.courseId || "sim_course",
+              courseName: "TOEIC / IELTS Master Course",
+              title: "BTVN Buổi 05 - 50 Câu Ngữ Pháp & Từ Vựng ETS Part 5",
+              description: "Hoàn thành 50 câu Part 5 và ghi chú lại từ mới vào Sổ tay từ vựng của lớp.",
+              maxPoints: 100,
+              grade: null,
+              state: "NEW", // Chưa nộp
+              late: false,
+              studentEmail: data.studentEmail || "student@example.com",
+              studentId: data.studentId || "HV_01",
+              alternateLink: "https://classroom.google.com",
+              workType: "ASSIGNMENT",
+              dueDate: new Date(Date.now() + 86400000 * 2).toISOString().slice(0, 16).replace("T", " "),
+              updateTime: new Date().toISOString(),
+            },
+            {
+              submissionId: "sub_sim_06",
+              courseWorkId: "cw_sim_06",
+              courseId: data.courseId || "sim_course",
+              courseName: "TOEIC / IELTS Master Course",
+              title: "BTVN Buổi 04 - Audio Listening Shadowing Part 2",
+              description: "Luyện nghe nhại 20 câu hỏi Part 2 để tăng phản xạ ngữ điệu.",
+              maxPoints: 50,
+              grade: null,
+              state: "NEW", // Chưa nộp và quá hạn
+              late: true,
+              studentEmail: data.studentEmail || "student@example.com",
+              studentId: data.studentId || "HV_01",
+              alternateLink: "https://classroom.google.com",
+              workType: "ASSIGNMENT",
+              dueDate: new Date(Date.now() - 86400000).toISOString().slice(0, 16).replace("T", " "),
+              updateTime: new Date(Date.now() - 86400000 * 2).toISOString(),
             },
           ];
 

@@ -64,6 +64,10 @@ function doPost(e) {
         result = handleCreateClassroomCourse(data);
         break;
 
+      case "createClassStructure":
+        result = handleCreateClassStructure(data);
+        break;
+
       case "inviteStudentToCourse":
         result = handleInviteStudent(data);
         break;
@@ -149,6 +153,140 @@ function handleCreateClassroomCourse(data) {
     enrollmentCode: createdCourse.enrollmentCode,
     alternateLink: createdCourse.alternateLink,
     driveFolder: driveFolderData
+  };
+}
+
+/**
+ * Action: Create complete Class Infrastructure:
+ * 1. Google Drive Root Folder
+ * 2. N subfolders for N sessions (e.g. Buổi 01 - Bài giảng & Tài liệu, Buổi 02...)
+ * 3. Vocabulary Google Sheet (Columns: Từ vựng - IPA - Nghĩa tiếng Việt với GOOGLETRANSLATE formula)
+ * 4. Google Classroom course (Backup)
+ */
+function handleCreateClassStructure(data) {
+  if (!data || !data.name) {
+    throw new Error("Missing required field: 'name' is mandatory for class creation.");
+  }
+
+  var className = data.name.trim();
+  var section = (data.section || "").trim();
+  var totalSessions = Number(data.totalSessions) || 24;
+
+  // 1. Google Classroom Course (Marked explicitly as Backup)
+  var classroomData = null;
+  if (data.createClassroom !== false) {
+    try {
+      var coursePayload = {
+        name: className,
+        section: section,
+        descriptionHeading: "Google Classroom Backup - Nền tảng LMS trung tâm là hệ thống học tập chính",
+        room: data.room || "Online / Hybrid",
+        ownerId: "me",
+        courseState: "ACTIVE"
+      };
+      var createdCourse = Classroom.Courses.create(coursePayload);
+      classroomData = {
+        courseId: createdCourse.id,
+        name: createdCourse.name,
+        section: createdCourse.section,
+        enrollmentCode: createdCourse.enrollmentCode,
+        alternateLink: createdCourse.alternateLink,
+        isBackup: true
+      };
+    } catch (cErr) {
+      console.warn("Classroom creation warning: " + cErr.message);
+    }
+  }
+
+  // 2. Google Drive Root Folder
+  var rootFolder = null;
+  var rootFolderData = null;
+  var sessionFolders = [];
+  var vocabSheetData = null;
+
+  try {
+    var rootFolderName = "[LMS] " + className + (section ? " (" + section + ")" : "");
+    rootFolder = DriveApp.createFolder(rootFolderName);
+    rootFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    // 3. Create N subfolders for N class sessions
+    if (data.createDriveFolders !== false) {
+      for (var i = 1; i <= totalSessions; i++) {
+        var numStr = i < 10 ? "0" + i : "" + i;
+        var subName = "Buổi " + numStr + " - Bài giảng & Tài liệu";
+        var subFolder = rootFolder.createFolder(subName);
+        subFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        sessionFolders.push({
+          sessionNumber: i,
+          name: subName,
+          folderId: subFolder.getId(),
+          folderLink: subFolder.getUrl()
+        });
+      }
+    }
+
+    // 4. Create Vocabulary Google Sheet inside Root Folder
+    if (data.createVocabSheet !== false) {
+      try {
+        var sheetTitle = "Sổ tay Từ Vựng - " + className + " (" + (section || "LMS") + ")";
+        var spreadsheet = SpreadsheetApp.create(sheetTitle);
+        var sheet = spreadsheet.getActiveSheet();
+        sheet.setName("Vocabulary List");
+
+        // Set Headers: Từ vựng - IPA - Nghĩa của từ
+        var headers = [["Từ vựng (Vocabulary)", "Phiên âm IPA", "Nghĩa của từ (Auto Meaning)"]];
+        sheet.getRange(1, 1, 1, 3).setValues(headers);
+
+        // Header Style (Tone vàng đất #c27803, chữ trắng đậm)
+        var headerRange = sheet.getRange("A1:C1");
+        headerRange.setBackground("#c27803")
+                   .setFontColor("#ffffff")
+                   .setFontWeight("bold")
+                   .setFontSize(11)
+                   .setHorizontalAlignment("center");
+        sheet.setFrozenRows(1);
+
+        // Auto Translate Formula for 100 rows in Column C
+        var formulas = [];
+        for (var r = 2; r <= 100; r++) {
+          formulas.push(['=IF(ISBLANK(A' + r + '), "", GOOGLETRANSLATE(A' + r + ', "en", "vi"))']);
+        }
+        sheet.getRange(2, 3, 99, 1).setFormulas(formulas);
+
+        // Set optimal column widths
+        sheet.setColumnWidth(1, 200);
+        sheet.setColumnWidth(2, 180);
+        sheet.setColumnWidth(3, 260);
+
+        // Move Sheet into Root Folder
+        var sheetFile = DriveApp.getFileById(spreadsheet.getId());
+        sheetFile.moveTo(rootFolder);
+        sheetFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
+
+        vocabSheetData = {
+          sheetId: spreadsheet.getId(),
+          sheetUrl: spreadsheet.getUrl(),
+          name: sheetTitle
+        };
+      } catch (sheetErr) {
+        console.warn("Could not create vocabulary sheet: " + sheetErr.message);
+      }
+    }
+
+    rootFolderData = {
+      folderId: rootFolder.getId(),
+      folderLink: rootFolder.getUrl(),
+      totalSessions: totalSessions,
+      sessionFolders: sessionFolders
+    };
+  } catch (driveErr) {
+    console.warn("Could not create drive folder structure: " + driveErr.message);
+  }
+
+  return {
+    classroom: classroomData,
+    driveFolder: rootFolderData,
+    vocabSheet: vocabSheetData
   };
 }
 

@@ -54,6 +54,10 @@ export const ClassesPage = () => {
     schedule: "Mon - Wed - Fri (18:00 - 20:00)",
     tuitionFee: "4500000",
     status: "in_progress",
+    totalSessions: 24,
+    meetLink: "",
+    autoCreateDriveFolders: true,
+    autoCreateVocabSheet: true,
     autoCreateClassroom: true,
   });
 
@@ -105,6 +109,10 @@ export const ClassesPage = () => {
       schedule: initialSchedule,
       tuitionFee: "4500000",
       status: "in_progress",
+      totalSessions: 24,
+      meetLink: "https://meet.google.com/new",
+      autoCreateDriveFolders: true,
+      autoCreateVocabSheet: true,
       autoCreateClassroom: true,
     });
     setShowModal(true);
@@ -132,6 +140,10 @@ export const ClassesPage = () => {
       schedule: cls.schedule || "",
       tuitionFee: cls.tuitionFee?.toString() || "0",
       status: cls.status || "in_progress",
+      totalSessions: cls.totalSessions || cls.integrations?.googleDrive?.totalSessions || 24,
+      meetLink: cls.meetLink || cls.integrations?.googleMeet?.link || "",
+      autoCreateDriveFolders: false,
+      autoCreateVocabSheet: false,
       autoCreateClassroom: false,
     });
     setShowModal(true);
@@ -181,6 +193,9 @@ export const ClassesPage = () => {
           schedule: formData.schedule,
           tuitionFee: Number(formData.tuitionFee) || 0,
           status: formData.status,
+          totalSessions: Number(formData.totalSessions) || 24,
+          meetLink: (formData.meetLink || "").trim(),
+          "integrations.googleMeet.link": (formData.meetLink || "").trim(),
         });
       } else {
         await createClass(
@@ -194,8 +209,15 @@ export const ClassesPage = () => {
             schedule: formData.schedule,
             tuitionFee: Number(formData.tuitionFee) || 0,
             status: formData.status,
+            totalSessions: Number(formData.totalSessions) || 24,
+            meetLink: (formData.meetLink || "").trim(),
+            autoCreateDriveFolders: formData.autoCreateDriveFolders,
+            autoCreateVocabSheet: formData.autoCreateVocabSheet,
+            autoCreateClassroom: formData.autoCreateClassroom,
           },
-          formData.autoCreateClassroom
+          {
+            autoCreateClassStructure: true,
+          }
         );
       }
       setShowModal(false);
@@ -443,6 +465,10 @@ export const ClassesPage = () => {
                             <span className="font-semibold text-slate-800 truncate max-w-[190px]">{cls.schedule || "TBD"}</span>
                           </div>
                           <div className="flex items-center justify-between">
+                            <span className="text-slate-400">📚 {isVi ? "Số buổi học" : "Total Sessions"}:</span>
+                            <span className="font-semibold text-[#c27803]">{cls.totalSessions || cls.integrations?.googleDrive?.totalSessions || 24} {isVi ? "buổi" : "sessions"}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
                             <span className="text-slate-400">📅 {t("duration")}:</span>
                             <span className="font-medium text-slate-700">
                               {cls.startDate || "?"} → {cls.endDate || "Ongoing"}
@@ -458,19 +484,47 @@ export const ClassesPage = () => {
 
                     <div className="p-5 pt-0">
                       <div className="pt-3 border-t border-slate-100">
-                        <div className="flex items-center gap-2 mb-3">
+                        {/* Quick links: Meet, Classroom Backup, Sheet Vocab, Drive */}
+                        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                          {(cls.meetLink || cls.integrations?.googleMeet?.link) && (
+                            <a
+                              href={cls.meetLink || cls.integrations?.googleMeet?.link}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider border border-emerald-200 transition"
+                              title="Google Meet Trực Tuyến"
+                            >
+                              <span>🎥</span>
+                              <span>Meet</span>
+                            </a>
+                          )}
+
                           {hasClassroom ? (
                             <a
                               href={cls.integrations.googleClassroom.alternateLink}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-[#20b2aa]/10 hover:bg-[#20b2aa] text-[#20b2aa] hover:text-white rounded-lg text-xs font-heading font-bold uppercase tracking-wider border border-[#20b2aa]/20 transition"
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-[#20b2aa]/10 hover:bg-[#20b2aa] text-[#147a75] hover:text-white rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider border border-[#20b2aa]/30 transition"
+                              title="Google Classroom (Hệ Thống Sao Lưu / Backup)"
                             >
                               <span>🏫</span>
-                              <span>Classroom</span>
+                              <span>Classroom (Backup)</span>
                             </a>
                           ) : (
-                            <span className="text-[11px] text-slate-400 italic">No Classroom</span>
+                            <span className="text-[10px] text-slate-400 italic">No Classroom</span>
+                          )}
+
+                          {cls.integrations?.vocabularySheet?.sheetUrl && (
+                            <a
+                              href={cls.integrations.vocabularySheet.sheetUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 hover:bg-amber-600 text-amber-800 hover:text-white rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider border border-amber-200 transition"
+                              title="Sổ Tay Từ Vựng Google Sheet (3 cột tự động)"
+                            >
+                              <span>📖</span>
+                              <span>Từ vựng</span>
+                            </a>
                           )}
 
                           {hasDrive ? (
@@ -478,17 +532,17 @@ export const ClassesPage = () => {
                               <button
                                 type="button"
                                 onClick={() => setDriveModalClass(cls)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#c27803]/10 hover:bg-[#c27803] text-[#c27803] hover:text-white font-heading font-bold uppercase tracking-wider rounded-lg text-xs border border-[#c27803]/20 transition"
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-[#c27803]/10 hover:bg-[#c27803] text-[#c27803] hover:text-white font-heading font-bold uppercase tracking-wider rounded-lg text-[11px] border border-[#c27803]/20 transition"
                                 title={t("manageClassMaterials")}
                               >
                                 <span>📁</span>
-                                <span>{isVi ? "Tài liệu & Upload" : "Materials & Upload"}</span>
+                                <span>{isVi ? "Tài liệu" : "Materials"}</span>
                               </button>
                               <a
                                 href={cls.integrations.googleDrive.folderLink}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs border border-slate-200 transition"
+                                className="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs border border-slate-200 transition"
                                 title={t("openInDriveBtn")}
                               >
                                 ↗
@@ -498,7 +552,7 @@ export const ClassesPage = () => {
                             <button
                               type="button"
                               onClick={() => setDriveModalClass(cls)}
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold transition"
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[11px] font-semibold transition"
                               title={t("noDriveFolder")}
                             >
                               <span>📁</span>
@@ -593,14 +647,34 @@ export const ClassesPage = () => {
                               </div>
 
                               <div className="flex flex-col gap-1 pt-1">
+                                {(cls.meetLink || cls.integrations?.googleMeet?.link) && (
+                                  <a
+                                    href={cls.meetLink || cls.integrations?.googleMeet?.link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-[10px] font-semibold text-emerald-600 hover:underline block"
+                                  >
+                                    🎥 {isVi ? "Vào Meet" : "Join Meet"} →
+                                  </a>
+                                )}
                                 {cls.integrations?.googleClassroom?.alternateLink && (
                                   <a
                                     href={cls.integrations.googleClassroom.alternateLink}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="text-[10px] font-semibold text-emerald-600 hover:underline block"
+                                    className="text-[10px] font-semibold text-[#147a75] hover:underline block"
                                   >
-                                    🏫 Mở Classroom →
+                                    🏫 Classroom (Backup) →
+                                  </a>
+                                )}
+                                {cls.integrations?.vocabularySheet?.sheetUrl && (
+                                  <a
+                                    href={cls.integrations.vocabularySheet.sheetUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-[10px] font-semibold text-amber-700 hover:underline block"
+                                  >
+                                    📖 {isVi ? "Sheet Từ vựng" : "Vocab Sheet"} →
                                   </a>
                                 )}
                                 <button
@@ -851,9 +925,9 @@ export const ClassesPage = () => {
                                       href={cls.integrations.googleClassroom.alternateLink}
                                       target="_blank"
                                       rel="noreferrer"
-                                      className="font-bold text-emerald-600 hover:underline"
+                                      className="font-bold text-[#147a75] hover:underline"
                                     >
-                                      🏫 Google Classroom →
+                                      🏫 Classroom (Backup) →
                                     </a>
                                   ) : (
                                     <span className="text-slate-400 italic">Chưa liên kết</span>
@@ -1191,20 +1265,141 @@ export const ClassesPage = () => {
                 </div>
               </div>
 
+              {/* Sessions Count & Google Meet Room */}
+              <div className="p-3.5 bg-amber-50/50 border border-amber-200/80 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-900 uppercase tracking-wide flex items-center gap-1.5">
+                    <span>⚡</span>
+                    <span>{isVi ? "Số Buổi Học & Phòng Học Trực Tuyến" : "Sessions & Online Classroom"}</span>
+                  </span>
+                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                    LMS Primary
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      {isVi ? "Tổng số buổi học (N)" : "Total Sessions (N)"} *
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="number"
+                        min="1"
+                        max="120"
+                        value={formData.totalSessions}
+                        onChange={(e) => setFormData({ ...formData, totalSessions: e.target.value })}
+                        className="w-24 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
+                        placeholder="24"
+                      />
+                      <div className="flex items-center gap-1">
+                        {[24, 30, 36].map((num) => (
+                          <button
+                            key={num}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, totalSessions: num })}
+                            className={`px-2 py-1 text-[10px] rounded-lg font-bold border transition ${
+                              Number(formData.totalSessions) === num
+                                ? "bg-[#c27803] text-white border-[#c27803]"
+                                : "bg-white text-slate-600 border-slate-200 hover:border-amber-400"
+                            }`}
+                          >
+                            {num}b
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-700 uppercase">
+                        {isVi ? "Link Google Meet" : "Google Meet Link"}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const randCode = Math.random().toString(36).substring(2, 5) + "-" + Math.random().toString(36).substring(2, 6) + "-" + Math.random().toString(36).substring(2, 5);
+                          setFormData({ ...formData, meetLink: `https://meet.google.com/${randCode}` });
+                        }}
+                        className="text-[10px] text-amber-700 font-bold hover:underline"
+                      >
+                        ⚡ {isVi ? "Tạo link mẫu" : "Gen Sample"}
+                      </button>
+                    </div>
+                    <input
+                      type="url"
+                      value={formData.meetLink}
+                      onChange={(e) => setFormData({ ...formData, meetLink: e.target.value })}
+                      placeholder="https://meet.google.com/abc-defg-hij"
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-800"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {!editingClass && (
-                <div className="p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl">
-                  <label className="flex items-center gap-2.5 cursor-pointer">
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                  <span className="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                    <span>🤖</span>
+                    <span>{isVi ? "Tự Động Hóa Khởi Tạo (Google Drive / Sheet / Classroom)" : "Automated Provisioning"}</span>
+                  </span>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={formData.autoCreateDriveFolders}
+                      onChange={(e) =>
+                        setFormData({ ...formData, autoCreateDriveFolders: e.target.checked })
+                      }
+                      className="w-4 h-4 text-[#c27803] rounded focus:ring-amber-500 mt-0.5"
+                    />
+                    <div>
+                      <strong className="text-slate-900 block font-semibold">
+                        {isVi ? "Tự động tạo Thư mục Drive gốc & N thư mục con từng buổi học" : "Auto-create Drive Root Folder & N session folders"}
+                      </strong>
+                      <span className="text-[11px] text-slate-500">
+                        {isVi ? `Tạo thư mục "Buổi 01 - Bài giảng & Tài liệu" đến "Buổi ${formData.totalSessions || 24}" trên Drive.` : "Create session subfolders for daily lecture materials."}
+                      </span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={formData.autoCreateVocabSheet}
+                      onChange={(e) =>
+                        setFormData({ ...formData, autoCreateVocabSheet: e.target.checked })
+                      }
+                      className="w-4 h-4 text-[#c27803] rounded focus:ring-amber-500 mt-0.5"
+                    />
+                    <div>
+                      <strong className="text-slate-900 block font-semibold">
+                        {isVi ? "Tự động tạo File Google Sheet học Từ Vựng (3 cột có hàm tự động)" : "Auto-create Vocabulary Google Sheet (3 columns)"}
+                      </strong>
+                      <span className="text-[11px] text-slate-500">
+                        {isVi ? "Cấu trúc: Từ vựng - Phiên âm IPA - Nghĩa tự động (=GOOGLETRANSLATE)." : "3 columns: Vocabulary - IPA - Auto Meaning function."}
+                      </span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-700">
                     <input
                       type="checkbox"
                       checked={formData.autoCreateClassroom}
                       onChange={(e) =>
                         setFormData({ ...formData, autoCreateClassroom: e.target.checked })
                       }
-                      className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                      className="w-4 h-4 text-[#c27803] rounded focus:ring-amber-500 mt-0.5"
                     />
-                    <span className="text-xs font-medium text-indigo-900">
-                      Provision Google Classroom Course & Google Drive Folder automatically
-                    </span>
+                    <div>
+                      <strong className="text-slate-900 block font-semibold">
+                        {isVi ? "Khởi tạo Google Classroom (Đóng vai trò hệ thống sao lưu / backup)" : "Provision Google Classroom Course (Backup system)"}
+                      </strong>
+                      <span className="text-[11px] text-slate-500">
+                        {isVi ? "Hệ thống LMS chính yếu, Google Classroom phục vụ đồng bộ điểm & bài tập sao lưu." : "LMS remains primary, Classroom used as backup & grade sync."}
+                      </span>
+                    </div>
                   </label>
                 </div>
               )}
