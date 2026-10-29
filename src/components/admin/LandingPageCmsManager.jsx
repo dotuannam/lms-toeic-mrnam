@@ -371,6 +371,44 @@ export const LandingPageCmsManager = ({
               </div>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-amber-50/60 rounded-2xl border border-amber-200/80">
+              <div>
+                <label className="block text-xs font-bold text-amber-950 uppercase mb-1">
+                  ⭐ Điểm Thi TOEIC Trên Thẻ Hero
+                </label>
+                <input
+                  type="text"
+                  value={formData.profile?.toeicScore || ""}
+                  onChange={(e) =>
+                    handleUpdate("profile", { toeicScore: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2.5 bg-white border border-amber-300 rounded-xl text-xs font-black text-amber-700 focus:outline-none focus:border-[#c27803]"
+                  placeholder="Mặc định lấy từ Stats: 980 / 990"
+                />
+                <span className="text-[10px] text-amber-800/80 block mt-1">
+                  Hiển thị tại ô 'TOEIC Score' trên thẻ đại diện bên phải màn hình chào mừng.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-amber-950 uppercase mb-1">
+                  👥 Số Học Viên Đã Dạy Trên Thẻ Hero
+                </label>
+                <input
+                  type="text"
+                  value={formData.profile?.totalStudents || ""}
+                  onChange={(e) =>
+                    handleUpdate("profile", { totalStudents: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2.5 bg-white border border-amber-300 rounded-xl text-xs font-black text-stone-900 focus:outline-none focus:border-[#c27803]"
+                  placeholder="Mặc định lấy từ Stats: 200+ hoặc 1,200+"
+                />
+                <span className="text-[10px] text-amber-800/80 block mt-1">
+                  Hiển thị tại ô 'Học Viên Đã Dạy' trên thẻ đại diện (tự động đồng bộ với Stats nếu để trống).
+                </span>
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
                 Phương Thức Giảng Dạy

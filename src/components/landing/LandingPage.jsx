@@ -14,6 +14,7 @@ import {
 import { MiniPlacementTest } from "./MiniPlacementTest";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { sendEmailNotification } from "../../services/api";
 
 export const LandingPage = ({ onGoToPortal }) => {
   const { currentUser, role, isStaff, loginWithEmail, loginWithGoogle, resetPassword } = useAuth();
@@ -42,6 +43,25 @@ export const LandingPage = ({ onGoToPortal }) => {
     ...(content.hero || {}),
   };
   const stats = content.stats && content.stats.length > 0 ? content.stats : IMPACT_STATS;
+
+  // Tự động đồng bộ số lượng học viên và điểm thi từ stats hoặc profile của Thầy
+  const studentsStat =
+    teacher.totalStudents ||
+    stats.find(
+      (s) =>
+        s.label?.toLowerCase().includes("học viên") ||
+        s.label?.toLowerCase().includes("student")
+    )?.value ||
+    "1,200+";
+
+  const toeicStat =
+    teacher.toeicScore ||
+    stats.find(
+      (s) =>
+        s.label?.toLowerCase().includes("toeic") ||
+        s.label?.toLowerCase().includes("score")
+    )?.value ||
+    "980 / 990";
   const education = content.education && content.education.length > 0 ? content.education : EDUCATION_LIST;
   const certifications = content.certifications && content.certifications.length > 0 ? content.certifications : CERTIFICATIONS_LIST;
   const career = content.career && content.career.length > 0 ? content.career : CAREER_EXPERIENCE;
@@ -172,7 +192,94 @@ export const LandingPage = ({ onGoToPortal }) => {
         createdAt: serverTimestamp(),
         source: "landing_page",
       };
+      // 1. Lưu bản ghi vào Firestore Database
       await addDoc(collection(db, "consultation_bookings"), payload);
+
+      // 2. Tự động gửi Email thông báo về Gmail của Thầy Nam (dotuannamwork2809@gmail.com)
+      const adminRecipient =
+        content.contactInfo?.email ||
+        centerConfig?.adminEmail ||
+        teacher.adminEmail ||
+        teacher.email ||
+        "dotuannamwork2809@gmail.com";
+
+      const quizSummaryHtml =
+        payload.quizScore !== null
+          ? `<tr style="border-bottom: 1px solid #f5f5f4;">
+              <td style="padding: 11px 0; color: #78716c; font-weight: bold;">Kết quả Mini Test:</td>
+              <td style="padding: 11px 0; color: #059669; font-weight: bold; font-size: 14px;">
+                ${payload.quizScore} / ${payload.quizMaxScore} câu đúng (Ước tính: ${payload.quizLevel})
+              </td>
+            </tr>`
+          : "";
+
+      const adminEmailBody = `
+        <div style="font-family: Arial, Helvetica, sans-serif; max-width: 620px; margin: 0 auto; background: #faf9f6; border: 1px solid #e7e5e4; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+          <div style="background: #1c1610; padding: 26px 28px; text-align: center; border-bottom: 3px solid #c27803;">
+            <h2 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">TOEIC MR.NAM — HỆ THỐNG LMS</h2>
+            <p style="color: #f59e0b; margin: 6px 0 0; font-size: 13px; font-weight: bold; text-transform: uppercase;">⚡ Yêu Cầu Tư Vấn Khóa Học Mới Qua Zalo</p>
+          </div>
+          
+          <div style="padding: 28px 32px; background: #ffffff;">
+            <p style="font-size: 14px; color: #292524; line-height: 1.6; margin-top: 0;">
+              Kính gửi <strong>Thầy Đỗ Tuấn Nam</strong>,<br>
+              Hệ thống vừa ghi nhận một học viên mới đăng ký tư vấn lộ trình học TOEIC trên Landing Page:
+            </p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px;">
+              <tr style="border-bottom: 1px solid #f5f5f4;">
+                <td style="padding: 11px 0; color: #78716c; width: 160px; font-weight: bold;">Họ và Tên:</td>
+                <td style="padding: 11px 0; color: #1c1917; font-weight: bold; font-size: 15px;">${payload.name}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #f5f5f4;">
+                <td style="padding: 11px 0; color: #78716c; font-weight: bold;">Số điện thoại / Zalo:</td>
+                <td style="padding: 11px 0;">
+                  <a href="tel:${payload.phone}" style="color: #0284c7; font-weight: bold; font-size: 15px; text-decoration: none;">${payload.phone}</a>
+                  <span style="display: inline-block; margin-left: 8px; padding: 3px 10px; background: #e0f2fe; color: #0369a1; border-radius: 9999px; font-size: 11px; font-weight: bold;">Nhắn tin qua Zalo</span>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid #f5f5f4;">
+                <td style="padding: 11px 0; color: #78716c; font-weight: bold;">Địa chỉ Email:</td>
+                <td style="padding: 11px 0; color: #1c1917;">
+                  <a href="mailto:${payload.email}" style="color: #1c1917; text-decoration: none;">${payload.email}</a>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid #f5f5f4;">
+                <td style="padding: 11px 0; color: #78716c; font-weight: bold;">Khóa học quan tâm:</td>
+                <td style="padding: 11px 0; color: #c27803; font-weight: bold; font-size: 14px;">${payload.program}</td>
+              </tr>
+              ${quizSummaryHtml}
+              <tr>
+                <td style="padding: 11px 0; color: #78716c; font-weight: bold; vertical-align: top;">Ghi chú hiện trạng:</td>
+                <td style="padding: 11px 0; color: #44403c; line-height: 1.6; font-style: italic;">
+                  ${payload.notes ? `"${payload.notes}"` : "Không có ghi chú thêm"}
+                </td>
+              </tr>
+            </table>
+
+            <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 14px; padding: 14px 18px; margin-top: 18px; font-size: 12px; color: #92400e; line-height: 1.5;">
+              <strong>💬 Hướng dẫn xử lý:</strong> Thầy chỉ cần mở ứng dụng <strong>Zalo</strong>, tìm kiếm số điện thoại <strong>${payload.phone}</strong> và gửi lời chào để bắt đầu tư vấn lộ trình học cho học viên.
+            </div>
+          </div>
+
+          <div style="padding: 16px 28px; background: #f5f5f4; text-align: center; font-size: 11px; color: #a8a29e; border-top: 1px solid #e7e5e4;">
+            Thông báo tự động từ Hệ Thống Quản Trị Học Tập LMS TOEIC MR.NAM • ${new Date().toLocaleString("vi-VN")}
+          </div>
+        </div>
+      `;
+
+      // Kích hoạt gửi email qua Google Apps Script Web App
+      try {
+        await sendEmailNotification({
+          to: adminRecipient,
+          subject: `[LMS TOEIC MR.NAM] Yêu cầu tư vấn Zalo mới từ học viên: ${payload.name}`,
+          htmlBody: adminEmailBody,
+          senderName: "LMS TOEIC MR.NAM",
+        });
+      } catch (mailErr) {
+        console.warn("Could not dispatch admin notification email via GAS:", mailErr);
+      }
+
       setBookingSuccess(true);
     } catch (err) {
       console.error("Booking error:", err);
@@ -392,7 +499,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                         TOEIC Score
                       </span>
                       <span className="text-2xl font-heading font-black text-amber-600">
-                        980 <span className="text-xs text-neutral-400">/ 990</span>
+                        {toeicStat.includes("/") ? toeicStat : `${toeicStat} / 990`}
                       </span>
                     </div>
                     <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-100 text-center">
@@ -400,7 +507,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                         Học Viên Đã Dạy
                       </span>
                       <span className="text-2xl font-heading font-black text-neutral-900">
-                        1,200+
+                        {studentsStat}
                       </span>
                     </div>
                   </div>
