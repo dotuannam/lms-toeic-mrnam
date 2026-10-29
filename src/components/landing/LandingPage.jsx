@@ -20,6 +20,17 @@ export const LandingPage = ({ onGoToPortal }) => {
   const { centerConfig, landingPageContent } = useSettings();
 
   const content = landingPageContent || {};
+  const toggles = content.toggles || {
+    showPlacementTest: true,
+    showBookingForm: true,
+    showContactForm: true,
+    showCvPrint: true,
+  };
+  const consultationSlots =
+    content.consultationTimeSlots && content.consultationTimeSlots.length > 0
+      ? content.consultationTimeSlots
+      : CONSULTATION_TIME_SLOTS;
+
   const teacher = { ...TEACHER_PROFILE, ...(content.profile || {}) };
   const hero = {
     badge: "⭐ Thạc sĩ Ngôn ngữ Anh • TOEIC 980 / 990 IIG Vietnam",
@@ -27,6 +38,11 @@ export const LandingPage = ({ onGoToPortal }) => {
     subHeadline: teacher.bioShort,
     primaryCta: "Làm Mini Test 3 Phút →",
     secondaryCta: "Hẹn Lịch Tư Vấn 1-1",
+    commitments: [
+      "Cam kết chuẩn đầu ra văn bản",
+      "Mock-test hàng tuần trên LMS",
+      "Video record bài giảng trọn đời",
+    ],
     ...(content.hero || {}),
   };
   const stats = content.stats && content.stats.length > 0 ? content.stats : IMPACT_STATS;
@@ -59,7 +75,7 @@ export const LandingPage = ({ onGoToPortal }) => {
     email: "",
     program: "TOEIC - THE NOTE (Khóa học TOEIC 500+)",
     date: "",
-    time: CONSULTATION_TIME_SLOTS[0],
+    time: consultationSlots[0] || CONSULTATION_TIME_SLOTS[0],
     notes: "",
   });
   const [quizResult, setQuizResult] = useState(null);
@@ -229,30 +245,36 @@ export const LandingPage = ({ onGoToPortal }) => {
             <a href="#testimonials" className="hover:text-neutral-950 transition">
               Học viên
             </a>
-            <button
-              onClick={() => scrollToSection(placementTestRef)}
-              className="text-amber-700 hover:text-amber-900 font-bold transition cursor-pointer"
-            >
-              Mini Placement Test
-            </button>
-            <button
-              onClick={() => scrollToSection(bookingRef)}
-              className="hover:text-neutral-950 transition cursor-pointer"
-            >
-              Hẹn lịch tư vấn
-            </button>
+            {toggles.showPlacementTest !== false && (
+              <button
+                onClick={() => scrollToSection(placementTestRef)}
+                className="text-amber-700 hover:text-amber-900 font-bold transition cursor-pointer"
+              >
+                Mini Placement Test
+              </button>
+            )}
+            {toggles.showBookingForm !== false && (
+              <button
+                onClick={() => scrollToSection(bookingRef)}
+                className="hover:text-neutral-950 transition cursor-pointer"
+              >
+                Hẹn lịch tư vấn
+              </button>
+            )}
           </div>
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => setShowCvModal(true)}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-300 text-neutral-700 text-xs font-semibold hover:bg-neutral-100 transition cursor-pointer"
-              title="Xem và in sơ yếu lý lịch chuẩn"
-            >
-              <span>📄</span>
-              <span>In CV (Print)</span>
-            </button>
+            {toggles.showCvPrint !== false && (
+              <button
+                onClick={() => setShowCvModal(true)}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-300 text-neutral-700 text-xs font-semibold hover:bg-neutral-100 transition cursor-pointer"
+                title="Xem và in sơ yếu lý lịch chuẩn"
+              >
+                <span>📄</span>
+                <span>In CV (Print)</span>
+              </button>
+            )}
 
             {currentUser ? (
               <button
@@ -324,20 +346,18 @@ export const LandingPage = ({ onGoToPortal }) => {
                 )}
               </div>
 
-              {/* Verified Tag */}
-              <div className="pt-4 flex items-center gap-4 text-xs text-neutral-500 border-t border-neutral-200/80">
-                <div className="flex items-center gap-1.5 font-medium">
-                  <span className="text-emerald-600">✓</span>
-                  <span>Cam kết chuẩn đầu ra văn bản</span>
-                </div>
-                <div className="flex items-center gap-1.5 font-medium">
-                  <span className="text-emerald-600">✓</span>
-                  <span>Mock-test hàng tuần trên LMS</span>
-                </div>
-                <div className="flex items-center gap-1.5 font-medium">
-                  <span className="text-emerald-600">✓</span>
-                  <span>Video record bài giảng trọn đời</span>
-                </div>
+              {/* Verified Tag / Commitments */}
+              <div className="pt-4 flex flex-wrap items-center gap-4 text-xs text-neutral-500 border-t border-neutral-200/80">
+                {(hero.commitments || [
+                  "Cam kết chuẩn đầu ra văn bản",
+                  "Mock-test hàng tuần trên LMS",
+                  "Video record bài giảng trọn đời",
+                ]).map((com, cIdx) => (
+                  <div key={cIdx} className="flex items-center gap-1.5 font-medium">
+                    <span className="text-emerald-600 font-bold">✓</span>
+                    <span>{com}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -677,42 +697,45 @@ export const LandingPage = ({ onGoToPortal }) => {
       {/* =========================================================================
           7. MINI PLACEMENT TEST SECTION
       ========================================================================= */}
-      <section
-        id="placement-test"
-        ref={placementTestRef}
-        className="py-16 md:py-24 bg-gradient-to-b from-white to-[#FAF9F6] border-b border-neutral-200"
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="text-center space-y-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
-              Kiểm Tra Năng Lực Trực Tuyến
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
-              Mini Placement Test (5 Câu Rút Gọn)
-            </h2>
-            <p className="text-sm text-neutral-600 max-w-lg mx-auto">
-              Được thiết kế dựa trên các bẫy ngữ pháp và từ vựng cốt lõi nhất của đề thi thật ETS, giúp bạn định vị năng lực chỉ trong 3 phút.
-            </p>
-          </div>
+      {toggles.showPlacementTest !== false && (
+        <section
+          id="placement-test"
+          ref={placementTestRef}
+          className="py-16 md:py-24 bg-gradient-to-b from-white to-[#FAF9F6] border-b border-neutral-200"
+        >
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="text-center space-y-3">
+              <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
+                Kiểm Tra Năng Lực Trực Tuyến
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
+                Mini Placement Test (5 Câu Rút Gọn)
+              </h2>
+              <p className="text-sm text-neutral-600 max-w-lg mx-auto">
+                Được thiết kế dựa trên các bẫy ngữ pháp và từ vựng cốt lõi nhất của đề thi thật ETS, giúp bạn định vị năng lực chỉ trong 3 phút.
+              </p>
+            </div>
 
-          <MiniPlacementTest
-            onSelectConsultation={(res) => {
-              setQuizResult(res);
-              setBookingData((prev) => ({
-                ...prev,
-                program: res.recommendedCourse,
-              }));
-              scrollToSection(bookingRef);
-            }}
-          />
-        </div>
-      </section>
+            <MiniPlacementTest
+              onSelectConsultation={(res) => {
+                setQuizResult(res);
+                setBookingData((prev) => ({
+                  ...prev,
+                  program: res.recommendedCourse,
+                }));
+                scrollToSection(bookingRef);
+              }}
+            />
+          </div>
+        </section>
+      )}
 
       {/* =========================================================================
           8. BOOKING CONSULTATION FORM
       ========================================================================= */}
-      <section id="booking" ref={bookingRef} className="py-16 md:py-24 bg-white border-b border-neutral-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      {toggles.showBookingForm !== false && (
+        <section id="booking" ref={bookingRef} className="py-16 md:py-24 bg-white border-b border-neutral-200">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="text-center space-y-3">
             <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
               Định Hình Lộ Trình 1-1
@@ -846,7 +869,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                     onChange={(e) => setBookingData({ ...bookingData, time: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
                   >
-                    {CONSULTATION_TIME_SLOTS.map((slot, idx) => (
+                    {consultationSlots.map((slot, idx) => (
                       <option key={idx} value={slot}>
                         {slot}
                       </option>
@@ -881,6 +904,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           )}
         </div>
       </section>
+      )}
 
       {/* =========================================================================
           9. STUDENT TESTIMONIALS
@@ -936,114 +960,116 @@ export const LandingPage = ({ onGoToPortal }) => {
       {/* =========================================================================
           10. DIRECT CONTACT & MESSAGE
       ========================================================================= */}
-      <section id="contact" className="py-16 md:py-24 bg-white border-b border-neutral-200">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* Contact Info Left */}
-            <div className="lg:col-span-5 space-y-6">
-              <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
-                Kết Nối Học Tập
-              </span>
-              <h2 className="text-3xl font-serif font-bold text-neutral-950">
-                Gửi Lời Nhắn Cho Thầy Nam
-              </h2>
-              <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-                {teacher.contactQuote}
-              </p>
+      {toggles.showContactForm !== false && (
+        <section id="contact" className="py-16 md:py-24 bg-white border-b border-neutral-200">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              {/* Contact Info Left */}
+              <div className="lg:col-span-5 space-y-6">
+                <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
+                  Kết Nối Học Tập
+                </span>
+                <h2 className="text-3xl font-serif font-bold text-neutral-950">
+                  Gửi Lời Nhắn Cho Thầy Nam
+                </h2>
+                <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+                  {teacher.contactQuote}
+                </p>
 
-              <div className="space-y-3 text-xs">
-                <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
-                  <span className="text-neutral-400 font-bold uppercase text-[10px] block">
-                    Điện Thoại / Zalo
-                  </span>
-                  <a href={`tel:${teacher.phone}`} className="font-bold text-neutral-900 text-sm hover:underline">
-                    {teacher.phone}
-                  </a>
-                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
+                    <span className="text-neutral-400 font-bold uppercase text-[10px] block">
+                      Điện Thoại / Zalo
+                    </span>
+                    <a href={`tel:${content.contactInfo?.hotline || teacher.phone}`} className="font-bold text-neutral-900 text-sm hover:underline">
+                      {content.contactInfo?.hotline || teacher.phone}
+                    </a>
+                  </div>
 
-                <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
-                  <span className="text-neutral-400 font-bold uppercase text-[10px] block">
-                    Email Trực Tiếp
-                  </span>
-                  <a href={`mailto:${teacher.email}`} className="font-bold text-neutral-900 text-sm hover:underline">
-                    {teacher.email}
-                  </a>
-                </div>
+                  <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
+                    <span className="text-neutral-400 font-bold uppercase text-[10px] block">
+                      Email Trực Tiếp
+                    </span>
+                    <a href={`mailto:${content.contactInfo?.email || teacher.email}`} className="font-bold text-neutral-900 text-sm hover:underline">
+                      {content.contactInfo?.email || teacher.email}
+                    </a>
+                  </div>
 
-                <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
-                  <span className="text-neutral-400 font-bold uppercase text-[10px] block">
-                    Địa Điểm
-                  </span>
-                  <p className="font-semibold text-neutral-900">
-                    {teacher.location} ({teacher.teachingMode})
-                  </p>
+                  <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
+                    <span className="text-neutral-400 font-bold uppercase text-[10px] block">
+                      Địa Điểm
+                    </span>
+                    <p className="font-semibold text-neutral-900">
+                      {content.contactInfo?.address || teacher.location} ({teacher.teachingMode})
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Message Form Right */}
-            <div className="lg:col-span-7">
-              <form onSubmit={handleContactSubmit} className="bg-[#FAF9F6] p-6 sm:p-8 rounded-3xl border border-neutral-200 space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
-                    Họ và Tên
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={contactData.name}
-                    onChange={(e) => setContactData({ ...contactData, name: e.target.value })}
-                    placeholder="Nhập tên của bạn..."
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
-                    Địa Chỉ Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={contactData.email}
-                    onChange={(e) => setContactData({ ...contactData, email: e.target.value })}
-                    placeholder="Nhập email liên hệ..."
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
-                    Nội dung Lời Nhắn
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={contactData.message}
-                    onChange={(e) => setContactData({ ...contactData, message: e.target.value })}
-                    placeholder="Bạn đang quan tâm lộ trình TOEIC 500+, 600+ hay 700+? Hãy gửi câu hỏi tại đây..."
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900 leading-relaxed"
-                  />
-                </div>
-
-                {contactSuccess && (
-                  <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl font-medium">
-                    ✓ Gửi tin nhắn thành công! Thầy Nam sẽ sớm phản hồi qua email bạn đã cung cấp.
+              {/* Message Form Right */}
+              <div className="lg:col-span-7">
+                <form onSubmit={handleContactSubmit} className="bg-[#FAF9F6] p-6 sm:p-8 rounded-3xl border border-neutral-200 space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                      Họ và Tên
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={contactData.name}
+                      onChange={(e) => setContactData({ ...contactData, name: e.target.value })}
+                      placeholder="Nhập tên của bạn..."
+                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                    />
                   </div>
-                )}
 
-                <button
-                  type="submit"
-                  disabled={contactLoading}
-                  className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
-                >
-                  {contactLoading ? "Đang gửi..." : "Gửi Tin Nhắn Đi →"}
-                </button>
-              </form>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                      Địa Chỉ Email
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={contactData.email}
+                      onChange={(e) => setContactData({ ...contactData, email: e.target.value })}
+                      placeholder="Nhập email liên hệ..."
+                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                      Nội dung Lời Nhắn
+                    </label>
+                    <textarea
+                      rows={4}
+                      required
+                      value={contactData.message}
+                      onChange={(e) => setContactData({ ...contactData, message: e.target.value })}
+                      placeholder="Bạn đang quan tâm lộ trình TOEIC 500+, 600+ hay 700+? Hãy gửi câu hỏi tại đây..."
+                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900 leading-relaxed"
+                    />
+                  </div>
+
+                  {contactSuccess && (
+                    <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl font-medium">
+                      ✓ Gửi tin nhắn thành công! Thầy Nam sẽ sớm phản hồi qua email bạn đã cung cấp.
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={contactLoading}
+                    className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
+                  >
+                    {contactLoading ? "Đang gửi..." : "Gửi Tin Nhắn Đi →"}
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* =========================================================================
           11. FOOTER
@@ -1066,12 +1092,14 @@ export const LandingPage = ({ onGoToPortal }) => {
             </div>
 
             <div className="flex items-center gap-6 text-xs text-neutral-400">
-              <button
-                onClick={() => setShowCvModal(true)}
-                className="hover:text-white transition cursor-pointer"
-              >
-                In Sơ Yếu Lý Lịch (Print)
-              </button>
+              {toggles.showCvPrint !== false && (
+                <button
+                  onClick={() => setShowCvModal(true)}
+                  className="hover:text-white transition cursor-pointer"
+                >
+                  In Sơ Yếu Lý Lịch (Print)
+                </button>
+              )}
               <button
                 onClick={() => setShowLoginModal(true)}
                 className="hover:text-amber-400 transition cursor-pointer font-bold text-neutral-300"
@@ -1083,7 +1111,7 @@ export const LandingPage = ({ onGoToPortal }) => {
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-500">
             <p>© 2026 {teacher.name}. Thiết kế tinh tế theo phong cách Portfolio & Learning Management System.</p>
-            <p>Thành phố Hồ Chí Minh, Việt Nam</p>
+            <p>{content.contactInfo?.address || "Thành phố Hồ Chí Minh, Việt Nam"}</p>
           </div>
         </div>
       </footer>

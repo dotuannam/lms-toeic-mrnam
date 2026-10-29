@@ -10,6 +10,7 @@ import {
   CAREER_EXPERIENCE,
   FEATURED_COURSES,
   STUDENT_TESTIMONIALS,
+  CONSULTATION_TIME_SLOTS,
 } from "../data/portfolioData";
 
 const SETTINGS_COLLECTION = "system_settings";
@@ -668,12 +669,17 @@ export const saveClassroomRules = async (rulesData) => {
 // =========================================================================
 export const DEFAULT_LANDING_PAGE_CONTENT = {
   hero: {
-    badge: "Giảng Viên & Chuyên Gia TOEIC Hàng Đầu",
-    headline: "Master English, Elevate Your Future",
+    badge: "⭐ Thạc sĩ Ngôn ngữ Anh • TOEIC 980 / 990 IIG Vietnam",
+    headline: "Chinh Phục TOEIC Bằng Phương Pháp Khoa Học & Trải Nghiệm Thực Chiến.",
     subHeadline:
       "Đồng hành cùng Thầy Đỗ Tuấn Nam chinh phục TOEIC 750+ với lộ trình cá nhân hóa, phương pháp sư phạm hiện đại và nền tảng LMS tiên tiến.",
-    primaryCta: "Làm Mini Test 3 Phút",
-    secondaryCta: "Đăng Ký Tư Vấn 1-1",
+    primaryCta: "Làm Mini Test 3 Phút →",
+    secondaryCta: "Hẹn Lịch Tư Vấn 1-1",
+    commitments: [
+      "Cam kết chuẩn đầu ra văn bản",
+      "Mock-test hàng tuần trên LMS",
+      "Video record bài giảng trọn đời",
+    ],
   },
   profile: TEACHER_PROFILE,
   stats: IMPACT_STATS,
@@ -687,6 +693,13 @@ export const DEFAULT_LANDING_PAGE_CONTENT = {
     hotline: "077 345 2809",
     email: "Dotuannam63@gmail.com",
     teachingMode: "Trực tiếp & Trực tuyến qua Google Meet",
+  },
+  consultationTimeSlots: CONSULTATION_TIME_SLOTS,
+  toggles: {
+    showPlacementTest: true,
+    showBookingForm: true,
+    showContactForm: true,
+    showCvPrint: true,
   },
 };
 
