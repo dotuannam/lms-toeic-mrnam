@@ -26,10 +26,6 @@ export const LandingPage = ({ onGoToPortal }) => {
     showContactForm: true,
     showCvPrint: true,
   };
-  const consultationSlots =
-    content.consultationTimeSlots && content.consultationTimeSlots.length > 0
-      ? content.consultationTimeSlots
-      : CONSULTATION_TIME_SLOTS;
 
   const teacher = { ...TEACHER_PROFILE, ...(content.profile || {}) };
   const hero = {
@@ -74,8 +70,6 @@ export const LandingPage = ({ onGoToPortal }) => {
     phone: "",
     email: "",
     program: "TOEIC - THE NOTE (Khóa học TOEIC 500+)",
-    date: "",
-    time: consultationSlots[0] || CONSULTATION_TIME_SLOTS[0],
     notes: "",
   });
   const [quizResult, setQuizResult] = useState(null);
@@ -165,7 +159,12 @@ export const LandingPage = ({ onGoToPortal }) => {
     setBookingLoading(true);
     try {
       const payload = {
-        ...bookingData,
+        name: bookingData.name.trim(),
+        phone: bookingData.phone.trim(),
+        email: bookingData.email.trim(),
+        program: bookingData.program,
+        notes: (bookingData.notes || "").trim(),
+        contactMethod: "zalo",
         quizScore: quizResult ? quizResult.quizScore : null,
         quizMaxScore: quizResult ? quizResult.quizMaxScore : null,
         quizLevel: quizResult ? quizResult.quizLevel : null,
@@ -770,16 +769,16 @@ export const LandingPage = ({ onGoToPortal }) => {
                 ✓
               </div>
               <h3 className="font-serif font-bold text-2xl text-emerald-950">
-                Đặt Lịch Thành Công!
+                Đăng Ký Tư Vấn Thành Công!
               </h3>
               <p className="text-sm text-emerald-800 max-w-md mx-auto leading-relaxed">
-                Cảm ơn bạn, <strong>{bookingData.name}</strong>. Lịch hẹn tư vấn khóa học <strong>{bookingData.program}</strong> đã được ghi nhận. Thầy Nam sẽ liên hệ qua điện thoại/Zalo trong thời gian sớm nhất!
+                Cảm ơn bạn, <strong>{bookingData.name}</strong>. Yêu cầu tư vấn khóa học <strong>{bookingData.program}</strong> đã được ghi nhận. Thầy Nam sẽ trực tiếp nhắn tin qua <strong>Zalo</strong> theo số điện thoại <strong>{bookingData.phone}</strong> trong thời gian sớm nhất!
               </p>
               <button
                 onClick={() => setBookingSuccess(false)}
-                className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider"
+                className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer"
               >
-                Đặt thêm lịch hẹn khác
+                Gửi thêm yêu cầu khác
               </button>
             </div>
           ) : (
@@ -801,7 +800,7 @@ export const LandingPage = ({ onGoToPortal }) => {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
-                    Số Điện Thoại / Zalo *
+                    Số Điện Thoại / Zalo Nhận Tin Nhắn *
                   </label>
                   <input
                     type="tel"
@@ -809,7 +808,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                     value={bookingData.phone}
                     onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
                     placeholder="Ví dụ: 0912 345 678"
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900 font-mono"
+                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900 font-mono font-semibold"
                   />
                 </div>
               </div>
@@ -847,34 +846,14 @@ export const LandingPage = ({ onGoToPortal }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
-                    Ngày Hẹn Mong Muốn
-                  </label>
-                  <input
-                    type="date"
-                    value={bookingData.date}
-                    onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900 font-mono"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
-                    Khung Giờ Thuận Tiện
-                  </label>
-                  <select
-                    value={bookingData.time}
-                    onChange={(e) => setBookingData({ ...bookingData, time: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-                  >
-                    {consultationSlots.map((slot, idx) => (
-                      <option key={idx} value={slot}>
-                        {slot}
-                      </option>
-                    ))}
-                  </select>
+              {/* Thông báo hình thức tư vấn qua Zalo */}
+              <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200/90 flex items-start gap-3 text-xs text-amber-950">
+                <span className="text-lg shrink-0 mt-0.5">💬</span>
+                <div className="space-y-0.5 leading-relaxed">
+                  <span className="font-bold text-amber-900 block">Hình thức tư vấn:</span>
+                  <p className="text-amber-800 text-[11px]">
+                    Mặc định Thầy Đỗ Tuấn Nam sẽ chủ động nhắn tin trực tiếp qua <strong>Zalo</strong> theo số điện thoại bạn đăng ký ở trên để giải đáp thắc mắc và tư vấn lộ trình học phù hợp nhất.
+                  </p>
                 </div>
               </div>
 
@@ -895,9 +874,10 @@ export const LandingPage = ({ onGoToPortal }) => {
                 <button
                   type="submit"
                   disabled={bookingLoading}
-                  className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition cursor-pointer disabled:opacity-60"
+                  className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
                 >
-                  {bookingLoading ? "Đang gửi đăng ký..." : "Xác Nhận Đăng Ký Tư Vấn 1-1 →"}
+                  <span>💬</span>
+                  <span>{bookingLoading ? "Đang gửi đăng ký..." : "Xác Nhận Đăng Ký Tư Vấn Qua Zalo →"}</span>
                 </button>
               </div>
             </form>

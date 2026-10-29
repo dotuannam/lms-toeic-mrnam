@@ -1578,66 +1578,17 @@ export const LandingPageCmsManager = ({
               </div>
             </div>
 
-            {/* TIME SLOTS CONFIG */}
-            <div className="p-5 bg-stone-50 rounded-2xl border border-stone-200 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
-                    ⏰ Khung Giờ Tư Vấn 1-1 Thuận Tiện
-                  </h4>
-                  <p className="text-[11px] text-stone-500">
-                    Xuất hiện trong danh sách dropdown khi học viên chọn giờ hẹn tư vấn
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const currentSlots = formData.consultationTimeSlots || [
-                      "09:00 - 09:15 AM (Ca Sáng)",
-                      "14:00 - 14:15 PM (Ca Chiều)",
-                      "19:30 - 19:45 PM (Lớp Đêm)",
-                    ];
-                    setFormData({
-                      ...formData,
-                      consultationTimeSlots: [...currentSlots, "18:00 - 18:15 PM (Ca Tối)"],
-                    });
-                  }}
-                  className="px-2.5 py-1 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                >
-                  <span>➕</span>
-                  <span>Thêm Khung Giờ</span>
-                </button>
+            {/* CONSULTATION METHOD INFO */}
+            <div className="p-5 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-base">💬</span>
+                <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                  Phương Thức Tư Vấn 1-1 Mặc Định
+                </h4>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {(formData.consultationTimeSlots || []).map((slot, sIdx) => (
-                  <div key={sIdx} className="flex items-center gap-2 bg-white p-2 rounded-xl border border-stone-200">
-                    <span className="text-xs text-stone-400">🕒</span>
-                    <input
-                      type="text"
-                      value={slot}
-                      onChange={(e) => {
-                        const updated = [...(formData.consultationTimeSlots || [])];
-                        updated[sIdx] = e.target.value;
-                        setFormData({ ...formData, consultationTimeSlots: updated });
-                      }}
-                      className="flex-1 bg-transparent text-xs font-medium text-stone-800 focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated = formData.consultationTimeSlots.filter((_, i) => i !== sIdx);
-                        setFormData({ ...formData, consultationTimeSlots: updated });
-                      }}
-                      className="text-stone-400 hover:text-rose-500 text-xs px-1.5 cursor-pointer"
-                      title="Xóa khung giờ này"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Hệ thống đã tinh gọn: Loại bỏ trường chọn Ngày hẹn & Khung giờ thuận tiện. Mặc định khi học viên điền form, Thầy Đỗ Tuấn Nam sẽ chủ động nhắn tin trực tiếp qua <strong>Zalo</strong> theo số điện thoại học viên đã cung cấp để giải đáp thắc mắc và định hướng lộ trình học tập tối ưu nhất.
+              </p>
             </div>
 
             {/* DIRECT CONTACT INFO */}
