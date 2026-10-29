@@ -4,7 +4,6 @@ import { subscribeTeachingShifts, saveTeachingShifts, DEFAULT_SHIFTS } from "../
 import { subscribeStudents } from "../../services/studentService";
 import { SendClassEmailModal } from "../../components/common/SendClassEmailModal";
 import { ClassDriveMaterialsModal } from "../../components/admin/ClassDriveMaterialsModal";
-import { SandboxTestingModal } from "../../components/admin/SandboxTestingModal";
 import { useLanguage } from "../../context/LanguageContext";
 
 import {
@@ -65,7 +64,6 @@ export const ClassesPage = () => {
   const [allStudents, setAllStudents] = useState([]);
   const [emailModalClass, setEmailModalClass] = useState(null);
   const [driveModalClass, setDriveModalClass] = useState(null);
-  const [showSandboxModal, setShowSandboxModal] = useState(false);
 
   useEffect(() => {
     const unsubClasses = subscribeClasses((data) => {
@@ -372,16 +370,6 @@ export const ClassesPage = () => {
           >
             <span>⚙️</span>
             <span>{t("manageShifts")}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowSandboxModal(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:translate-y-px"
-            title="Kích hoạt Sandbox Thử Nghiệm End-to-End"
-          >
-            <span>🧪</span>
-            <span>{lang === "vi" ? "Kiểm Thử Sandbox" : "Sandbox E2E"}</span>
           </button>
 
           <button
@@ -1621,12 +1609,6 @@ export const ClassesPage = () => {
           onClose={() => setDriveModalClass(null)}
         />
       )}
-
-      {/* Sandbox End-to-End Testing Modal */}
-      <SandboxTestingModal
-        isOpen={showSandboxModal}
-        onClose={() => setShowSandboxModal(false)}
-      />
     </div>
   );
 };
