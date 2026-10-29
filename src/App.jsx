@@ -14,6 +14,8 @@ import { FinancePage } from "./pages/admin/FinancePage";
 import { ReportsPage } from "./pages/admin/ReportsPage";
 import { WebsiteAdminPage } from "./pages/admin/WebsiteAdminPage";
 import { StaffManagementPage } from "./pages/admin/StaffManagementPage";
+import { LearningResourcesPage } from "./pages/admin/LearningResourcesPage";
+import { VocabGamesAdminPage } from "./pages/admin/VocabGamesAdminPage";
 import { StudentDashboard } from "./pages/student/StudentDashboard";
 import { LandingPage } from "./components/landing/LandingPage";
 import { GlobalAnnouncementBanner } from "./components/common/GlobalAnnouncementBanner";
@@ -90,6 +92,8 @@ const AppContent = () => {
           {adminTab === "scores" && <ScoresPage />}
           {adminTab === "finance" && <FinancePage />}
           {adminTab === "reports" && <ReportsPage />}
+          {adminTab === "resources" && <LearningResourcesPage />}
+          {adminTab === "vocab-games" && <VocabGamesAdminPage />}
           {adminTab === "staff" && <StaffManagementPage />}
           {(adminTab === "website-admin" || adminTab === "email-templates") && (
             <WebsiteAdminPage

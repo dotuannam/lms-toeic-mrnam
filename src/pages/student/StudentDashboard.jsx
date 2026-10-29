@@ -11,6 +11,8 @@ import { DEFAULT_CENTER_CONFIG } from "../../services/settingsService";
 import { StudentMaterialsTab } from "../../components/student/StudentMaterialsTab";
 import { StudentClassroomGradesTab } from "../../components/student/StudentClassroomGradesTab";
 import { StudentClassroomRulesTab } from "../../components/student/StudentClassroomRulesTab";
+import { StudentResourcesTab } from "../../components/student/StudentResourcesTab";
+import { StudentVocabGamesTab } from "../../components/student/StudentVocabGamesTab";
 import { CelebrationBanners } from "../../components/common/CelebrationBanners";
 
 export const StudentDashboard = () => {
@@ -384,6 +386,32 @@ export const StudentDashboard = () => {
 
           <button
             type="button"
+            onClick={() => setActiveTab("resources")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition-all ${
+              activeTab === "resources"
+                ? "bg-[#c27803] text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+          >
+            <span>📚</span>
+            <span>{isVi ? "Kho Học Liệu" : "Resources"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("vocab_games")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition-all ${
+              activeTab === "vocab_games"
+                ? "bg-[#c27803] text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+          >
+            <span>🎮</span>
+            <span>{isVi ? "Mini Game Từ Vựng" : "Vocab Games"}</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab("rules")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition-all ${
               activeTab === "rules"
@@ -420,6 +448,10 @@ export const StudentDashboard = () => {
       {/* RENDER ACTIVE TAB */}
       {activeTab === "rules" ? (
         <StudentClassroomRulesTab />
+      ) : activeTab === "resources" ? (
+        <StudentResourcesTab student={student} activeClass={activeClass} />
+      ) : activeTab === "vocab_games" ? (
+        <StudentVocabGamesTab student={student} activeClass={activeClass} />
       ) : activeTab === "materials" ? (
         <StudentMaterialsTab
           student={student}
@@ -518,6 +550,24 @@ export const StudentDashboard = () => {
                     <span>Drive</span>
                   </a>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("resources")}
+                  className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-[#c27803] hover:bg-[#b45309] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm"
+                >
+                  <span>📚</span>
+                  <span>{isVi ? "Kho Học Liệu" : "Resources"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("vocab_games")}
+                  className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider transition shadow-sm"
+                >
+                  <span>🎮</span>
+                  <span>{isVi ? "Mini Game" : "Games"}</span>
+                </button>
 
                 <button
                   type="button"
