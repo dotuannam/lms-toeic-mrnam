@@ -162,7 +162,7 @@ export const FEATURED_COURSES = [
       "Luyện tai phản xạ nghe hình ảnh Part 1 & hỏi đáp Part 2",
       "Học bù & video record trọn đời qua Google Drive"
     ],
-    highlightColor: "border-[#00b4d8]",
+    highlightColor: "border-[#c27803]",
   },
   {
     id: "toeic-note",

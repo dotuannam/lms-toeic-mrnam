@@ -10,6 +10,7 @@ import {
   DEFAULT_GAS_CONFIG,
   DEFAULT_ANNOUNCEMENT_CONFIG,
   DEFAULT_CLASSROOM_RULES,
+  DEFAULT_LANDING_PAGE_CONTENT,
 } from "../../services/settingsService";
 import { EmailTemplatesPage } from "./EmailTemplatesPage";
 import { callGasApi } from "../../services/api";
@@ -24,12 +25,14 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
     gasConfig,
     announcementConfig,
     classroomRules,
+    landingPageContent,
     updateCenterConfig,
     updateBankingConfig,
     updateTeachingShifts,
     updateGasConfig,
     updateAnnouncementConfig,
     updateClassroomRules,
+    updateLandingPageContent,
   } = useSettings();
 
   const [activeSubTab, setActiveSubTab] = useState(initialSubTab);
@@ -340,6 +343,47 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
     }
   };
 
+  // =========================================================================
+  // SUB-TAB 8: NỘI DUNG LANDING PAGE STATE & HANDLERS
+  // =========================================================================
+  const [landingForm, setLandingForm] = useState(
+    landingPageContent || DEFAULT_LANDING_PAGE_CONTENT
+  );
+  const [savingLanding, setSavingLanding] = useState(false);
+  const [landingSaveSuccess, setLandingSaveSuccess] = useState(false);
+  const [landingActiveSection, setLandingActiveSection] = useState("hero");
+
+  useEffect(() => {
+    if (landingPageContent) {
+      setLandingForm(landingPageContent);
+    }
+  }, [landingPageContent]);
+
+  const handleSaveLanding = async (e) => {
+    if (e) e.preventDefault();
+    setSavingLanding(true);
+    setLandingSaveSuccess(false);
+    try {
+      await updateLandingPageContent(landingForm);
+      setLandingSaveSuccess(true);
+      setTimeout(() => setLandingSaveSuccess(false), 4000);
+    } catch (err) {
+      alert("Lỗi khi lưu nội dung Landing Page: " + err.message);
+    } finally {
+      setSavingLanding(false);
+    }
+  };
+
+  const handleResetLandingToDefault = () => {
+    if (
+      window.confirm(
+        "Bạn có chắc chắn muốn khôi phục toàn bộ nội dung Landing Page về mẫu ban đầu không?"
+      )
+    ) {
+      setLandingForm(DEFAULT_LANDING_PAGE_CONTENT);
+    }
+  };
+
   const currentBankObj = VIETNAMESE_BANKS.find((b) => b.code === bankingForm.bankId) || {
     code: bankingForm.bankId,
     shortName: bankingForm.bankId,
@@ -349,13 +393,13 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
   return (
     <div className="space-y-6">
       {/* Top Banner & Header */}
-      <div className="bg-gradient-to-r from-[#151b26] via-[#1e2738] to-[#151b26] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-700/60">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 bg-[#00b4d8]/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-[#1c1610] via-[#261e16] to-[#1c1610] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-700/60">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 bg-[#c27803]/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-3 py-1 bg-[#00b4d8]/20 border border-[#00b4d8]/30 rounded-full text-xs font-heading font-bold text-[#72d5cd] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="px-3 py-1 bg-[#c27803]/20 border border-[#c27803]/30 rounded-full text-xs font-heading font-bold text-[#f59e0b] uppercase tracking-wider flex items-center gap-1.5">
                 <span>⚙️</span> Trung Tâm Quản Trị Hệ Thống
               </span>
               <span className="px-2.5 py-1 bg-emerald-500/20 border border-emerald-400/30 rounded-full text-[11px] font-bold text-emerald-300 flex items-center gap-1">
@@ -375,7 +419,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
           <div className="flex items-center gap-3">
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-right hidden sm:block">
               <p className="text-[11px] text-slate-300 font-medium">Trung tâm hiện tại</p>
-              <p className="text-sm font-heading font-bold text-[#00b4d8] truncate max-w-[200px]">
+              <p className="text-sm font-heading font-bold text-[#c27803] truncate max-w-[200px]">
                 {centerForm.centerName || "TOEIC MR.NAM"}
               </p>
             </div>
@@ -389,7 +433,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
             onClick={() => setActiveSubTab("email-templates")}
             className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 ${
               activeSubTab === "email-templates"
-                ? "bg-[#00b4d8] text-white shadow-lg shadow-[#00b4d8]/30"
+                ? "bg-[#c27803] text-white shadow-lg shadow-[#c27803]/30"
                 : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
             }`}
           >
@@ -402,7 +446,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
             onClick={() => setActiveSubTab("center-info")}
             className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 ${
               activeSubTab === "center-info"
-                ? "bg-[#00b4d8] text-white shadow-lg shadow-[#00b4d8]/30"
+                ? "bg-[#c27803] text-white shadow-lg shadow-[#c27803]/30"
                 : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
             }`}
           >
@@ -415,7 +459,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
             onClick={() => setActiveSubTab("banking-vietqr")}
             className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 ${
               activeSubTab === "banking-vietqr"
-                ? "bg-[#00b4d8] text-white shadow-lg shadow-[#00b4d8]/30"
+                ? "bg-[#c27803] text-white shadow-lg shadow-[#c27803]/30"
                 : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
             }`}
           >
@@ -428,7 +472,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
             onClick={() => setActiveSubTab("teaching-shifts")}
             className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 ${
               activeSubTab === "teaching-shifts"
-                ? "bg-[#00b4d8] text-white shadow-lg shadow-[#00b4d8]/30"
+                ? "bg-[#c27803] text-white shadow-lg shadow-[#c27803]/30"
                 : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
             }`}
           >
@@ -441,7 +485,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
             onClick={() => setActiveSubTab("integrations")}
             className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 ${
               activeSubTab === "integrations"
-                ? "bg-[#00b4d8] text-white shadow-lg shadow-[#00b4d8]/30"
+                ? "bg-[#c27803] text-white shadow-lg shadow-[#c27803]/30"
                 : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
             }`}
           >
@@ -454,7 +498,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
             onClick={() => setActiveSubTab("announcement-banner")}
             className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 relative ${
               activeSubTab === "announcement-banner"
-                ? "bg-[#00b4d8] text-white shadow-lg shadow-[#00b4d8]/30"
+                ? "bg-[#c27803] text-white shadow-lg shadow-[#c27803]/30"
                 : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
             }`}
           >
@@ -470,12 +514,25 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
             onClick={() => setActiveSubTab("classroom-rules")}
             className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 ${
               activeSubTab === "classroom-rules"
-                ? "bg-[#00b4d8] text-white shadow-lg shadow-[#00b4d8]/30"
+                ? "bg-[#c27803] text-white shadow-lg shadow-[#c27803]/30"
                 : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
             }`}
           >
             <span>📜</span>
             <span>{lang === "vi" ? "Quy Định Lớp Học" : "Classroom Rules"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab("landing-page")}
+            className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 ${
+              activeSubTab === "landing-page"
+                ? "bg-[#c27803] text-white shadow-lg shadow-[#c27803]/30"
+                : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
+            }`}
+          >
+            <span>🌐</span>
+            <span>{lang === "vi" ? "Nội Dung Landing Page" : "Landing Page"}</span>
           </button>
         </div>
       </div>
@@ -638,7 +695,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                 <button
                   type="submit"
                   disabled={savingCenter}
-                  className="px-6 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-md shadow-[#00b4d8]/25 flex items-center gap-2 disabled:opacity-60 active:translate-y-px"
+                  className="px-6 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-md shadow-[#c27803]/25 flex items-center gap-2 disabled:opacity-60 active:translate-y-px"
                 >
                   <span>💾</span>
                   <span>{savingCenter ? "Đang lưu..." : "Lưu Thông Tin Trung Tâm"}</span>
@@ -839,7 +896,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                 <button
                   type="submit"
                   disabled={savingBanking}
-                  className="px-6 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-md shadow-[#00b4d8]/25 flex items-center gap-2 disabled:opacity-60 active:translate-y-px"
+                  className="px-6 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-md shadow-[#c27803]/25 flex items-center gap-2 disabled:opacity-60 active:translate-y-px"
                 >
                   <span>💾</span>
                   <span>{savingBanking ? "Đang lưu..." : "Lưu Cấu Hình Ngân Hàng"}</span>
@@ -850,9 +907,9 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
 
           {/* Right Column: Live VietQR Simulator (5 cols) */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="bg-gradient-to-b from-[#1e2738] to-[#151b26] rounded-3xl p-6 text-white border border-slate-700 shadow-xl flex flex-col items-center text-center">
+            <div className="bg-gradient-to-b from-[#261e16] to-[#1c1610] rounded-3xl p-6 text-white border border-slate-700 shadow-xl flex flex-col items-center text-center">
               <div className="w-full flex items-center justify-between pb-3 border-b border-slate-750 mb-4">
-                <span className="text-xs font-heading font-bold text-[#00b4d8] uppercase flex items-center gap-1.5">
+                <span className="text-xs font-heading font-bold text-[#c27803] uppercase flex items-center gap-1.5">
                   <span>📱</span> Trình Quét Thử VietQR Trực Tiếp
                 </span>
                 <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-[10px] font-bold">
@@ -982,7 +1039,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                 type="button"
                 onClick={handleSaveShifts}
                 disabled={savingShifts}
-                className="px-5 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 disabled:opacity-60 active:translate-y-px"
+                className="px-5 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 disabled:opacity-60 active:translate-y-px"
               >
                 <span>💾</span>
                 <span>{savingShifts ? "Đang lưu..." : "Lưu Ca Dạy"}</span>
@@ -1026,7 +1083,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                     />
                   </div>
 
-                  <span className="text-slate-400 font-bold">&rarr;</span>
+                  <span className="text-slate-400 font-bold">→</span>
 
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-slate-500 font-medium">Kết thúc:</span>
@@ -1084,7 +1141,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                 type="button"
                 onClick={handleTestPing}
                 disabled={testingPing}
-                className="px-4 py-2 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow-sm disabled:opacity-60 active:translate-y-px"
+                className="px-4 py-2 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow-sm disabled:opacity-60 active:translate-y-px"
               >
                 <span>🧪</span>
                 <span>{testingPing ? "Đang kiểm tra..." : "Kiểm Tra Kết Nối (Ping Test)"}</span>
@@ -1150,7 +1207,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                         và dán đè vào file <code>Code.gs</code>, sau đó bấm <strong>Lưu (Ctrl + S)</strong>.
                       </li>
                       <li>
-                        Bấm nút xanh <strong>Triển khai (Deploy)</strong> ở góc trên bên phải &rarr; Chọn{" "}
+                        Bấm nút xanh <strong>Triển khai (Deploy)</strong> ở góc trên bên phải → Chọn{" "}
                         <strong>Quản lý các bản triển khai (Manage deployments)</strong>.
                       </li>
                       <li>
@@ -1237,7 +1294,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                   <button
                     type="submit"
                     disabled={savingGas}
-                    className="px-5 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 disabled:opacity-60 active:translate-y-px"
+                    className="px-5 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 disabled:opacity-60 active:translate-y-px"
                   >
                     <span>💾</span>
                     <span>{savingGas ? "Đang lưu..." : "Lưu Cấu Hình GAS"}</span>
@@ -1352,7 +1409,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00b4d8]"></div>
+                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#c27803]"></div>
                 </label>
               </div>
 
@@ -1368,7 +1425,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                     setAnnouncementForm({ ...announcementForm, content: e.target.value })
                   }
                   placeholder="Ví dụ: 📢 Lịch nghỉ lễ và dời lịch học bù: Toàn bộ các lớp 2-4-6 và 3-5-7 sẽ nghỉ ngày 30/4, lịch học bù bắt đầu từ tuần kế tiếp. Chúc các bạn học viên kỳ nghỉ vui vẻ!"
-                  className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8] leading-relaxed"
+                  className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803] leading-relaxed"
                 />
               </div>
 
@@ -1379,7 +1436,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { id: "info", label: "Thông Báo Chuẩn (Xanh dương)", icon: "📢", color: "bg-[#0077b6] text-white" },
+                    { id: "info", label: "Thông Báo Chuẩn (Xanh dương)", icon: "📢", color: "bg-[#b45309] text-white" },
                     { id: "warning", label: "Lưu Ý Quan Trọng (Vàng hổ phách)", icon: "⚠️", color: "bg-amber-600 text-white" },
                     { id: "alert", label: "Khẩn Cấp / Báo Động (Đỏ)", icon: "🚨", color: "bg-rose-700 text-white" },
                     { id: "success", label: "Tin Vui / Chúc Mừng (Xanh lục)", icon: "🎉", color: "bg-emerald-700 text-white" },
@@ -1390,7 +1447,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                       onClick={() => setAnnouncementForm({ ...announcementForm, type: item.id })}
                       className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition cursor-pointer ${
                         announcementForm.type === item.id
-                          ? "border-[#00b4d8] ring-2 ring-[#00b4d8]/30 bg-slate-50 font-bold"
+                          ? "border-[#c27803] ring-2 ring-[#c27803]/30 bg-slate-50 font-bold"
                           : "border-slate-200 hover:border-slate-300 bg-white"
                       }`}
                     >
@@ -1417,8 +1474,8 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                     onChange={(e) =>
                       setAnnouncementForm({ ...announcementForm, linkText: e.target.value })
                     }
-                    placeholder="Ví dụ: Xem chi tiết &rarr;"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#00b4d8]"
+                    placeholder="Ví dụ: Xem chi tiết →"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#c27803]"
                   />
                 </div>
 
@@ -1433,7 +1490,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                       setAnnouncementForm({ ...announcementForm, linkUrl: e.target.value })
                     }
                     placeholder="https://... hoặc #placement-test"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#00b4d8] font-mono"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#c27803] font-mono"
                   />
                 </div>
               </div>
@@ -1453,7 +1510,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                           ? "bg-gradient-to-r from-rose-700 via-rose-600 to-rose-700"
                           : announcementForm.type === "success"
                           ? "bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700"
-                          : "bg-gradient-to-r from-[#0077b6] via-[#0096c7] to-[#00b4d8]"
+                          : "bg-gradient-to-r from-[#b45309] via-[#92400e] to-[#c27803]"
                       }`}
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -1498,7 +1555,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                 <button
                   type="submit"
                   disabled={savingAnnouncement}
-                  className="px-6 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition cursor-pointer disabled:opacity-60 flex items-center gap-2"
+                  className="px-6 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition cursor-pointer disabled:opacity-60 flex items-center gap-2"
                 >
                   <span>💾</span>
                   <span>{savingAnnouncement ? "Đang lưu..." : "Lưu Banner Thông Báo"}</span>
@@ -1551,7 +1608,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                     value={rulesForm.title || ""}
                     onChange={(e) => setRulesForm({ ...rulesForm, title: e.target.value })}
                     placeholder="Quy Định & Nội Quy Lớp Học"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#c27803]"
                   />
                 </div>
 
@@ -1564,7 +1621,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                     value={rulesForm.subtitle || ""}
                     onChange={(e) => setRulesForm({ ...rulesForm, subtitle: e.target.value })}
                     placeholder="Áp dụng cho toàn bộ học viên các khóa học..."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#c27803]"
                   />
                 </div>
               </div>
@@ -1631,7 +1688,7 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                             rows={2}
                             value={rule}
                             onChange={(e) => handleUpdateRuleItem(secIdx, rIdx, e.target.value)}
-                            className="flex-1 p-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#00b4d8] leading-relaxed"
+                            className="flex-1 p-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#c27803] leading-relaxed"
                           />
                           <button
                             type="button"
@@ -1661,13 +1718,595 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                 <button
                   type="submit"
                   disabled={savingRules}
-                  className="px-6 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition cursor-pointer disabled:opacity-60 flex items-center gap-2"
+                  className="px-6 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition cursor-pointer disabled:opacity-60 flex items-center gap-2"
                 >
                   <span>💾</span>
                   <span>{savingRules ? "Đang lưu..." : "Lưu Quy Định Lớp Học"}</span>
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 8. SUB-TAB: CHỈNH SỬA NỘI DUNG LANDING PAGE                              */}
+      {/* ========================================================================= */}
+      {activeSubTab === "landing-page" && (
+        <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-sm transition-opacity duration-300 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-stone-100 gap-3">
+            <div>
+              <h3 className="text-base font-extrabold text-stone-900 flex items-center gap-2">
+                <span>🌐</span> Quản Trị & Chỉnh Sửa Nội Dung Landing Page
+              </h3>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Mọi thông tin chỉnh sửa tại đây sẽ được cập nhật trực tiếp lên trang chủ giới thiệu và quảng bá khóa học của trung tâm.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleResetLandingToDefault}
+                className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold transition cursor-pointer"
+                title="Khôi phục lại dữ liệu gốc từ portfolio ban đầu"
+              >
+                🔄 Khôi Phục Gốc
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveLanding}
+                disabled={savingLanding}
+                className="px-5 py-2 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-md hover:shadow-amber-600/25 transition cursor-pointer flex items-center gap-1.5 disabled:opacity-60"
+              >
+                <span>💾</span>
+                <span>{savingLanding ? "Đang lưu..." : "Lưu Thay Đổi"}</span>
+              </button>
+            </div>
+          </div>
+
+          {landingSaveSuccess && (
+            <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xl text-xs font-bold text-emerald-800 flex items-center gap-2 animate-fadeIn">
+              <span>✓</span>
+              <span>Đã lưu toàn bộ nội dung Landing Page thành công! Người truy cập sẽ thấy ngay nội dung mới.</span>
+            </div>
+          )}
+
+          {/* Section Selector Buttons */}
+          <div className="flex flex-wrap items-center gap-2 p-1.5 bg-stone-100 rounded-2xl text-xs font-semibold">
+            {[
+              { id: "hero", label: "🎯 1. Hero & Khẩu Hiệu" },
+              { id: "profile", label: "👨‍🏫 2. Hồ Sơ Giảng Viên" },
+              { id: "stats", label: "📊 3. 4 Chỉ Số Ấn Tượng" },
+              { id: "courses", label: "🎓 4. Khóa Học Tuyển Sinh" },
+              { id: "testimonials", label: "💬 5. Cảm Nhận Học Viên" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setLandingActiveSection(tab.id)}
+                className={`px-3.5 py-2 rounded-xl transition cursor-pointer ${
+                  landingActiveSection === tab.id
+                    ? "bg-[#c27803] text-white shadow-xs font-bold"
+                    : "text-stone-600 hover:text-stone-900 hover:bg-white"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* SECTION 1: HERO */}
+          {landingActiveSection === "hero" && (
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Huy hiệu trên đầu (Hero Badge)
+                  </label>
+                  <input
+                    type="text"
+                    value={landingForm.hero?.badge || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        hero: { ...(landingForm.hero || {}), badge: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803]"
+                    placeholder="Ví dụ: ⭐ Thạc sĩ Ngôn ngữ Anh • TOEIC 980 / 990 IIG Vietnam"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Chữ nút kêu gọi chính (Primary CTA)
+                  </label>
+                  <input
+                    type="text"
+                    value={landingForm.hero?.primaryCta || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        hero: { ...(landingForm.hero || {}), primaryCta: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803]"
+                    placeholder="Ví dụ: Làm Mini Test 3 Phút →"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                  Tiêu đề chính lớn (Headline)
+                </label>
+                <textarea
+                  rows={2}
+                  value={landingForm.hero?.headline || ""}
+                  onChange={(e) =>
+                    setLandingForm({
+                      ...landingForm,
+                      hero: { ...(landingForm.hero || {}), headline: e.target.value },
+                    })
+                  }
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803] font-medium"
+                  placeholder="Ví dụ: Chinh Phục TOEIC Bằng Phương Pháp Khoa Học & Trải Nghiệm Thực Chiến."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                  Đoạn giới thiệu phụ (Sub-headline)
+                </label>
+                <textarea
+                  rows={3}
+                  value={landingForm.hero?.subHeadline || ""}
+                  onChange={(e) =>
+                    setLandingForm({
+                      ...landingForm,
+                      hero: { ...(landingForm.hero || {}), subHeadline: e.target.value },
+                    })
+                  }
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803] leading-relaxed"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* SECTION 2: PROFILE */}
+          {landingActiveSection === "profile" && (
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Họ & Tên Giảng Viên
+                  </label>
+                  <input
+                    type="text"
+                    value={landingForm.profile?.name || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        profile: { ...(landingForm.profile || {}), name: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803] font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Tên gọi ngắn / Danh xưng
+                  </label>
+                  <input
+                    type="text"
+                    value={landingForm.profile?.shortName || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        profile: { ...(landingForm.profile || {}), shortName: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Thương hiệu / Trung tâm
+                  </label>
+                  <input
+                    type="text"
+                    value={landingForm.profile?.brandName || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        profile: { ...(landingForm.profile || {}), brandName: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Số Điện Thoại / Zalo
+                  </label>
+                  <input
+                    type="text"
+                    value={landingForm.profile?.phone || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        profile: { ...(landingForm.profile || {}), phone: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Email Giảng Viên
+                  </label>
+                  <input
+                    type="email"
+                    value={landingForm.profile?.email || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        profile: { ...(landingForm.profile || {}), email: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Địa Điểm Giảng Dạy
+                  </label>
+                  <input
+                    type="text"
+                    value={landingForm.profile?.location || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        profile: { ...(landingForm.profile || {}), location: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                  Đoạn Giới Thiệu Ngắn (Bio Short)
+                </label>
+                <textarea
+                  rows={3}
+                  value={landingForm.profile?.bioShort || ""}
+                  onChange={(e) =>
+                    setLandingForm({
+                      ...landingForm,
+                      profile: { ...(landingForm.profile || {}), bioShort: e.target.value },
+                    })
+                  }
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803] leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                  Đoạn Giới Thiệu Chi Tiết (Bio Detailed)
+                </label>
+                <textarea
+                  rows={4}
+                  value={landingForm.profile?.bioDetailed || ""}
+                  onChange={(e) =>
+                    setLandingForm({
+                      ...landingForm,
+                      profile: { ...(landingForm.profile || {}), bioDetailed: e.target.value },
+                    })
+                  }
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803] leading-relaxed"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Trích dẫn học thuật (Academic Quote)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={landingForm.profile?.academicQuote || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        profile: { ...(landingForm.profile || {}), academicQuote: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803] leading-relaxed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                    Cam kết phản hồi (Contact Quote)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={landingForm.profile?.contactQuote || ""}
+                    onChange={(e) =>
+                      setLandingForm({
+                        ...landingForm,
+                        profile: { ...(landingForm.profile || {}), contactQuote: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-[#c27803] leading-relaxed"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECTION 3: STATS */}
+          {landingActiveSection === "stats" && (
+            <div className="space-y-4 pt-2">
+              <p className="text-xs text-stone-500">
+                4 chỉ số nổi bật hiển thị ngay dưới phần Hero để gây ấn tượng mạnh với người truy cập:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(landingForm.stats || []).map((st, idx) => (
+                  <div key={idx} className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#c27803] uppercase">Chỉ số #{idx + 1}</span>
+                      <input
+                        type="text"
+                        value={st.badge || ""}
+                        onChange={(e) => {
+                          const updated = [...(landingForm.stats || [])];
+                          updated[idx] = { ...updated[idx], badge: e.target.value };
+                          setLandingForm({ ...landingForm, stats: updated });
+                        }}
+                        className="px-2 py-0.5 bg-white border border-stone-200 rounded text-[10px] font-bold text-stone-700"
+                        placeholder="Huy hiệu nhỏ"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Số liệu / Giá trị</label>
+                        <input
+                          type="text"
+                          value={st.value || ""}
+                          onChange={(e) => {
+                            const updated = [...(landingForm.stats || [])];
+                            updated[idx] = { ...updated[idx], value: e.target.value };
+                            setLandingForm({ ...landingForm, stats: updated });
+                          }}
+                          className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-sm font-black text-stone-900"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Tên chỉ số</label>
+                        <input
+                          type="text"
+                          value={st.label || ""}
+                          onChange={(e) => {
+                            const updated = [...(landingForm.stats || [])];
+                            updated[idx] = { ...updated[idx], label: e.target.value };
+                            setLandingForm({ ...landingForm, stats: updated });
+                          }}
+                          className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-bold text-stone-800"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Mô tả ngắn</label>
+                      <input
+                        type="text"
+                        value={st.subtext || ""}
+                        onChange={(e) => {
+                          const updated = [...(landingForm.stats || [])];
+                          updated[idx] = { ...updated[idx], subtext: e.target.value };
+                          setLandingForm({ ...landingForm, stats: updated });
+                        }}
+                        className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-700"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* SECTION 4: COURSES */}
+          {landingActiveSection === "courses" && (
+            <div className="space-y-4 pt-2">
+              <p className="text-xs text-stone-500">
+                Chỉnh sửa thông tin chi tiết của 4 khóa học chủ lực trên Landing Page:
+              </p>
+              <div className="space-y-4">
+                {(landingForm.courses || []).map((crs, cIdx) => (
+                  <div key={cIdx} className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-200 pb-2">
+                      <span className="text-xs font-bold text-[#c27803] uppercase">
+                        Khóa học #{cIdx + 1}: {crs.code || crs.id}
+                      </span>
+                      <input
+                        type="text"
+                        value={crs.badge || ""}
+                        onChange={(e) => {
+                          const updated = [...(landingForm.courses || [])];
+                          updated[cIdx] = { ...updated[cIdx], badge: e.target.value };
+                          setLandingForm({ ...landingForm, courses: updated });
+                        }}
+                        className="px-2.5 py-1 bg-white border border-stone-200 rounded-lg text-xs font-bold text-stone-700"
+                        placeholder="Huy hiệu khóa (ví dụ: Chuẩn Đầu Ra)"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Tên Khóa Học</label>
+                        <input
+                          type="text"
+                          value={crs.title || ""}
+                          onChange={(e) => {
+                            const updated = [...(landingForm.courses || [])];
+                            updated[cIdx] = { ...updated[cIdx], title: e.target.value };
+                            setLandingForm({ ...landingForm, courses: updated });
+                          }}
+                          className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-bold text-stone-900"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Mục Tiêu Điểm Số</label>
+                        <input
+                          type="text"
+                          value={crs.target || ""}
+                          onChange={(e) => {
+                            const updated = [...(landingForm.courses || [])];
+                            updated[cIdx] = { ...updated[cIdx], target: e.target.value };
+                            setLandingForm({ ...landingForm, courses: updated });
+                          }}
+                          className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-semibold text-stone-800"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Thời Lượng</label>
+                        <input
+                          type="text"
+                          value={crs.duration || ""}
+                          onChange={(e) => {
+                            const updated = [...(landingForm.courses || [])];
+                            updated[cIdx] = { ...updated[cIdx], duration: e.target.value };
+                            setLandingForm({ ...landingForm, courses: updated });
+                          }}
+                          className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-800"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Mô Tả Khóa Học</label>
+                      <textarea
+                        rows={2}
+                        value={crs.description || ""}
+                        onChange={(e) => {
+                          const updated = [...(landingForm.courses || [])];
+                          updated[cIdx] = { ...updated[cIdx], description: e.target.value };
+                          setLandingForm({ ...landingForm, courses: updated });
+                        }}
+                        className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-800 leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* SECTION 5: TESTIMONIALS */}
+          {landingActiveSection === "testimonials" && (
+            <div className="space-y-4 pt-2">
+              <p className="text-xs text-stone-500">
+                Chỉnh sửa 3 đánh giá tiêu biểu của học viên đạt điểm cao:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {(landingForm.testimonials || []).map((tst, tIdx) => (
+                  <div key={tIdx} className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+                    <span className="text-xs font-bold text-[#c27803] uppercase">Học viên #{tIdx + 1}</span>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Họ & Tên</label>
+                      <input
+                        type="text"
+                        value={tst.name || ""}
+                        onChange={(e) => {
+                          const updated = [...(landingForm.testimonials || [])];
+                          updated[tIdx] = { ...updated[tIdx], name: e.target.value };
+                          setLandingForm({ ...landingForm, testimonials: updated });
+                        }}
+                        className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-bold text-stone-900"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Điểm Đạt Được</label>
+                        <input
+                          type="text"
+                          value={tst.score || ""}
+                          onChange={(e) => {
+                            const updated = [...(landingForm.testimonials || [])];
+                            updated[tIdx] = { ...updated[tIdx], score: e.target.value };
+                            setLandingForm({ ...landingForm, testimonials: updated });
+                          }}
+                          className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-bold text-emerald-700"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Trường / Đơn Vị</label>
+                        <input
+                          type="text"
+                          value={tst.school || ""}
+                          onChange={(e) => {
+                            const updated = [...(landingForm.testimonials || [])];
+                            updated[tIdx] = { ...updated[tIdx], school: e.target.value };
+                            setLandingForm({ ...landingForm, testimonials: updated });
+                          }}
+                          className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-700"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-stone-600 uppercase mb-0.5">Lời Nhận Xét</label>
+                      <textarea
+                        rows={4}
+                        value={tst.review || ""}
+                        onChange={(e) => {
+                          const updated = [...(landingForm.testimonials || [])];
+                          updated[tIdx] = { ...updated[tIdx], review: e.target.value };
+                          setLandingForm({ ...landingForm, testimonials: updated });
+                        }}
+                        className="w-full px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-800 leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Bottom Submit */}
+          <div className="flex items-center justify-between pt-4 border-t border-stone-100">
+            <div>
+              {landingSaveSuccess && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold animate-fadeIn">
+                  ✓ Đã lưu toàn bộ nội dung Landing Page thành công!
+                </span>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSaveLanding}
+              disabled={savingLanding}
+              className="px-6 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition cursor-pointer disabled:opacity-60 flex items-center gap-2"
+            >
+              <span>💾</span>
+              <span>{savingLanding ? "Đang lưu..." : "Lưu Toàn Bộ Nội Dung Landing Page"}</span>
+            </button>
           </div>
         </div>
       )}

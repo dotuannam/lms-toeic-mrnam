@@ -94,7 +94,7 @@ export const ReportsPage = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full sm:w-auto py-2.5 px-6 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition disabled:opacity-50 active:translate-y-px"
+          className="w-full sm:w-auto py-2.5 px-6 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition disabled:opacity-50 active:translate-y-px"
         >
           {loading ? t("loading") : (lang === "vi" ? "Tổng hợp Báo cáo" : "Generate Summary")}
         </button>
@@ -109,10 +109,10 @@ export const ReportsPage = () => {
                 {t("weeklyReportTitle")}
               </h2>
               <p className="text-xs text-slate-500">
-                Data compiled for period: {reportData.period.from} &rarr; {reportData.period.to}
+                Data compiled for period: {reportData.period.from} → {reportData.period.to}
               </p>
             </div>
-            <span className="px-3 py-1 bg-cyan-50 border border-[#00b4d8]/30 text-[#00b4d8] rounded-full text-xs font-heading font-bold uppercase tracking-wide">
+            <span className="px-3 py-1 bg-cyan-50 border border-[#c27803]/30 text-[#c27803] rounded-full text-xs font-heading font-bold uppercase tracking-wide">
               Ready for Dispatch
             </span>
           </div>
@@ -155,8 +155,8 @@ export const ReportsPage = () => {
           </div>
 
           {/* Email Dispatch Section */}
-          <div className="p-5 bg-gradient-to-r from-slate-50 to-cyan-50/30 rounded-xl border border-[#00b4d8]/20 space-y-3">
-            <h3 className="text-sm font-heading font-bold text-[#1e2738] uppercase">Dispatch Report via Email</h3>
+          <div className="p-5 bg-gradient-to-r from-slate-50 to-cyan-50/30 rounded-xl border border-[#c27803]/20 space-y-3">
+            <h3 className="text-sm font-heading font-bold text-[#261e16] uppercase">Dispatch Report via Email</h3>
             <p className="text-xs text-slate-500">
               Send this report directly to stakeholders via our free-tier Gmail integration.
             </p>
@@ -167,13 +167,13 @@ export const ReportsPage = () => {
                 placeholder="Comma separated emails (e.g. boss@center.edu.vn, team@...)"
                 value={recipients}
                 onChange={(e) => setRecipients(e.target.value)}
-                className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
               />
               <button
                 type="button"
                 onClick={handleDispatch}
                 disabled={dispatching || !recipients}
-                className="py-2.5 px-6 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition disabled:opacity-50 active:translate-y-px"
+                className="py-2.5 px-6 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition disabled:opacity-50 active:translate-y-px"
               >
                 {dispatching ? "Sending..." : "Send Report Now"}
               </button>

@@ -244,7 +244,7 @@ export const StudentDashboard = () => {
             onClick={() => setActiveTab("overview")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition-all ${
               activeTab === "overview"
-                ? "bg-[#00b4d8] text-white shadow-sm"
+                ? "bg-[#c27803] text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -257,7 +257,7 @@ export const StudentDashboard = () => {
             onClick={() => setActiveTab("classroom_grades")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition-all ${
               activeTab === "classroom_grades"
-                ? "bg-[#00b4d8] text-white shadow-sm"
+                ? "bg-[#c27803] text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -270,7 +270,7 @@ export const StudentDashboard = () => {
             onClick={() => setActiveTab("materials")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition-all ${
               activeTab === "materials"
-                ? "bg-[#00b4d8] text-white shadow-sm"
+                ? "bg-[#c27803] text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -283,7 +283,7 @@ export const StudentDashboard = () => {
             onClick={() => setActiveTab("rules")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition-all ${
               activeTab === "rules"
-                ? "bg-[#00b4d8] text-white shadow-sm"
+                ? "bg-[#c27803] text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -301,7 +301,7 @@ export const StudentDashboard = () => {
             <select
               value={activeClass?.classId || ""}
               onChange={(e) => handleSelectClass(e.target.value)}
-              className="py-1.5 px-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+              className="py-1.5 px-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
             >
               {enrolledClasses.map((c) => (
                 <option key={c.classId} value={c.classId}>
@@ -334,13 +334,13 @@ export const StudentDashboard = () => {
         /* TAB: ACADEMIC OVERVIEW */
         <div className="space-y-6">
           {/* 1. CLEVER COURSE HERO COURSE BANNER */}
-          <div className="bg-gradient-to-r from-[#1e2738] via-[#161c28] to-[#1e2738] border border-[#2a354b] rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-72 h-72 bg-[#00b4d8]/15 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="bg-gradient-to-r from-[#261e16] via-[#161c28] to-[#261e16] border border-[#2a354b] rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-72 h-72 bg-[#c27803]/15 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded font-heading font-bold text-[11px] uppercase tracking-wider bg-[#00b4d8] text-white shadow-2xs">
+                  <span className="px-2.5 py-0.5 rounded font-heading font-bold text-[11px] uppercase tracking-wider bg-[#c27803] text-white shadow-2xs">
                     {activeClass?.code || "COURSE"}
                   </span>
                   <span className="px-2.5 py-0.5 rounded font-heading font-semibold text-[11px] uppercase tracking-wider bg-white/10 text-slate-200 border border-white/10">
@@ -352,7 +352,7 @@ export const StudentDashboard = () => {
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
                   👨‍🏫 {t("assignedInstructor")}:{" "}
-                  <span className="text-[#00b4d8] font-bold">
+                  <span className="text-[#c27803] font-bold">
                     {activeClass?.teacherName || "Assigned Instructor"}
                   </span>{" "}
                   &bull; ⏰ {t("weeklySchedule")}: <span className="text-white font-medium">{activeClass?.schedule || "Weekly Schedule"}</span>
@@ -373,7 +373,7 @@ export const StudentDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab("materials")}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition active:translate-y-px"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-lg shadow-amber-600/20 transition active:translate-y-px"
                 >
                   <span>📂</span>
                   <span>{t("tabMaterials")}</span>
@@ -430,14 +430,14 @@ export const StudentDashboard = () => {
                 <span className="text-[11px] font-heading font-bold text-slate-500 uppercase tracking-wider">
                   {t("latestTestResult")}
                 </span>
-                <div className="text-2xl font-heading font-extrabold text-[#00b4d8] mt-1">
+                <div className="text-2xl font-heading font-extrabold text-[#c27803] mt-1">
                   {latestScore ? latestScore.totalScore : "N/A"}
                 </div>
                 <span className="text-[11px] text-slate-400 font-medium">
                   {latestScore ? latestScore.testTitle : t("noTestsCompleted")}
                 </span>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] flex items-center justify-center text-xl font-bold shadow-2xs">
+              <div className="w-12 h-12 rounded-xl bg-[#c27803]/10 text-[#c27803] flex items-center justify-center text-xl font-bold shadow-2xs">
                 🎯
               </div>
             </div>
@@ -474,9 +474,9 @@ export const StudentDashboard = () => {
                   <div className="flex items-center gap-2 mt-0.5">
                     <button
                       onClick={() => setShowQrModal(true)}
-                      className="text-[11px] text-[#00b4d8] hover:text-[#0077b6] font-heading font-bold uppercase tracking-wider underline"
+                      className="text-[11px] text-[#c27803] hover:text-[#b45309] font-heading font-bold uppercase tracking-wider underline"
                     >
-                      {t("payViaVietQr")} &rarr;
+                      {t("payViaVietQr")} →
                     </button>
                     {tuition?.paidAmount > 0 && (
                       <span className="text-[10px] text-slate-400">
@@ -615,7 +615,7 @@ export const StudentDashboard = () => {
                     </span>
                     <a
                       href={`tel:${cleanCenterHotline}`}
-                      className="font-bold text-[#00b4d8] hover:underline"
+                      className="font-bold text-[#c27803] hover:underline"
                     >
                       Hotline: {centerHotline}
                     </a>
@@ -646,10 +646,10 @@ export const StudentDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab("classroom_grades")}
-                  className="px-3 py-1.5 bg-[#00b4d8]/10 hover:bg-[#00b4d8] text-[#00b4d8] hover:text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider border border-[#00b4d8]/20 transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#c27803]/10 hover:bg-[#c27803] text-[#c27803] hover:text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider border border-[#c27803]/20 transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>📝</span>
-                  <span>{isVi ? "Điểm Classroom" : "Classroom Grades"} &rarr;</span>
+                  <span>{isVi ? "Điểm Classroom" : "Classroom Grades"} →</span>
                 </button>
               </div>
               {scores.length === 0 ? (

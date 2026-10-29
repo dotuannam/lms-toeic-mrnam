@@ -258,7 +258,7 @@ export const ClassesPage = () => {
             onClick={() => setViewMode("default")}
             className={`py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap font-heading text-xs uppercase tracking-wider ${
               viewMode === "default"
-                ? "bg-[#00b4d8] text-white shadow-sm font-bold"
+                ? "bg-[#c27803] text-white shadow-sm font-bold"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -271,7 +271,7 @@ export const ClassesPage = () => {
             onClick={() => setViewMode("weekly")}
             className={`py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap font-heading text-xs uppercase tracking-wider ${
               viewMode === "weekly"
-                ? "bg-[#00b4d8] text-white shadow-sm font-bold"
+                ? "bg-[#c27803] text-white shadow-sm font-bold"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -284,7 +284,7 @@ export const ClassesPage = () => {
             onClick={() => setViewMode("monthly")}
             className={`py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap font-heading text-xs uppercase tracking-wider ${
               viewMode === "monthly"
-                ? "bg-[#00b4d8] text-white shadow-sm font-bold"
+                ? "bg-[#c27803] text-white shadow-sm font-bold"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -297,7 +297,7 @@ export const ClassesPage = () => {
             onClick={() => setViewMode("hourly")}
             className={`py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap font-heading text-xs uppercase tracking-wider ${
               viewMode === "hourly"
-                ? "bg-[#00b4d8] text-white shadow-sm font-bold"
+                ? "bg-[#c27803] text-white shadow-sm font-bold"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -352,7 +352,7 @@ export const ClassesPage = () => {
 
           <button
             onClick={openCreateModal}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:translate-y-px"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:translate-y-px"
           >
             <span>+</span>
             <span>{t("newClass")}</span>
@@ -388,7 +388,7 @@ export const ClassesPage = () => {
                   >
                     <div>
                       {/* Clever Course Thumbnail / Header Banner */}
-                      <div className="h-28 bg-gradient-to-r from-[#1e2738] via-[#253247] to-[#1e2738] p-4 flex flex-col justify-between relative overflow-hidden">
+                      <div className="h-28 bg-gradient-to-r from-[#261e16] via-[#253247] to-[#261e16] p-4 flex flex-col justify-between relative overflow-hidden">
                         <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-10 text-6xl select-none pointer-events-none">
                           🎓
                         </div>
@@ -420,7 +420,7 @@ export const ClassesPage = () => {
                           <span className="text-[11px] text-slate-300 font-medium truncate max-w-[150px]">
                             {cls.schedule?.split("(")[0] || "Lịch học"}
                           </span>
-                          <span className="px-2.5 py-1 rounded-md text-xs font-heading font-bold text-white shadow-md bg-[#00b4d8]">
+                          <span className="px-2.5 py-1 rounded-md text-xs font-heading font-bold text-white shadow-md bg-[#c27803]">
                             {Number(cls.tuitionFee || 0).toLocaleString("vi-VN")} ₫
                           </span>
                         </div>
@@ -428,7 +428,7 @@ export const ClassesPage = () => {
 
                       {/* Content Area */}
                       <div className="p-5 pb-3">
-                        <h3 className="font-heading font-extrabold text-slate-900 text-base mb-1 line-clamp-2 group-hover:text-[#00b4d8] transition-colors">
+                        <h3 className="font-heading font-extrabold text-slate-900 text-base mb-1 line-clamp-2 group-hover:text-[#c27803] transition-colors">
                           {cls.name}
                         </h3>
                         <p className="text-xs text-slate-500 mb-4 flex items-center gap-1.5">
@@ -445,12 +445,12 @@ export const ClassesPage = () => {
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400">📅 {t("duration")}:</span>
                             <span className="font-medium text-slate-700">
-                              {cls.startDate || "?"} &rarr; {cls.endDate || "Ongoing"}
+                              {cls.startDate || "?"} → {cls.endDate || "Ongoing"}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400">👥 {t("enrolled")}:</span>
-                            <span className="font-heading font-bold text-[#00b4d8]">{cls.studentCount || 0} students</span>
+                            <span className="font-heading font-bold text-[#c27803]">{cls.studentCount || 0} students</span>
                           </div>
                         </div>
                       </div>
@@ -478,7 +478,7 @@ export const ClassesPage = () => {
                               <button
                                 type="button"
                                 onClick={() => setDriveModalClass(cls)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#00b4d8]/10 hover:bg-[#00b4d8] text-[#00b4d8] hover:text-white font-heading font-bold uppercase tracking-wider rounded-lg text-xs border border-[#00b4d8]/20 transition"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#c27803]/10 hover:bg-[#c27803] text-[#c27803] hover:text-white font-heading font-bold uppercase tracking-wider rounded-lg text-xs border border-[#c27803]/20 transition"
                                 title={t("manageClassMaterials")}
                               >
                                 <span>📁</span>
@@ -521,7 +521,7 @@ export const ClassesPage = () => {
                           <div className="flex items-center gap-1.5">
                             <button
                               onClick={() => openEditModal(cls)}
-                              className="px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-[#00b4d8] hover:bg-slate-50 rounded-lg transition"
+                              className="px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-[#c27803] hover:bg-slate-50 rounded-lg transition"
                             >
                               {t("editClass")}
                             </button>
@@ -600,7 +600,7 @@ export const ClassesPage = () => {
                                     rel="noreferrer"
                                     className="text-[10px] font-semibold text-emerald-600 hover:underline block"
                                   >
-                                    🏫 Mở Classroom &rarr;
+                                    🏫 Mở Classroom →
                                   </a>
                                 )}
                                 <button
@@ -608,7 +608,7 @@ export const ClassesPage = () => {
                                   onClick={() => setDriveModalClass(cls)}
                                   className="text-[10px] font-semibold text-blue-600 hover:underline block text-left"
                                 >
-                                  📁 {isVi ? "Tài liệu & Upload" : "Materials & Upload"} &rarr;
+                                  📁 {isVi ? "Tài liệu & Upload" : "Materials & Upload"} →
                                 </button>
                               </div>
                             </div>
@@ -660,7 +660,7 @@ export const ClassesPage = () => {
                     onClick={nextMonth}
                     className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition"
                   >
-                    Tháng sau &rarr;
+                    Tháng sau →
                   </button>
                 </div>
               </div>
@@ -853,7 +853,7 @@ export const ClassesPage = () => {
                                       rel="noreferrer"
                                       className="font-bold text-emerald-600 hover:underline"
                                     >
-                                      🏫 Google Classroom &rarr;
+                                      🏫 Google Classroom →
                                     </a>
                                   ) : (
                                     <span className="text-slate-400 italic">Chưa liên kết</span>

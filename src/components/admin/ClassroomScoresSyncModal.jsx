@@ -198,10 +198,10 @@ export const ClassroomScoresSyncModal = ({
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden my-auto">
         {/* Modal Header */}
-        <div className="p-5 sm:p-6 bg-gradient-to-r from-[#1e2738] via-[#24334a] to-[#1e2738] text-white flex items-center justify-between relative overflow-hidden">
-          <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-44 h-44 rounded-full bg-[#00b4d8]/10 blur-2xl pointer-events-none" />
+        <div className="p-5 sm:p-6 bg-gradient-to-r from-[#261e16] via-[#24334a] to-[#261e16] text-white flex items-center justify-between relative overflow-hidden">
+          <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-44 h-44 rounded-full bg-[#c27803]/10 blur-2xl pointer-events-none" />
           <div className="flex items-center gap-3.5 relative z-10">
-            <div className="w-11 h-11 rounded-2xl bg-[#00b4d8]/20 border border-[#00b4d8]/40 flex items-center justify-center text-xl shadow-inner">
+            <div className="w-11 h-11 rounded-2xl bg-[#c27803]/20 border border-[#c27803]/40 flex items-center justify-center text-xl shadow-inner">
               ⚡
             </div>
             <div>
@@ -209,7 +209,7 @@ export const ClassroomScoresSyncModal = ({
                 <h3 className="font-heading font-black text-lg sm:text-xl text-white tracking-tight">
                   {t("syncClassroomGradesTitle")}
                 </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#00b4d8]/20 text-[#90e0ef] border border-[#00b4d8]/30 uppercase">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#c27803]/20 text-[#90e0ef] border border-[#c27803]/30 uppercase">
                   Classroom API
                 </span>
               </div>
@@ -239,13 +239,13 @@ export const ClassroomScoresSyncModal = ({
                 value={courseIdInput}
                 onChange={(e) => setCourseIdInput(e.target.value)}
                 placeholder="https://classroom.google.com/c/Nz... hoặc mã Course ID"
-                className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
               />
               <button
                 type="button"
                 onClick={() => handleFetchGrades()}
                 disabled={loading}
-                className="px-5 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] disabled:bg-slate-300 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap"
+                className="px-5 py-2.5 bg-[#c27803] hover:bg-[#92400e] disabled:bg-slate-300 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 {loading ? (
                   <>
@@ -300,7 +300,7 @@ export const ClassroomScoresSyncModal = ({
                   <select
                     value={selectedCourseWorkId}
                     onChange={(e) => setSelectedCourseWorkId(e.target.value)}
-                    className="w-full py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    className="w-full py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   >
                     {classroomData.courseWorks.map((cw) => (
                       <option key={cw.id} value={cw.id}>
@@ -318,7 +318,7 @@ export const ClassroomScoresSyncModal = ({
                   <select
                     value={targetSkill}
                     onChange={(e) => setTargetSkill(e.target.value)}
-                    className="w-full py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    className="w-full py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   >
                     {testType === "TOEIC" && (
                       <>
@@ -358,7 +358,7 @@ export const ClassroomScoresSyncModal = ({
                     type="checkbox"
                     checked={autoScale}
                     onChange={(e) => setAutoScale(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#00b4d8] focus:ring-[#00b4d8]"
+                    className="w-4 h-4 rounded text-[#c27803] focus:ring-[#c27803]"
                   />
                   <span>
                     {lang === "vi"
@@ -445,7 +445,7 @@ export const ClassroomScoresSyncModal = ({
                         </td>
                         <td className="py-2 px-3 text-right font-black">
                           {m.computedScore !== null ? (
-                            <span className="text-[#00b4d8] font-mono text-sm">
+                            <span className="text-[#c27803] font-mono text-sm">
                               {typeof m.computedScore === "object"
                                 ? `${m.computedScore.listening} L / ${m.computedScore.reading} R`
                                 : m.computedScore}

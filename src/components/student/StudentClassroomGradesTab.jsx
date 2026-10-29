@@ -162,13 +162,13 @@ export const StudentClassroomGradesTab = ({
   return (
     <div className="space-y-6">
       {/* 1. HERO BANNER: GOOGLE CLASSROOM SYNC HEADER */}
-      <div className="bg-gradient-to-r from-[#151b26] via-[#1e2738] to-[#151b26] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-700/60">
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-[#00b4d8]/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-[#1c1610] via-[#261e16] to-[#1c1610] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-700/60">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-[#c27803]/10 rounded-full blur-2xl pointer-events-none"></div>
 
         <div className="relative z-10 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1.5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-[#72d5cd] border border-white/10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-[#f59e0b] border border-white/10">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Google Classroom Live Sync</span>
                 <span>&bull;</span>
@@ -224,7 +224,7 @@ export const StudentClassroomGradesTab = ({
                 type="button"
                 onClick={handleSyncClassroomGrades}
                 disabled={syncing}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-md shadow-[#00b4d8]/25 disabled:opacity-60 active:translate-y-px cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-md shadow-[#c27803]/25 disabled:opacity-60 active:translate-y-px cursor-pointer"
               >
                 <span className={syncing ? "animate-spin" : ""}>🔄</span>
                 <span>{syncing ? (isVi ? "Đang kéo điểm..." : "Syncing Grades...") : (isVi ? "Kéo Điểm Từ Classroom" : "Sync From Classroom")}</span>
@@ -359,7 +359,7 @@ export const StudentClassroomGradesTab = ({
             onClick={() => setActiveFilter("all")}
             className={`px-3 py-1.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition ${
               activeFilter === "all"
-                ? "bg-[#1e2738] text-white shadow-2xs"
+                ? "bg-[#261e16] text-white shadow-2xs"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
           >
@@ -411,7 +411,7 @@ export const StudentClassroomGradesTab = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={isVi ? "Tìm bài tập, bài quiz..." : "Search assignments..."}
-            className="w-full pl-9 pr-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#00b4d8] focus:ring-2 focus:ring-[#00b4d8]/20 transition"
+            className="w-full pl-9 pr-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#c27803] focus:ring-2 focus:ring-[#c27803]/20 transition"
           />
           <span className="absolute left-3 top-2 text-slate-400 text-xs">🔍</span>
           {searchQuery && (
@@ -428,7 +428,7 @@ export const StudentClassroomGradesTab = ({
       {/* 4. MAIN ASSIGNMENT CARDS GRID */}
       {loading ? (
         <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-[#00b4d8] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-10 h-10 border-4 border-[#c27803] border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-xs font-heading font-bold text-slate-500 uppercase tracking-wider">
             {isVi ? "Đang tải dữ liệu bài tập..." : "Loading coursework data..."}
           </p>
@@ -460,7 +460,7 @@ export const StudentClassroomGradesTab = ({
               type="button"
               onClick={handleSyncClassroomGrades}
               disabled={syncing}
-              className="px-4 py-2 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-2 cursor-pointer"
             >
               <span className={syncing ? "animate-spin" : ""}>🔄</span>
               <span>{isVi ? "Kéo điểm ngay" : "Sync Now"}</span>
@@ -472,7 +472,7 @@ export const StudentClassroomGradesTab = ({
                 rel="noreferrer"
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
               >
-                {isVi ? "Mở Google Classroom" : "Open Classroom"} &rarr;
+                {isVi ? "Mở Google Classroom" : "Open Classroom"} →
               </a>
             )}
           </div>
@@ -500,7 +500,7 @@ export const StudentClassroomGradesTab = ({
             return (
               <div
                 key={item.submissionId || item.courseWorkId}
-                className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-md hover:border-[#00b4d8]/40 transition flex flex-col justify-between group"
+                className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-md hover:border-[#c27803]/40 transition flex flex-col justify-between group"
               >
                 <div className="space-y-3">
                   {/* Top line: Icon + Type Badge + State Badge */}
@@ -541,7 +541,7 @@ export const StudentClassroomGradesTab = ({
                       {typeLabel}
                     </span>
                     <h4
-                      className="text-sm font-bold text-slate-900 group-hover:text-[#00b4d8] transition line-clamp-2"
+                      className="text-sm font-bold text-slate-900 group-hover:text-[#c27803] transition line-clamp-2"
                       title={item.title}
                     >
                       {item.title}
@@ -625,7 +625,7 @@ export const StudentClassroomGradesTab = ({
                     href={item.alternateLink || classroomLink || "https://classroom.google.com"}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#1e2738] hover:bg-[#00b4d8] text-white rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider transition shadow-2xs active:translate-y-px"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#261e16] hover:bg-[#c27803] text-white rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider transition shadow-2xs active:translate-y-px"
                   >
                     <span>{isVi ? "Xem Bài Nộp" : "View Submission"}</span>
                     <span>↗</span>

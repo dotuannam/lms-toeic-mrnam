@@ -4,11 +4,11 @@
 
 @layer base {
   body {
-    @apply antialiased text-[#2c3e50] bg-[#f4f7f9] dark:bg-[#0b0f19] dark:text-[#cbd5e1] font-sans selection:bg-[#00b4d8] selection:text-white transition-colors duration-200;
+    @apply antialiased text-[#2c2419] bg-[#faf7f2] dark:bg-[#18130e] dark:text-[#ede8df] font-sans selection:bg-[#c27803] selection:text-white transition-colors duration-200;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-tight text-slate-900 dark:text-white;
+    @apply font-heading tracking-tight text-neutral-900 dark:text-amber-50;
   }
 }
 
@@ -16,25 +16,25 @@
 @layer components {
   /* Clever Course Section Title */
   .clever-section-title {
-    @apply relative font-heading font-extrabold text-slate-800 dark:text-slate-100 tracking-wide uppercase;
+    @apply relative font-heading font-extrabold text-stone-800 dark:text-stone-100 tracking-wide uppercase;
   }
 
   .clever-title-underline {
-    @apply relative after:content-[''] after:block after:w-12 after:h-0.5 after:bg-[#00b4d8] after:mt-2;
+    @apply relative after:content-[''] after:block after:w-12 after:h-0.5 after:bg-[#c27803] after:mt-2;
   }
 
   /* Clever Course Price Badge */
   .clever-price-badge {
     @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-heading font-bold text-white shadow-xs;
-    background-color: #00b4d8;
+    background-color: #c27803;
   }
 
   .clever-price-badge-gold {
-    @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-heading font-bold text-white shadow-xs bg-[#f59e0b];
+    @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-heading font-bold text-white shadow-xs bg-[#d97706];
   }
 
   .clever-price-badge-free {
-    @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-heading font-bold text-white shadow-xs bg-[#20b2aa];
+    @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-heading font-bold text-white shadow-xs bg-[#b45309];
   }
 
   /* Clever Course Button */
@@ -43,70 +43,70 @@
   }
 
   .clever-btn-primary {
-    @apply clever-btn bg-[#00b4d8] hover:bg-[#0096c7] text-white;
+    @apply clever-btn bg-[#c27803] hover:bg-[#92400e] text-white shadow-amber-700/20;
   }
 
   .clever-btn-dark {
-    @apply clever-btn bg-[#1e2738] hover:bg-[#151b26] text-white;
+    @apply clever-btn bg-[#261e16] hover:bg-[#1c1610] text-amber-50;
   }
 
   .clever-btn-gold {
-    @apply clever-btn bg-[#f59e0b] hover:bg-[#d97706] text-white;
+    @apply clever-btn bg-[#d97706] hover:bg-[#b45309] text-white;
   }
 
   .clever-btn-outline {
-    @apply clever-btn bg-white dark:bg-[#1e2738] hover:bg-slate-50 dark:hover:bg-[#283548] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700;
+    @apply clever-btn bg-white dark:bg-[#261e16] hover:bg-stone-50 dark:hover:bg-[#342a20] text-stone-700 dark:text-stone-200 border border-stone-200 dark:border-[#3d3125];
   }
 
   /* Clever Course Card */
   .clever-card {
-    @apply bg-white dark:bg-[#151b26] rounded-xl border border-slate-200/90 dark:border-[#2a354b] shadow-xs hover:shadow-md transition-all duration-200;
+    @apply bg-white dark:bg-[#1c1610] rounded-xl border border-stone-200/90 dark:border-[#3d3125] shadow-xs hover:shadow-md transition-all duration-200;
   }
 }
 
 /* ========================================================================= */
-/* CLEVER COURSE GLOBAL DARK MODE SYSTEM                                     */
+/* CLEVER COURSE GLOBAL DARK MODE SYSTEM (EARTH TONE / VÀNG ĐẤT NÂU ĐẤT)       */
 /* ========================================================================= */
 .dark .bg-white {
-  background-color: #151b26 !important;
-  border-color: #283548 !important;
+  background-color: #1c1610 !important;
+  border-color: #382c20 !important;
 }
 
 .dark .bg-slate-50 {
-  background-color: #1a2334 !important;
-  border-color: #283548 !important;
+  background-color: #231c15 !important;
+  border-color: #382c20 !important;
 }
 
 .dark .bg-slate-100 {
-  background-color: #1e283d !important;
+  background-color: #2a221a !important;
 }
 
 .dark .bg-slate-100\/90 {
-  background-color: #151b26 !important;
+  background-color: #1c1610 !important;
 }
 
 .dark .hover\:bg-slate-50:hover,
 .dark .hover\:bg-slate-50\/60:hover,
 .dark .hover\:bg-slate-50\/80:hover {
-  background-color: #1f2b3e !important;
+  background-color: #282017 !important;
 }
 
 .dark .hover\:bg-slate-100:hover {
-  background-color: #243248 !important;
+  background-color: #2e251b !important;
 }
 
 .dark .text-slate-900,
 .dark .text-slate-800 {
-  color: #f1f5f9 !important;
+  color: #f5efe6 !important;
 }
 
 .dark .text-slate-700,
 .dark .text-slate-600 {
-  color: #cbd5e1 !important;
+  color: #d6ccbe !important;
 }
 
 .dark .text-slate-500 {
-  color: #94a3b8 !important;
+  color: #a89f91 !important;
 }
 
 .dark .border-slate-200,
@@ -114,45 +114,45 @@
 .dark .border-slate-200\/80,
 .dark .border-slate-200\/90,
 .dark .border-slate-300 {
-  border-color: #2a354b !important;
+  border-color: #3d3125 !important;
 }
 
 .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
 .dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #2a354b !important;
+  border-color: #3d3125 !important;
 }
 
 .dark thead,
 .dark thead.bg-slate-50,
 .dark th {
-  background-color: #121824 !important;
-  color: #94a3b8 !important;
-  border-color: #2a354b !important;
+  background-color: #17120c !important;
+  color: #d6ccbe !important;
+  border-color: #3d3125 !important;
 }
 
 .dark input:not([type="checkbox"]):not([type="radio"]),
 .dark select,
 .dark textarea {
-  background-color: #1a2232 !important;
-  border-color: #2d3b52 !important;
-  color: #f8fafc !important;
+  background-color: #231c15 !important;
+  border-color: #3d3125 !important;
+  color: #fbf8f3 !important;
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #64748b !important;
+  color: #8c8273 !important;
 }
 
 .dark select option {
-  background-color: #151b26;
-  color: #f8fafc;
+  background-color: #1c1610;
+  color: #fbf8f3;
 }
 
 /* Modals & Dialogs in dark mode */
 .dark .bg-white.rounded-3xl,
 .dark .bg-white.rounded-2xl {
-  background-color: #151b26 !important;
-  border-color: #2a354b !important;
+  background-color: #1c1610 !important;
+  border-color: #3d3125 !important;
 }
 
 /* Clean Dark Mode Scrollbars */
@@ -162,14 +162,14 @@
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #17120c;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #3d3125;
   border-radius: 4px;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #574635;
 }

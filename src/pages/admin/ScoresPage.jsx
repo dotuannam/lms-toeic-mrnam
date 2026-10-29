@@ -153,7 +153,7 @@ export const ScoresPage = () => {
             <select
               value={selectedClassId}
               onChange={(e) => handleClassChange(e.target.value)}
-              className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+              className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
             >
               {classes.map((c) => (
                 <option key={c.classId} value={c.classId}>
@@ -170,7 +170,7 @@ export const ScoresPage = () => {
             <select
               value={testType}
               onChange={(e) => setTestType(e.target.value)}
-              className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+              className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
             >
               <option value="TOEIC">TOEIC (Max 990)</option>
               <option value="IELTS">IELTS (Max 9.0)</option>
@@ -187,7 +187,7 @@ export const ScoresPage = () => {
               value={testTitle}
               onChange={(e) => setTestTitle(e.target.value)}
               placeholder="e.g. Midterm Evaluation"
-              className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+              className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
             />
           </div>
 
@@ -200,7 +200,7 @@ export const ScoresPage = () => {
               step="any"
               value={targetScore}
               onChange={(e) => setTargetScore(e.target.value)}
-              className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-[#1e2738] focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+              className="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-[#261e16] focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
             />
           </div>
         </div>
@@ -211,7 +211,7 @@ export const ScoresPage = () => {
             <span className="font-semibold text-slate-700">
               {lang === "vi" ? "Lớp đang chọn:" : "Active Class:"}
             </span>
-            <span className="font-bold text-[#1e2738]">
+            <span className="font-bold text-[#261e16]">
               {selectedClass ? `${selectedClass.code} - ${selectedClass.name}` : "—"}
             </span>
             {selectedClass?.integrations?.googleClassroom?.courseId ? (
@@ -314,7 +314,7 @@ export const ScoresPage = () => {
                                 placeholder="0"
                                 value={studentSkills.listening || ""}
                                 onChange={(e) => updateSkillScore(st.studentId, "listening", e.target.value)}
-                                className="w-20 text-center py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#00b4d8]"
+                                className="w-20 text-center py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#c27803]"
                               />
                             </td>
                             <td className="py-3 px-3 text-center">
@@ -325,7 +325,7 @@ export const ScoresPage = () => {
                                 placeholder="0"
                                 value={studentSkills.reading || ""}
                                 onChange={(e) => updateSkillScore(st.studentId, "reading", e.target.value)}
-                                className="w-20 text-center py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#00b4d8]"
+                                className="w-20 text-center py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#c27803]"
                               />
                             </td>
                           </>
@@ -344,7 +344,7 @@ export const ScoresPage = () => {
                                   placeholder="0"
                                   value={studentSkills[sk] || ""}
                                   onChange={(e) => updateSkillScore(st.studentId, sk, e.target.value)}
-                                  className="w-16 text-center py-1.5 px-1 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#00b4d8]"
+                                  className="w-16 text-center py-1.5 px-1 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#c27803]"
                                 />
                               </td>
                             ))}
@@ -363,7 +363,7 @@ export const ScoresPage = () => {
                                   placeholder="0"
                                   value={studentSkills[sk] || ""}
                                   onChange={(e) => updateSkillScore(st.studentId, sk, e.target.value)}
-                                  className="w-16 text-center py-1.5 px-1 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#00b4d8]"
+                                  className="w-16 text-center py-1.5 px-1 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#c27803]"
                                 />
                               </td>
                             ))}
@@ -390,7 +390,7 @@ export const ScoresPage = () => {
                             placeholder="Add recommendations..."
                             value={studentScores[st.studentId]?.feedback || ""}
                             onChange={(e) => updateFeedback(st.studentId, e.target.value)}
-                            className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#00b4d8]"
+                            className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#c27803]"
                           />
                         </td>
                       </tr>
@@ -409,7 +409,7 @@ export const ScoresPage = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="py-2.5 px-6 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition disabled:opacity-50 active:translate-y-px"
+                className="py-2.5 px-6 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition disabled:opacity-50 active:translate-y-px"
               >
                 {submitting ? t("saving") : t("saveScores")}
               </button>

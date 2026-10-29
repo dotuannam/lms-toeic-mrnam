@@ -6,18 +6,21 @@ import {
   subscribeGasConfig,
   subscribeAnnouncementConfig,
   subscribeClassroomRules,
+  subscribeLandingPageContent,
   saveCenterConfig,
   saveBankingConfig,
   saveTeachingShifts,
   saveGasConfig,
   saveAnnouncementConfig,
   saveClassroomRules,
+  saveLandingPageContent,
   DEFAULT_CENTER_CONFIG,
   DEFAULT_BANKING_CONFIG,
   DEFAULT_SHIFTS,
   DEFAULT_GAS_CONFIG,
   DEFAULT_ANNOUNCEMENT_CONFIG,
   DEFAULT_CLASSROOM_RULES,
+  DEFAULT_LANDING_PAGE_CONTENT,
   buildDynamicVietQrUrl,
 } from "../services/settingsService";
 
@@ -38,6 +41,7 @@ export const SettingsProvider = ({ children }) => {
   const [gasConfig, setGasConfig] = useState(DEFAULT_GAS_CONFIG);
   const [announcementConfig, setAnnouncementConfig] = useState(DEFAULT_ANNOUNCEMENT_CONFIG);
   const [classroomRules, setClassroomRules] = useState(DEFAULT_CLASSROOM_RULES);
+  const [landingPageContent, setLandingPageContent] = useState(DEFAULT_LANDING_PAGE_CONTENT);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -71,6 +75,11 @@ export const SettingsProvider = ({ children }) => {
       if (rules) setClassroomRules(rules);
     });
 
+    // 7. Subscribe Landing Page Content
+    const unsubLanding = subscribeLandingPageContent((content) => {
+      if (content) setLandingPageContent(content);
+    });
+
     setLoading(false);
 
     return () => {
@@ -80,6 +89,7 @@ export const SettingsProvider = ({ children }) => {
       unsubGas();
       unsubAnnouncement();
       unsubRules();
+      unsubLanding();
     };
   }, []);
 
@@ -119,6 +129,12 @@ export const SettingsProvider = ({ children }) => {
     return updated;
   };
 
+  const updateLanding = async (data) => {
+    const updated = await saveLandingPageContent(data);
+    setLandingPageContent(updated);
+    return updated;
+  };
+
   const buildQrUrl = ({ amount = 0, transferDescription = "" }) => {
     return buildDynamicVietQrUrl({
       amount,
@@ -136,12 +152,14 @@ export const SettingsProvider = ({ children }) => {
         gasConfig,
         announcementConfig,
         classroomRules,
+        landingPageContent,
         updateCenterConfig: updateCenter,
         updateBankingConfig: updateBanking,
         updateTeachingShifts: updateShifts,
         updateGasConfig: updateGas,
         updateAnnouncementConfig: updateAnnouncement,
         updateClassroomRules: updateRules,
+        updateLandingPageContent: updateLanding,
         buildQrUrl,
         loading,
       }}

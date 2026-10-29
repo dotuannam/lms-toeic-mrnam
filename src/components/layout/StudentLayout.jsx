@@ -33,27 +33,27 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7f9] dark:bg-[#0b0f19] flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-[#faf7f2] dark:bg-[#0b0f19] flex flex-col font-sans transition-colors duration-200">
       {/* 1. Clever Course Top Navigation Bar */}
-      <div className="bg-[#1e2738] text-slate-300 text-xs border-b border-[#2a354b]">
+      <div className="bg-[#261e16] text-slate-300 text-xs border-b border-[#2a354b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-col sm:flex-row items-center justify-between gap-2">
           {/* Top Contact Info */}
           <div className="flex items-center gap-4 text-[11px] text-slate-300 flex-wrap">
             <a
               href={`tel:${cleanHotline}`}
-              className="flex items-center gap-1.5 hover:text-[#00b4d8] transition cursor-pointer"
+              className="flex items-center gap-1.5 hover:text-[#c27803] transition cursor-pointer"
               title={isVi ? "Gọi Hotline trung tâm" : "Call center hotline"}
             >
-              <span className="text-[#00b4d8]">📞</span>
+              <span className="text-[#c27803]">📞</span>
               <span className="font-semibold text-white">{hotline}</span>
             </a>
             <span className="text-slate-600">|</span>
             <a
               href={`mailto:${adminEmail}`}
-              className="flex items-center gap-1.5 hover:text-[#00b4d8] transition cursor-pointer"
+              className="flex items-center gap-1.5 hover:text-[#c27803] transition cursor-pointer"
               title={isVi ? "Gửi email hỗ trợ học viên" : "Send support email"}
             >
-              <span className="text-[#00b4d8]">✉️</span>
+              <span className="text-[#c27803]">✉️</span>
               <span className="text-slate-200">{adminEmail}</span>
             </a>
             {websiteUrl && (
@@ -63,10 +63,10 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
                   href={websiteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="hidden md:flex items-center gap-1.5 hover:text-[#00b4d8] transition cursor-pointer text-slate-300"
+                  className="hidden md:flex items-center gap-1.5 hover:text-[#c27803] transition cursor-pointer text-slate-300"
                   title={isVi ? "Truy cập website trung tâm" : "Visit center website"}
                 >
-                  <span className="text-[#00b4d8]">🌐</span>
+                  <span className="text-[#c27803]">🌐</span>
                   <span className="truncate max-w-[160px]">{websiteUrl.replace(/^https?:\/\//, "")}</span>
                 </a>
               </>
@@ -96,13 +96,13 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
                 <button
                   type="button"
                   onClick={onSwitchToAdminView}
-                  className="px-2.5 py-1 bg-[#00b4d8] text-white hover:bg-[#0096c7] rounded-lg transition text-[11px] font-heading font-bold uppercase tracking-wider shadow-xs"
+                  className="px-2.5 py-1 bg-[#c27803] text-white hover:bg-[#92400e] rounded-lg transition text-[11px] font-heading font-bold uppercase tracking-wider shadow-xs"
                 >
-                  🛡️ Admin Panel &rarr;
+                  🛡️ Admin Panel →
                 </button>
               )}
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#00b4d8]/20 text-[#00b4d8] border border-[#00b4d8]/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00b4d8] animate-pulse"></span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#c27803]/20 text-[#c27803] border border-[#c27803]/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c27803] animate-pulse"></span>
                 <span>{t("learnerView")}</span>
               </span>
 
@@ -118,11 +118,11 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
       </div>
 
       {/* 2. Clever Course Main Header */}
-      <header className="bg-white dark:bg-[#151b26] border-b border-slate-200/90 dark:border-[#2a354b] sticky top-0 z-30 shadow-xs transition-colors duration-200">
+      <header className="bg-white dark:bg-[#1c1610] border-b border-slate-200/90 dark:border-[#2a354b] sticky top-0 z-30 shadow-xs transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#1e2738] via-[#00b4d8] to-[#72d5cd] flex items-center justify-center font-heading font-extrabold text-white text-xl shadow-md shadow-cyan-500/20 shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#261e16] via-[#c27803] to-[#f59e0b] flex items-center justify-center font-heading font-extrabold text-white text-xl shadow-md shadow-amber-600/20 shrink-0">
               🎓
             </div>
             <div>
@@ -146,12 +146,12 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
               <span className="text-xs font-heading font-bold text-slate-900 dark:text-white">
                 {studentProfile?.fullName || currentUser?.displayName || "Student"}
               </span>
-              <span className="text-[11px] font-mono font-semibold text-[#00b4d8]">
+              <span className="text-[11px] font-mono font-semibold text-[#c27803]">
                 ID: {studentProfile?.studentId || currentUser?.email?.split("@")[0]}
               </span>
             </div>
 
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00b4d8] to-[#72d5cd] text-white flex items-center justify-center font-heading font-bold text-sm shadow-xs border-2 border-white ring-2 ring-[#00b4d8]/30">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#c27803] to-[#f59e0b] text-white flex items-center justify-center font-heading font-bold text-sm shadow-xs border-2 border-white ring-2 ring-[#c27803]/30">
               {(studentProfile?.fullName || currentUser?.email || "S").charAt(0).toUpperCase()}
             </div>
           </div>
@@ -164,19 +164,19 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
       </main>
 
       {/* 4. Clever Course Footer */}
-      <footer className="bg-[#1e2738] text-slate-300 border-t border-[#2a354b] mt-12">
+      <footer className="bg-[#261e16] text-slate-300 border-t border-[#2a354b] mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-xs">
           {/* Col 1: Center Brand & Slogan */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#00b4d8] to-[#72d5cd] flex items-center justify-center text-white font-heading font-bold text-base shadow-sm">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#c27803] to-[#f59e0b] flex items-center justify-center text-white font-heading font-bold text-base shadow-sm">
                 🎓
               </div>
               <div>
                 <span className="font-heading font-black text-white text-sm tracking-wide block uppercase">
                   {centerName}
                 </span>
-                <span className="text-[10px] text-[#00b4d8] font-bold uppercase tracking-wider">
+                <span className="text-[10px] text-[#c27803] font-bold uppercase tracking-wider">
                   Clever Course LMS
                 </span>
               </div>
@@ -201,7 +201,7 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
                   href={websiteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-[#00b4d8] border border-slate-700 hover:border-[#00b4d8]/40 rounded-lg text-[11px] font-semibold transition inline-flex items-center gap-1.5"
+                  className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-[#c27803] border border-slate-700 hover:border-[#c27803]/40 rounded-lg text-[11px] font-semibold transition inline-flex items-center gap-1.5"
                 >
                   <span>🌐</span>
                   <span>Website</span>
@@ -212,7 +212,7 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
                   href={fanpageUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-[#72d5cd] border border-slate-700 hover:border-[#72d5cd]/40 rounded-lg text-[11px] font-semibold transition inline-flex items-center gap-1.5"
+                  className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-[#f59e0b] border border-slate-700 hover:border-[#f59e0b]/40 rounded-lg text-[11px] font-semibold transition inline-flex items-center gap-1.5"
                 >
                   <span>💬</span>
                   <span>Fanpage / Zalo</span>
@@ -228,31 +228,31 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
             </h4>
             <div className="space-y-2.5 text-slate-300 text-xs">
               <div className="flex items-start gap-2">
-                <span className="text-sm leading-none text-[#00b4d8] mt-0.5">📍</span>
+                <span className="text-sm leading-none text-[#c27803] mt-0.5">📍</span>
                 <div>
                   <span className="text-slate-400 text-[11px] block">{isVi ? "Địa chỉ cơ sở:" : "Address:"}</span>
                   <span className="text-white font-medium">{address}</span>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-sm leading-none text-[#00b4d8] mt-0.5">📞</span>
+                <span className="text-sm leading-none text-[#c27803] mt-0.5">📞</span>
                 <div>
                   <span className="text-slate-400 text-[11px] block">{isVi ? "Đường dây nóng (Hotline):" : "Hotline:"}</span>
                   <a
                     href={`tel:${cleanHotline}`}
-                    className="text-white font-bold hover:text-[#00b4d8] transition text-sm cursor-pointer"
+                    className="text-white font-bold hover:text-[#c27803] transition text-sm cursor-pointer"
                   >
                     {hotline}
                   </a>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-sm leading-none text-[#00b4d8] mt-0.5">✉️</span>
+                <span className="text-sm leading-none text-[#c27803] mt-0.5">✉️</span>
                 <div>
                   <span className="text-slate-400 text-[11px] block">{isVi ? "Email hỗ trợ học vụ:" : "Support Email:"}</span>
                   <a
                     href={`mailto:${adminEmail}`}
-                    className="text-[#00b4d8] font-medium hover:underline break-all cursor-pointer"
+                    className="text-[#c27803] font-medium hover:underline break-all cursor-pointer"
                   >
                     {adminEmail}
                   </a>
@@ -268,15 +268,15 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
             </h4>
             <div className="space-y-1.5 text-slate-400">
               <div className="flex items-center gap-2">
-                <span className="text-[#00b4d8]">✓</span>
+                <span className="text-[#c27803]">✓</span>
                 <span>{isVi ? "Tài liệu Google Drive trực tiếp" : "Direct Google Drive Courseware"}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#00b4d8]">✓</span>
+                <span className="text-[#c27803]">✓</span>
                 <span>{isVi ? "Thanh toán học phí VietQR tự động" : "Automated VietQR Tuition Payment"}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#00b4d8]">✓</span>
+                <span className="text-[#c27803]">✓</span>
                 <span>{isVi ? "Theo dõi chuyên cần & điểm số Realtime" : "Realtime Attendance & Score Tracking"}</span>
               </div>
             </div>
@@ -284,7 +284,7 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, o
         </div>
 
         {/* Bottom Copyright */}
-        <div className="border-t border-[#2a354b] py-4 bg-[#151b26] text-center text-[11px] text-slate-500">
+        <div className="border-t border-[#2a354b] py-4 bg-[#1c1610] text-center text-[11px] text-slate-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>Theme Clever Course LMS &bull; GoodLayers Design Concept</span>
             <span>&copy; {new Date().getFullYear()} {centerName}. All rights reserved.</span>

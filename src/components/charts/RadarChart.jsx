@@ -97,7 +97,7 @@ export const RadarChart = ({ normalizedData = {}, rawData = {}, testType = "IELT
         <polygon
           points={dataPolygon}
           fill={isDark ? "rgba(0, 180, 216, 0.32)" : "rgba(0, 180, 216, 0.22)"}
-          stroke="#00b4d8"
+          stroke="#c27803"
           strokeWidth="2.5"
           className="transition-all duration-300"
         />
@@ -113,8 +113,8 @@ export const RadarChart = ({ normalizedData = {}, rawData = {}, testType = "IELT
                 cx={pt.x}
                 cy={pt.y}
                 r="4.5"
-                fill={isDark ? "#151b26" : "#ffffff"}
-                stroke="#00b4d8"
+                fill={isDark ? "#1c1610" : "#ffffff"}
+                stroke="#c27803"
                 strokeWidth="2.5"
               />
             </g>
@@ -134,7 +134,7 @@ export const RadarChart = ({ normalizedData = {}, rawData = {}, testType = "IELT
                 y={pt.y}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill={isDark ? "#f1f5f9" : "#1e2738"}
+                fill={isDark ? "#f1f5f9" : "#261e16"}
                 className="font-heading font-bold"
               >
                 {skill}
@@ -144,7 +144,7 @@ export const RadarChart = ({ normalizedData = {}, rawData = {}, testType = "IELT
                 y={pt.y + 13}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill="#00b4d8"
+                fill="#c27803"
                 className="font-bold text-[10px]"
               >
                 {rawVal !== undefined ? rawVal : `${normalizedData[skill]}%`}
@@ -156,7 +156,7 @@ export const RadarChart = ({ normalizedData = {}, rawData = {}, testType = "IELT
 
       <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
         <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-[#00b4d8]/40 border border-[#00b4d8]"></span>
+          <span className="w-3 h-3 rounded-full bg-[#c27803]/40 border border-[#c27803]"></span>
           <span className="font-medium text-slate-700">Current Performance</span>
         </div>
         <div className="flex items-center gap-1.5">

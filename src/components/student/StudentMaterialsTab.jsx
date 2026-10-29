@@ -179,13 +179,13 @@ export const StudentMaterialsTab = ({
   return (
     <div className="space-y-6">
       {/* 1. STUDENT EMAIL & DUAL-CONDITION BANNER */}
-      <div className="bg-gradient-to-r from-[#151b26] via-[#1e2738] to-[#151b26] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-700/60">
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-[#00b4d8]/10 rounded-full blur-2xl"></div>
+      <div className="bg-gradient-to-r from-[#1c1610] via-[#261e16] to-[#1c1610] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-700/60">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-[#c27803]/10 rounded-full blur-2xl"></div>
 
         <div className="relative z-10 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1.5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-[#72d5cd] border border-white/10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-[#f59e0b] border border-white/10">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Google Drive Live Verification</span>
                 <span>&bull;</span>
@@ -329,7 +329,7 @@ export const StudentMaterialsTab = ({
                 onClick={() => setActiveFilter(cat.id)}
                 className={`px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 text-xs ${
                   isActive
-                    ? "bg-[#00b4d8] text-white font-heading font-bold shadow-sm"
+                    ? "bg-[#c27803] text-white font-heading font-bold shadow-sm"
                     : "bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium"
                 }`}
               >
@@ -351,7 +351,7 @@ export const StudentMaterialsTab = ({
           <button
             type="button"
             onClick={() => setShowEmbedViewer(!showEmbedViewer)}
-            className="shrink-0 font-bold underline text-[#00b4d8] hover:text-[#0096c7]"
+            className="shrink-0 font-bold underline text-[#c27803] hover:text-[#92400e]"
           >
             {showEmbedViewer ? t("hideEmbedDriveView") : t("embedDriveView")}
           </button>
@@ -429,7 +429,7 @@ export const StudentMaterialsTab = ({
             )}
             <button
               onClick={() => fetchMaterials(true)}
-              className="px-4 py-2 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-1.5 active:translate-y-px"
+              className="px-4 py-2 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-1.5 active:translate-y-px"
             >
               <span>🔄</span>
               <span>{t("syncMaterials")}</span>
@@ -440,7 +440,7 @@ export const StudentMaterialsTab = ({
               rel="noreferrer"
               className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold border border-blue-200 transition"
             >
-              {t("openSharedWithMe")} &rarr;
+              {t("openSharedWithMe")} →
             </a>
           </div>
         </div>
@@ -463,7 +463,7 @@ export const StudentMaterialsTab = ({
                 {filteredFolders.map((fol) => (
                   <div
                     key={fol.id}
-                    className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#00b4d8]/50 transition flex flex-col justify-between group"
+                    className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#c27803]/50 transition flex flex-col justify-between group"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2">
@@ -475,7 +475,7 @@ export const StudentMaterialsTab = ({
                         </span>
                       </div>
 
-                      <h4 className="text-xs font-bold text-slate-800 group-hover:text-[#00b4d8] transition line-clamp-2 mb-1">
+                      <h4 className="text-xs font-bold text-slate-800 group-hover:text-[#c27803] transition line-clamp-2 mb-1">
                         {fol.name}
                       </h4>
 
@@ -487,7 +487,7 @@ export const StudentMaterialsTab = ({
                         </div>
                         <div className="flex items-center gap-1.5 truncate">
                           <span className="text-blue-600 font-bold">✓</span>
-                          <span>Chia sẻ: <strong className="text-[#00b4d8] font-mono">{studentEmail}</strong></span>
+                          <span>Chia sẻ: <strong className="text-[#c27803] font-mono">{studentEmail}</strong></span>
                         </div>
                       </div>
 
@@ -509,10 +509,10 @@ export const StudentMaterialsTab = ({
                         href={fol.url || (folderId ? `https://drive.google.com/drive/folders/${folderId}` : "https://drive.google.com")}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-[#00b4d8] rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider transition"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-[#c27803] rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider transition"
                       >
                         <span>{t("openInDriveBtn")}</span>
-                        <span>&rarr;</span>
+                        <span>→</span>
                       </a>
                     </div>
                   </div>
@@ -566,7 +566,7 @@ export const StudentMaterialsTab = ({
                   return (
                     <div
                       key={file.id}
-                      className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#00b4d8]/50 transition flex flex-col justify-between group"
+                      className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#c27803]/50 transition flex flex-col justify-between group"
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2 mb-2">
@@ -581,7 +581,7 @@ export const StudentMaterialsTab = ({
                         </div>
 
                         <h4
-                          className="text-xs font-bold text-slate-800 group-hover:text-[#00b4d8] transition line-clamp-2 mb-1"
+                          className="text-xs font-bold text-slate-800 group-hover:text-[#c27803] transition line-clamp-2 mb-1"
                           title={file.name}
                         >
                           {file.name}
@@ -595,7 +595,7 @@ export const StudentMaterialsTab = ({
                           </div>
                           <div className="flex items-center gap-1.5 truncate">
                             <span className="text-blue-600 font-bold">✓</span>
-                            <span>Chia sẻ: <strong className="text-[#00b4d8] font-mono">{studentEmail}</strong></span>
+                            <span>Chia sẻ: <strong className="text-[#c27803] font-mono">{studentEmail}</strong></span>
                           </div>
                         </div>
 
@@ -620,10 +620,10 @@ export const StudentMaterialsTab = ({
                             href={file.url || (folderLink || "https://drive.google.com")}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider transition shadow-sm active:translate-y-px"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider transition shadow-sm active:translate-y-px"
                           >
                             <span>{t("openInDriveBtn")}</span>
-                            <span>&rarr;</span>
+                            <span>→</span>
                           </a>
                         </div>
                       </div>

@@ -105,7 +105,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-sm uppercase tracking-wider rounded-xl shadow-lg hover:shadow-amber-500/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
             >
               <span>Bắt Đầu Làm 5 Câu Test Ngay</span>
-              <span className="text-lg">&rarr;</span>
+              <span className="text-lg">→</span>
             </button>
           </div>
         </div>
@@ -244,7 +244,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               >
                 {currentIndex === totalQuestions - 1
                   ? "Xem Kết Quả & Tư Vấn Lộ Trình"
-                  : "Câu Tiếp Theo &rarr;"}
+                  : "Câu Tiếp Theo →"}
               </button>
             )}
           </div>
@@ -320,7 +320,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               }}
               className="flex-1 py-3 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition text-center cursor-pointer"
             >
-              Đăng Ký Tư Vấn Theo Trình Độ Này &rarr;
+              Đăng Ký Tư Vấn Theo Trình Độ Này →
             </button>
             <button
               onClick={handleStart}

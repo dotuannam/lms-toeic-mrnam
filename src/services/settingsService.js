@@ -2,6 +2,15 @@ import { doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "firebase/fires
 import { db } from "../config/firebase";
 import { CENTER_CONFIG } from "../config/appConfig";
 import { VIETQR_CONFIG } from "../config/vietqr";
+import {
+  TEACHER_PROFILE,
+  IMPACT_STATS,
+  EDUCATION_LIST,
+  CERTIFICATIONS_LIST,
+  CAREER_EXPERIENCE,
+  FEATURED_COURSES,
+  STUDENT_TESTIMONIALS,
+} from "../data/portfolioData";
 
 const SETTINGS_COLLECTION = "system_settings";
 const SHIFTS_DOC_ID = "teaching_shifts";
@@ -9,6 +18,7 @@ const CENTER_CONFIG_DOC_ID = "center_config";
 const BANKING_CONFIG_DOC_ID = "banking_config";
 const ANNOUNCEMENT_CONFIG_DOC_ID = "global_announcement";
 const CLASSROOM_RULES_DOC_ID = "classroom_rules";
+const LANDING_PAGE_CONTENT_DOC_ID = "landing_page_content";
 
 // Danh sách ngân hàng phổ biến tại Việt Nam hỗ trợ chuẩn VietQR
 export const VIETNAMESE_BANKS = [
@@ -649,6 +659,107 @@ export const saveClassroomRules = async (rulesData) => {
     await setDoc(docRef, { ...updated, updatedAt: serverTimestamp() }, { merge: true });
   } catch (err) {
     console.warn("Firestore sync warning for classroom rules, saved locally:", err);
+  }
+  return updated;
+};
+
+// =========================================================================
+// 8. NỘI DUNG TRANG LANDING PAGE (LANDING PAGE CONTENT CONFIG)
+// =========================================================================
+export const DEFAULT_LANDING_PAGE_CONTENT = {
+  hero: {
+    badge: "Giảng Viên & Chuyên Gia TOEIC Hàng Đầu",
+    headline: "Master English, Elevate Your Future",
+    subHeadline:
+      "Đồng hành cùng Thầy Đỗ Tuấn Nam chinh phục TOEIC 750+ với lộ trình cá nhân hóa, phương pháp sư phạm hiện đại và nền tảng LMS tiên tiến.",
+    primaryCta: "Làm Mini Test 3 Phút",
+    secondaryCta: "Đăng Ký Tư Vấn 1-1",
+  },
+  profile: TEACHER_PROFILE,
+  stats: IMPACT_STATS,
+  education: EDUCATION_LIST,
+  certifications: CERTIFICATIONS_LIST,
+  career: CAREER_EXPERIENCE,
+  courses: FEATURED_COURSES,
+  testimonials: STUDENT_TESTIMONIALS,
+  contactInfo: {
+    address: "Thành phố Hồ Chí Minh, Việt Nam",
+    hotline: "077 345 2809",
+    email: "Dotuannam63@gmail.com",
+    teachingMode: "Trực tiếp & Trực tuyến qua Google Meet",
+  },
+};
+
+const LOCAL_STORAGE_LANDING_CONTENT_KEY = "lms_landing_page_content_v1";
+
+export const getLocalLandingPageContent = () => {
+  try {
+    const saved = localStorage.getItem(LOCAL_STORAGE_LANDING_CONTENT_KEY);
+    if (saved) return { ...DEFAULT_LANDING_PAGE_CONTENT, ...JSON.parse(saved) };
+  } catch (e) {
+    console.warn("Could not read landing page content from localStorage:", e);
+  }
+  return DEFAULT_LANDING_PAGE_CONTENT;
+};
+
+export const setLocalLandingPageContent = (content) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_LANDING_CONTENT_KEY, JSON.stringify(content));
+  } catch (e) {
+    console.warn("Could not write landing page content to localStorage:", e);
+  }
+};
+
+export const getLandingPageContent = async () => {
+  try {
+    const docRef = doc(db, SETTINGS_COLLECTION, LANDING_PAGE_CONTENT_DOC_ID);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const merged = { ...DEFAULT_LANDING_PAGE_CONTENT, ...snap.data() };
+      setLocalLandingPageContent(merged);
+      return merged;
+    }
+  } catch (err) {
+    console.warn("Could not fetch landing page content from Firestore, fallback to cache:", err);
+  }
+  return getLocalLandingPageContent();
+};
+
+export const subscribeLandingPageContent = (callback) => {
+  const docRef = doc(db, SETTINGS_COLLECTION, LANDING_PAGE_CONTENT_DOC_ID);
+  callback(getLocalLandingPageContent());
+
+  return onSnapshot(
+    docRef,
+    (snap) => {
+      if (snap.exists()) {
+        const merged = { ...DEFAULT_LANDING_PAGE_CONTENT, ...snap.data() };
+        setLocalLandingPageContent(merged);
+        callback(merged);
+      } else {
+        callback(getLocalLandingPageContent());
+      }
+    },
+    (err) => {
+      console.warn("Landing page content subscription warning, fallback to cache:", err);
+      callback(getLocalLandingPageContent());
+    }
+  );
+};
+
+export const saveLandingPageContent = async (contentData) => {
+  const updated = {
+    ...DEFAULT_LANDING_PAGE_CONTENT,
+    ...contentData,
+    updatedAt: new Date().toISOString(),
+  };
+  setLocalLandingPageContent(updated);
+
+  try {
+    const docRef = doc(db, SETTINGS_COLLECTION, LANDING_PAGE_CONTENT_DOC_ID);
+    await setDoc(docRef, { ...updated, updatedAt: serverTimestamp() }, { merge: true });
+  } catch (err) {
+    console.warn("Firestore sync warning for landing page content, saved locally:", err);
   }
   return updated;
 };

@@ -112,11 +112,11 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7f9] dark:bg-[#0b0f19] flex flex-col md:flex-row font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-[#faf7f2] dark:bg-[#0b0f19] flex flex-col md:flex-row font-sans transition-colors duration-200">
       {/* Mobile Header Bar */}
-      <div className="md:hidden bg-[#1e2738] text-white px-4 py-3 flex items-center justify-between border-b border-[#2a354b]">
+      <div className="md:hidden bg-[#261e16] text-white px-4 py-3 flex items-center justify-between border-b border-[#2a354b]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#00b4d8] to-[#72d5cd] flex items-center justify-center font-heading font-extrabold text-white text-base shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#c27803] to-[#f59e0b] flex items-center justify-center font-heading font-extrabold text-white text-base shadow-sm">
             🎓
           </div>
           <span className="font-heading font-bold text-white text-sm tracking-wide">
@@ -139,20 +139,20 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed md:sticky top-0 z-40 inset-y-0 left-0 w-64 bg-[#1e2738] text-slate-300 flex flex-col border-r border-[#2a354b] transition-transform duration-200 ease-in-out md:translate-x-0 ${
+        className={`fixed md:sticky top-0 z-40 inset-y-0 left-0 w-64 bg-[#261e16] text-slate-300 flex flex-col border-r border-[#2a354b] transition-transform duration-200 ease-in-out md:translate-x-0 ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Brand Header */}
         <div className="p-5 border-b border-[#2a354b] flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#00b4d8] to-[#72d5cd] flex items-center justify-center font-heading font-extrabold text-white text-xl shadow-md shadow-cyan-500/20 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#c27803] to-[#f59e0b] flex items-center justify-center font-heading font-extrabold text-white text-xl shadow-md shadow-amber-600/20 shrink-0">
             🎓
           </div>
           <div className="overflow-hidden">
             <h2 className="text-sm font-heading font-extrabold text-white tracking-wide truncate uppercase">
               {centerConfig?.centerName || "Clever Course"}
             </h2>
-            <p className="text-[11px] text-[#00b4d8] font-semibold tracking-wider uppercase">
+            <p className="text-[11px] text-[#c27803] font-semibold tracking-wider uppercase">
               LMS &bull; Admin Portal
             </p>
           </div>
@@ -173,7 +173,7 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
                 }}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition-all duration-200 ${
                   isActive
-                    ? "bg-[#00b4d8] text-white shadow-md shadow-cyan-500/25 translate-x-1"
+                    ? "bg-[#c27803] text-white shadow-md shadow-amber-600/25 translate-x-1"
                     : "text-slate-300 hover:text-white hover:bg-[#28334a]"
                 }`}
               >
@@ -193,9 +193,9 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
         </nav>
 
         {/* User Card & Sign Out */}
-        <div className="p-4 border-t border-[#2a354b] bg-[#151b26]">
+        <div className="p-4 border-t border-[#2a354b] bg-[#1c1610]">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#00b4d8] to-[#72d5cd] flex items-center justify-center text-white font-heading font-bold text-xs border border-white/20">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#c27803] to-[#f59e0b] flex items-center justify-center text-white font-heading font-bold text-xs border border-white/20">
               {userProfile?.displayName ? userProfile.displayName.charAt(0).toUpperCase() : "A"}
             </div>
             <div className="overflow-hidden flex-1">
@@ -204,7 +204,7 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
                   {userProfile?.displayName || t("systemAdmin")}
                 </p>
               </div>
-              <p className="text-[10px] text-[#00b4d8] font-heading font-bold uppercase tracking-wider truncate">
+              <p className="text-[10px] text-[#c27803] font-heading font-bold uppercase tracking-wider truncate">
                 {isSuperAdmin
                   ? "👑 Super Admin"
                   : isConsultant
@@ -220,7 +220,7 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
           </div>
           <button
             onClick={handleSignOut}
-            className="w-full py-2 px-3 bg-[#1e2738] hover:bg-rose-900/40 text-rose-300 hover:text-rose-200 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 border border-rose-500/20 transition"
+            className="w-full py-2 px-3 bg-[#261e16] hover:bg-rose-900/40 text-rose-300 hover:text-rose-200 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 border border-rose-500/20 transition"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -231,9 +231,9 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
       </aside>
 
       {/* Main Content Pane */}
-      <main className="flex-1 min-w-0 flex flex-col bg-[#f4f7f9] dark:bg-[#0b0f19] transition-colors duration-200">
+      <main className="flex-1 min-w-0 flex flex-col bg-[#faf7f2] dark:bg-[#0b0f19] transition-colors duration-200">
         {/* Top Header Bar */}
-        <header className="bg-white dark:bg-[#151b26] border-b border-slate-200/90 dark:border-[#2a354b] px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-xs transition-colors duration-200">
+        <header className="bg-white dark:bg-[#1c1610] border-b border-slate-200/90 dark:border-[#2a354b] px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-xs transition-colors duration-200">
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg sm:text-xl font-heading font-extrabold text-slate-900 dark:text-white uppercase tracking-tight">
@@ -243,7 +243,7 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
                     (n.id === "website-admin" && activeTab === "email-templates")
                 )?.label || "Dashboard"}
               </h1>
-              <span className="w-2 h-2 rounded-full bg-[#00b4d8]"></span>
+              <span className="w-2 h-2 rounded-full bg-[#c27803]"></span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {t("adminDesc")}
@@ -269,7 +269,7 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
               <button
                 type="button"
                 onClick={onSwitchToStudentView}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#00b4d8]/10 hover:bg-[#00b4d8] text-[#00b4d8] hover:text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider border border-[#00b4d8]/20 dark:border-[#00b4d8]/40 transition"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#c27803]/10 hover:bg-[#c27803] text-[#c27803] hover:text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider border border-[#c27803]/20 dark:border-[#c27803]/40 transition"
               >
                 <span>🎓</span>
                 <span className="hidden sm:inline">{t("switchToStudentView")}</span>

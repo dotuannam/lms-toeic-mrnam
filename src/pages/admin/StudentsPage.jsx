@@ -196,7 +196,7 @@ export const StudentsPage = () => {
               placeholder={t("searchStudents")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8] transition"
+              className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803] transition"
             />
             <svg
               className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
@@ -212,7 +212,7 @@ export const StudentsPage = () => {
           <select
             value={classFilter}
             onChange={(e) => setClassFilter(e.target.value)}
-            className="py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8] transition"
+            className="py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803] transition"
           >
             <option value="all">{t("allClasses")}</option>
             {classes.map((c) => (
@@ -225,7 +225,7 @@ export const StudentsPage = () => {
 
         <button
           onClick={openCreateModal}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:translate-y-px"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:translate-y-px"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -266,7 +266,7 @@ export const StudentsPage = () => {
 
                   return (
                     <tr key={std.studentId} className="hover:bg-slate-50/80 transition">
-                      <td className="py-3.5 px-4 font-mono font-semibold text-[#1e2738] text-xs">
+                      <td className="py-3.5 px-4 font-mono font-semibold text-[#261e16] text-xs">
                         <span className="px-2 py-1 bg-slate-100 border border-slate-200 rounded-md">
                           {std.studentId}
                         </span>
@@ -368,7 +368,7 @@ export const StudentsPage = () => {
                           )}
                           <button
                             onClick={() => openEditModal(std)}
-                            className="text-xs font-semibold text-slate-600 hover:text-[#00b4d8] transition"
+                            className="text-xs font-semibold text-slate-600 hover:text-[#c27803] transition"
                           >
                             Edit
                           </button>
@@ -435,7 +435,7 @@ export const StudentsPage = () => {
                     Auto-Generated Student ID *
                   </label>
                   {!editingStudent && (
-                    <span className="text-[11px] text-[#00b4d8] font-bold">
+                    <span className="text-[11px] text-[#c27803] font-bold">
                       Auto-computed from class
                     </span>
                   )}
@@ -449,7 +449,7 @@ export const StudentsPage = () => {
                     setFormData({ ...formData, studentId: e.target.value.toUpperCase() })
                   }
                   placeholder="e.g. TO55001HV01"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono font-bold text-[#1e2738] disabled:opacity-60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono font-bold text-[#261e16] disabled:opacity-60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                 />
               </div>
 
@@ -463,7 +463,7 @@ export const StudentsPage = () => {
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   placeholder="e.g. Nguyen Van A"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                 />
               </div>
 
@@ -478,7 +478,7 @@ export const StudentsPage = () => {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="student@gmail.com"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   />
                 </div>
                 <div>
@@ -490,7 +490,7 @@ export const StudentsPage = () => {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="0912345678"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   />
                 </div>
               </div>
@@ -504,7 +504,7 @@ export const StudentsPage = () => {
                     type="date"
                     value={formData.dob}
                     onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   />
                 </div>
                 <div>
@@ -514,7 +514,7 @@ export const StudentsPage = () => {
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   >
                     <option value="active">Active</option>
                     <option value="graduated">Graduated</option>
@@ -612,7 +612,7 @@ export const StudentsPage = () => {
                           paidAmount: prev.tuitionStatus === "completed" ? val : prev.paidAmount,
                         }));
                       }}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                     />
                   </div>
 
@@ -635,7 +635,7 @@ export const StudentsPage = () => {
                           onChange={(e) =>
                             setFormData((prev) => ({ ...prev, paidAmount: Number(e.target.value) || 0 }))
                           }
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                         />
                       </div>
 
@@ -674,7 +674,7 @@ export const StudentsPage = () => {
                           onChange={(e) =>
                             setFormData((prev) => ({ ...prev, installmentNote: e.target.value }))
                           }
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                         />
                       </div>
                     </>
@@ -683,7 +683,7 @@ export const StudentsPage = () => {
               )}
 
               {!editingStudent && formData.classId && (
-                <div className="p-3.5 bg-cyan-50/60 border border-[#00b4d8]/30 rounded-xl">
+                <div className="p-3.5 bg-cyan-50/60 border border-[#c27803]/30 rounded-xl">
                   <label className="flex items-center gap-2.5 cursor-pointer">
                     <input
                       type="checkbox"
@@ -691,10 +691,10 @@ export const StudentsPage = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, sendClassroomInvite: e.target.checked })
                       }
-                      className="w-4 h-4 mt-0.5 text-[#00b4d8] rounded focus:ring-[#00b4d8]"
+                      className="w-4 h-4 mt-0.5 text-[#c27803] rounded focus:ring-[#c27803]"
                     />
                     <div>
-                      <span className="text-xs font-heading font-bold text-[#1e2738] block uppercase tracking-wide">
+                      <span className="text-xs font-heading font-bold text-[#261e16] block uppercase tracking-wide">
                         {lang === "vi"
                           ? "Tự động mời Google Classroom & cấp quyền Google Drive"
                           : "Auto invite to Classroom & grant Google Drive folder access"}
@@ -720,7 +720,7 @@ export const StudentsPage = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-2.5 px-4 bg-[#00b4d8] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-[#0096c7] disabled:opacity-60 shadow-sm transition active:translate-y-px"
+                  className="flex-1 py-2.5 px-4 bg-[#c27803] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-[#92400e] disabled:opacity-60 shadow-sm transition active:translate-y-px"
                 >
                   {submitting ? "Saving..." : editingStudent ? "Save Changes" : "Confirm Enrollment"}
                 </button>

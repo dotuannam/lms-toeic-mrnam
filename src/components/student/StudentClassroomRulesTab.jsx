@@ -24,23 +24,23 @@ export const StudentClassroomRulesTab = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* 1. Header Banner */}
-      <div className="bg-gradient-to-r from-[#1e2738] via-[#243046] to-[#1e2738] text-white p-6 sm:p-8 rounded-2xl shadow-lg border border-[#00b4d8]/30 relative overflow-hidden">
-        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-[#00b4d8]/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-[#261e16] via-[#382b1d] to-[#261e16] text-white p-6 sm:p-8 rounded-2xl shadow-lg border border-[#c27803]/30 relative overflow-hidden">
+        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-[#c27803]/10 rounded-full blur-2xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#00b4d8]/20 border border-[#00b4d8]/40 text-[#00b4d8] text-[11px] font-heading font-bold uppercase tracking-wider">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#c27803]/20 border border-[#c27803]/40 text-amber-300 text-[11px] font-heading font-bold uppercase tracking-wider">
                 Nội quy trung tâm
               </span>
-              <span className="text-slate-400 text-xs">
+              <span className="text-amber-200/70 text-xs">
                 Cập nhật: {rulesData.lastUpdated || "2026-10-29"}
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-heading font-black tracking-tight text-white">
               {rulesData.title || "Quy Định & Nội Quy Lớp Học"}
             </h2>
-            <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
+            <p className="text-sm text-amber-100/90 max-w-2xl leading-relaxed">
               {rulesData.subtitle ||
                 "Vui lòng đọc kỹ và thực hiện nghiêm túc các quy định dưới đây để đảm bảo quyền lợi học tập và chất lượng cam kết chuẩn đầu ra của bạn."}
             </p>

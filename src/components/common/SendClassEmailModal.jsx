@@ -194,14 +194,14 @@ export const SendClassEmailModal = ({ cls, allStudents = [], onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
       <div className="bg-white rounded-3xl max-w-5xl w-full max-h-[94vh] shadow-2xl border border-slate-100 flex flex-col overflow-hidden my-auto">
         {/* Top Header Bar */}
-        <div className="p-5 bg-gradient-to-r from-[#151b26] via-[#1e2738] to-[#151b26] text-white flex items-center justify-between shrink-0 border-b border-slate-700/60">
+        <div className="p-5 bg-gradient-to-r from-[#1c1610] via-[#261e16] to-[#1c1610] text-white flex items-center justify-between shrink-0 border-b border-slate-700/60">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#1e2738] border border-[#00b4d8]/40 flex items-center justify-center text-xl shadow-lg ring-2 ring-[#00b4d8]/20">
+            <div className="w-11 h-11 rounded-2xl bg-[#261e16] border border-[#c27803]/40 flex items-center justify-center text-xl shadow-lg ring-2 ring-[#c27803]/20">
               ✉️
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-[#00b4d8]/20 border border-[#00b4d8]/30 rounded text-[11px] font-mono font-bold uppercase tracking-wider text-[#72d5cd]">
+                <span className="px-2 py-0.5 bg-[#c27803]/20 border border-[#c27803]/30 rounded text-[11px] font-mono font-bold uppercase tracking-wider text-[#f59e0b]">
                   {cls.code || "LỚP HỌC"}
                 </span>
                 <h3 className="text-base font-heading font-extrabold text-white uppercase tracking-wide">
@@ -243,7 +243,7 @@ export const SendClassEmailModal = ({ cls, allStudents = [], onClose }) => {
                 <button
                   type="button"
                   onClick={handleToggleSelectAll}
-                  className="px-2.5 py-1 bg-white border border-slate-200 hover:border-[#00b4d8] text-[#00b4d8] rounded-lg text-xs font-bold transition shadow-2xs"
+                  className="px-2.5 py-1 bg-white border border-slate-200 hover:border-[#c27803] text-[#c27803] rounded-lg text-xs font-bold transition shadow-2xs"
                 >
                   {selectedStudentIds.length === classStudents.filter((s) => s.email).length
                     ? "Bỏ chọn"
@@ -252,9 +252,9 @@ export const SendClassEmailModal = ({ cls, allStudents = [], onClose }) => {
               </div>
 
               {/* Recipient summary badge */}
-              <div className="my-3 p-2.5 bg-cyan-50/60 border border-[#00b4d8]/30 rounded-xl text-xs flex items-center justify-between text-slate-800 font-medium">
+              <div className="my-3 p-2.5 bg-cyan-50/60 border border-[#c27803]/30 rounded-xl text-xs flex items-center justify-between text-slate-800 font-medium">
                 <span>Đã chọn để gửi:</span>
-                <span className="font-extrabold text-[#00b4d8] bg-white px-2 py-0.5 rounded-lg border border-[#00b4d8]/20 shadow-2xs font-mono">
+                <span className="font-extrabold text-[#c27803] bg-white px-2 py-0.5 rounded-lg border border-[#c27803]/20 shadow-2xs font-mono">
                   {selectedStudentIds.length} / {classStudents.length} học viên
                 </span>
               </div>
@@ -392,7 +392,7 @@ export const SendClassEmailModal = ({ cls, allStudents = [], onClose }) => {
               type="button"
               disabled={isSending || selectedStudentIds.length === 0}
               onClick={handleDispatchBatch}
-              className="py-2.5 px-6 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-md shadow-[#00b4d8]/25 flex items-center gap-2 disabled:opacity-50 active:translate-y-px"
+              className="py-2.5 px-6 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-md shadow-[#c27803]/25 flex items-center gap-2 disabled:opacity-50 active:translate-y-px"
             >
               <span>🚀</span>
               <span>Gửi Email Cho {selectedStudentIds.length} Học Viên</span>
@@ -404,11 +404,11 @@ export const SendClassEmailModal = ({ cls, allStudents = [], onClose }) => {
         {isSending && (
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-6 z-50">
             <div className="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl border border-slate-100 space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-cyan-50 text-[#00b4d8] flex items-center justify-center mx-auto text-2xl font-bold animate-pulse">
+              <div className="w-14 h-14 rounded-2xl bg-cyan-50 text-[#c27803] flex items-center justify-center mx-auto text-2xl font-bold animate-pulse">
                 📨
               </div>
               <div>
-                <h3 className="text-base font-heading font-extrabold text-[#1e2738] uppercase">
+                <h3 className="text-base font-heading font-extrabold text-[#261e16] uppercase">
                   Đang Gửi Email Cho Học Viên...
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
@@ -421,7 +421,7 @@ export const SendClassEmailModal = ({ cls, allStudents = [], onClose }) => {
                 <div className="space-y-2">
                   <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
                     <div
-                      className="bg-[#00b4d8] h-full rounded-full transition-all duration-300"
+                      className="bg-[#c27803] h-full rounded-full transition-all duration-300"
                       style={{
                         width: `${Math.round((sendingProgress.current / sendingProgress.total) * 100)}%`,
                       }}
@@ -435,7 +435,7 @@ export const SendClassEmailModal = ({ cls, allStudents = [], onClose }) => {
                       {Math.round((sendingProgress.current / sendingProgress.total) * 100)}%
                     </span>
                   </div>
-                  <div className="text-xs text-[#00b4d8] font-semibold truncate">
+                  <div className="text-xs text-[#c27803] font-semibold truncate">
                     Đang gửi tới: {sendingProgress.studentName}
                   </div>
                 </div>
@@ -495,7 +495,7 @@ export const SendClassEmailModal = ({ cls, allStudents = [], onClose }) => {
                   setSendResult(null);
                   onClose();
                 }}
-                className="w-full py-2.5 px-4 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm active:translate-y-px"
+                className="w-full py-2.5 px-4 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm active:translate-y-px"
               >
                 Đóng
               </button>

@@ -202,7 +202,7 @@ export const EmailEditor = ({
             onClick={() => setEditorMode("visual")}
             className={`py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 text-xs ${
               editorMode === "visual"
-                ? "bg-[#00b4d8] text-white font-heading font-bold shadow-xs"
+                ? "bg-[#c27803] text-white font-heading font-bold shadow-xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
             }`}
           >
@@ -213,7 +213,7 @@ export const EmailEditor = ({
             onClick={() => setEditorMode("html")}
             className={`py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 text-xs ${
               editorMode === "html"
-                ? "bg-[#00b4d8] text-white font-heading font-bold shadow-xs"
+                ? "bg-[#c27803] text-white font-heading font-bold shadow-xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
             }`}
           >
@@ -224,7 +224,7 @@ export const EmailEditor = ({
             onClick={() => setEditorMode("preview")}
             className={`py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 text-xs ${
               editorMode === "preview"
-                ? "bg-[#00b4d8] text-white font-heading font-bold shadow-xs"
+                ? "bg-[#c27803] text-white font-heading font-bold shadow-xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium"
             }`}
           >

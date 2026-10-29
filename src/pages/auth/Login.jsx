@@ -79,10 +79,10 @@ export const Login = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#151b26] via-[#1e2738] to-[#151b26] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative">
+    <div className="min-h-screen bg-gradient-to-b from-[#1c1610] via-[#261e16] to-[#1c1610] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative">
       {/* Background Decorative Clever Course Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#00b4d8]/15 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#c27803]/15 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-[#f59e0b]/10 rounded-full blur-3xl"></div>
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:24px_24px] opacity-60"></div>
@@ -97,7 +97,7 @@ export const Login = ({ onLoginSuccess }) => {
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden">
         {/* Clever Course Header Banner */}
         <div className="pt-8 pb-6 px-8 text-center bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#1e2738] text-[#00b4d8] ring-4 ring-[#00b4d8]/20 shadow-xl mb-3">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#261e16] text-[#c27803] ring-4 ring-[#c27803]/20 shadow-xl mb-3">
             <svg
               className="w-8 h-8"
               fill="none"
@@ -126,7 +126,7 @@ export const Login = ({ onLoginSuccess }) => {
             </svg>
           </div>
           <div className="flex items-center justify-center gap-2 mb-1">
-            <h1 className="text-xl font-heading font-black tracking-wider text-[#1e2738] uppercase">
+            <h1 className="text-xl font-heading font-black tracking-wider text-[#261e16] uppercase">
               Clever Course
             </h1>
             <span className="bg-[#f59e0b] text-white text-[10px] font-heading font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
@@ -149,8 +149,8 @@ export const Login = ({ onLoginSuccess }) => {
               }}
               className={`py-2.5 px-3 rounded-lg transition-all duration-200 ${
                 activeTab === "student"
-                  ? "bg-[#00b4d8] text-white shadow-sm font-extrabold"
-                  : "hover:text-[#1e2738]"
+                  ? "bg-[#c27803] text-white shadow-sm font-extrabold"
+                  : "hover:text-[#261e16]"
               }`}
             >
               Student Portal
@@ -163,8 +163,8 @@ export const Login = ({ onLoginSuccess }) => {
               }}
               className={`py-2.5 px-3 rounded-lg transition-all duration-200 ${
                 activeTab === "admin"
-                  ? "bg-[#1e2738] text-white shadow-sm font-extrabold"
-                  : "hover:text-[#1e2738]"
+                  ? "bg-[#261e16] text-white shadow-sm font-extrabold"
+                  : "hover:text-[#261e16]"
               }`}
             >
               Admin Access
@@ -244,7 +244,7 @@ export const Login = ({ onLoginSuccess }) => {
                       : "admin@center.edu.vn"
                   }
                   required
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8] transition"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803] transition"
                 />
               </div>
             </div>
@@ -261,7 +261,7 @@ export const Login = ({ onLoginSuccess }) => {
                     setResetEmail(email);
                     setShowResetModal(true);
                   }}
-                  className="text-xs text-[#00b4d8] hover:text-[#0096c7] font-semibold"
+                  className="text-xs text-[#c27803] hover:text-[#92400e] font-semibold"
                 >
                   Forgot password?
                 </button>
@@ -273,7 +273,7 @@ export const Login = ({ onLoginSuccess }) => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8] transition pr-10"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803] transition pr-10"
                 />
                 <button
                   type="button"
@@ -322,7 +322,7 @@ export const Login = ({ onLoginSuccess }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider shadow-md shadow-[#00b4d8]/25 hover:shadow-[#00b4d8]/40 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3 px-4 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider shadow-md shadow-[#c27803]/25 hover:shadow-[#c27803]/40 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -370,7 +370,7 @@ export const Login = ({ onLoginSuccess }) => {
       {showResetModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 animate-scaleUp">
-            <h3 className="text-lg font-heading font-bold text-[#1e2738] mb-2 uppercase">Reset Password</h3>
+            <h3 className="text-lg font-heading font-bold text-[#261e16] mb-2 uppercase">Reset Password</h3>
             <p className="text-xs text-slate-500 mb-4">
               Enter your email address and we will send you a link to reset your password.
             </p>
@@ -387,7 +387,7 @@ export const Login = ({ onLoginSuccess }) => {
                   onChange={(e) => setResetEmail(e.target.value)}
                   placeholder="your.email@example.com"
                   required
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                 />
                 <div className="flex gap-2">
                   <button
@@ -400,7 +400,7 @@ export const Login = ({ onLoginSuccess }) => {
                   <button
                     type="submit"
                     disabled={resetLoading}
-                    className="flex-1 py-2.5 px-3 bg-[#00b4d8] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-[#0096c7] disabled:opacity-60"
+                    className="flex-1 py-2.5 px-3 bg-[#c27803] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-[#92400e] disabled:opacity-60"
                   >
                     {resetLoading ? "Sending..." : "Send Reset Link"}
                   </button>

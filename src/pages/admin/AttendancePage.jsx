@@ -149,7 +149,7 @@ export const AttendancePage = () => {
             <select
               value={selectedClassId}
               onChange={(e) => setSelectedClassId(e.target.value)}
-              className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+              className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
             >
               {classes.map((c) => (
                 <option key={c.classId} value={c.classId}>
@@ -183,7 +183,7 @@ export const AttendancePage = () => {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+              className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
             />
           </div>
         </div>
@@ -199,7 +199,7 @@ export const AttendancePage = () => {
           <button
             onClick={handleSaveAttendance}
             disabled={saving || classStudents.length === 0}
-            className="py-2.5 px-5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition disabled:opacity-50 flex items-center gap-1.5 active:translate-y-px"
+            className="py-2.5 px-5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition disabled:opacity-50 flex items-center gap-1.5 active:translate-y-px"
           >
             {saving ? t("saving") : t("saveAttendance")}
           </button>
@@ -292,7 +292,7 @@ export const AttendancePage = () => {
                           placeholder="Add note (e.g. 15 min late, sickness)..."
                           value={currentNote}
                           onChange={(e) => updateStudentNote(st.studentId, st.fullName, e.target.value)}
-                          className="w-full max-w-xs px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#00b4d8]"
+                          className="w-full max-w-xs px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#c27803]"
                         />
                       </td>
                     </tr>

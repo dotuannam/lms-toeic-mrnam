@@ -25,13 +25,13 @@ export const GlobalAnnouncementBanner = () => {
   // Visual variants
   const typeStyles = {
     info: {
-      bg: "bg-gradient-to-r from-[#0077b6] via-[#0096c7] to-[#00b4d8]",
+      bg: "bg-gradient-to-r from-[#b45309] via-[#92400e] to-[#c27803]",
       text: "text-white",
-      border: "border-b border-[#48cae4]/30",
+      border: "border-b border-[#fbbf24]/30",
       icon: "📢",
       badge: "Thông báo",
       badgeClass: "bg-white/20 text-white",
-      btnClass: "bg-white text-[#0077b6] hover:bg-white/90",
+      btnClass: "bg-white text-[#b45309] hover:bg-white/90",
     },
     warning: {
       bg: "bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600",
@@ -89,7 +89,7 @@ export const GlobalAnnouncementBanner = () => {
               rel="noopener noreferrer"
               className={`shrink-0 ml-2 px-2.5 py-0.5 rounded-full font-bold text-xs shadow-xs transition-colors duration-150 ${style.btnClass}`}
             >
-              {linkText} &rarr;
+              {linkText} →
             </a>
           )}
         </div>

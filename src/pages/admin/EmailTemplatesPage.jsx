@@ -244,7 +244,7 @@ export const EmailTemplatesPage = () => {
           <button
             type="button"
             onClick={handleStartCreateNew}
-            className="px-4 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 active:translate-y-px"
+            className="px-4 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 active:translate-y-px"
           >
             <span>+</span> Tạo Mẫu Mới
           </button>
@@ -257,7 +257,7 @@ export const EmailTemplatesPage = () => {
         <div className="lg:col-span-4 space-y-3">
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-              <h3 className="text-xs font-heading font-extrabold text-[#1e2738] uppercase flex items-center gap-1.5">
+              <h3 className="text-xs font-heading font-extrabold text-[#261e16] uppercase flex items-center gap-1.5">
                 <span>📑</span> Danh Sách Mẫu Email ({templates.length})
               </h3>
             </div>
@@ -272,7 +272,7 @@ export const EmailTemplatesPage = () => {
                     onClick={() => selectTemplate(tpl)}
                     className={`p-3 rounded-xl border cursor-pointer transition flex items-start justify-between gap-3 ${
                       isSelected
-                        ? "bg-cyan-50/60 border-[#00b4d8] ring-1 ring-[#00b4d8]/30 shadow-2xs"
+                        ? "bg-cyan-50/60 border-[#c27803] ring-1 ring-[#c27803]/30 shadow-2xs"
                         : "bg-slate-50/60 border-slate-200 hover:bg-white hover:border-slate-300"
                     }`}
                   >
@@ -315,8 +315,8 @@ export const EmailTemplatesPage = () => {
           </div>
 
           {/* Quick Guide Card */}
-          <div className="bg-cyan-50/40 border border-[#00b4d8]/30 rounded-2xl p-4 text-xs text-slate-800 space-y-2">
-            <h4 className="font-heading font-bold text-[#1e2738] flex items-center gap-1.5 uppercase">
+          <div className="bg-cyan-50/40 border border-[#c27803]/30 rounded-2xl p-4 text-xs text-slate-800 space-y-2">
+            <h4 className="font-heading font-bold text-[#261e16] flex items-center gap-1.5 uppercase">
               <span>💡</span> Hướng dẫn sử dụng Biến Động
             </h4>
             <p className="text-[11.5px] text-slate-600 leading-relaxed font-medium">
@@ -414,7 +414,7 @@ export const EmailTemplatesPage = () => {
                 type="button"
                 disabled={saving}
                 onClick={handleSaveCurrent}
-                className="px-6 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-2 disabled:opacity-60 active:translate-y-px"
+                className="px-6 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-2 disabled:opacity-60 active:translate-y-px"
               >
                 <span>💾</span>
                 <span>{saving ? "Đang lưu..." : isCreatingNew ? "Lưu Mẫu Mới" : "Lưu Thay Đổi"}</span>

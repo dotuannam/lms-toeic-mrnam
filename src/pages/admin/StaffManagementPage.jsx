@@ -153,13 +153,13 @@ export const StaffManagementPage = () => {
   return (
     <div className="space-y-6">
       {/* 1. Page Header Card */}
-      <div className="bg-white dark:bg-[#151b26] p-6 rounded-2xl border border-slate-200/90 dark:border-[#2a354b] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
+      <div className="bg-white dark:bg-[#1c1610] p-6 rounded-2xl border border-slate-200/90 dark:border-[#2a354b] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <h2 className="text-lg sm:text-xl font-heading font-black text-slate-900 dark:text-white uppercase tracking-tight">
               {isVi ? "Quản lý Đội ngũ & Phân quyền" : "Staff & Role Management"}
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold uppercase tracking-wider bg-[#00b4d8]/15 text-[#00b4d8] border border-[#00b4d8]/30">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold uppercase tracking-wider bg-[#c27803]/15 text-[#c27803] border border-[#c27803]/30">
               Access Control
             </span>
           </div>
@@ -174,7 +174,7 @@ export const StaffManagementPage = () => {
           {canManageStaff ? (
             <button
               onClick={handleOpenAdd}
-              className="w-full sm:w-auto px-5 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:scale-95 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:scale-95 flex items-center justify-center gap-2"
             >
               <span>+</span>
               <span>{isVi ? "Thêm Thành Viên Mới" : "Add Staff Member"}</span>
@@ -233,7 +233,7 @@ export const StaffManagementPage = () => {
       {/* 3. Role Summary Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Super Admin Card */}
-        <div className="bg-white dark:bg-[#151b26] p-5 rounded-2xl border border-amber-200/80 dark:border-amber-900/50 shadow-xs space-y-2 relative overflow-hidden">
+        <div className="bg-white dark:bg-[#1c1610] p-5 rounded-2xl border border-amber-200/80 dark:border-amber-900/50 shadow-xs space-y-2 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-heading font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Super Admin
@@ -253,7 +253,7 @@ export const StaffManagementPage = () => {
         </div>
 
         {/* Consultants Card */}
-        <div className="bg-white dark:bg-[#151b26] p-5 rounded-2xl border border-blue-200/80 dark:border-blue-900/50 shadow-xs space-y-2">
+        <div className="bg-white dark:bg-[#1c1610] p-5 rounded-2xl border border-blue-200/80 dark:border-blue-900/50 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-heading font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               {isVi ? "Chăm sóc học vụ" : "Consultants"}
@@ -273,7 +273,7 @@ export const StaffManagementPage = () => {
         </div>
 
         {/* Instructors Card */}
-        <div className="bg-white dark:bg-[#151b26] p-5 rounded-2xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-xs space-y-2">
+        <div className="bg-white dark:bg-[#1c1610] p-5 rounded-2xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-heading font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               {isVi ? "Giáo viên / Giảng viên" : "Instructors"}
@@ -294,7 +294,7 @@ export const StaffManagementPage = () => {
       </div>
 
       {/* 4. Staff Directory Table */}
-      <div className="bg-white dark:bg-[#151b26] rounded-2xl border border-slate-200/90 dark:border-[#2a354b] shadow-xs overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-[#1c1610] rounded-2xl border border-slate-200/90 dark:border-[#2a354b] shadow-xs overflow-hidden transition-colors">
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-[#2a354b] flex items-center justify-between">
           <div>
             <h3 className="font-heading font-black text-sm text-slate-900 dark:text-white uppercase tracking-tight">
@@ -416,11 +416,11 @@ export const StaffManagementPage = () => {
       {/* 5. Add / Edit Staff Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
-          <div className="bg-white dark:bg-[#151b26] rounded-3xl shadow-2xl border border-slate-200 dark:border-[#2a354b] w-full max-w-lg overflow-hidden my-auto">
+          <div className="bg-white dark:bg-[#1c1610] rounded-3xl shadow-2xl border border-slate-200 dark:border-[#2a354b] w-full max-w-lg overflow-hidden my-auto">
             {/* Modal Header */}
-            <div className="p-6 bg-gradient-to-r from-[#1e2738] to-[#151b26] text-white flex items-center justify-between">
+            <div className="p-6 bg-gradient-to-r from-[#261e16] to-[#1c1610] text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#00b4d8]/20 flex items-center justify-center text-xl">
+                <div className="w-10 h-10 rounded-xl bg-[#c27803]/20 flex items-center justify-center text-xl">
                   {editingStaff ? "✏️" : "👤"}
                 </div>
                 <div>
@@ -463,7 +463,7 @@ export const StaffManagementPage = () => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="giaovien@gmail.com hoặc tuvanvien@gmail.com"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#1a2232] border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8] disabled:opacity-50"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#1a2232] border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803] disabled:opacity-50"
                 />
                 <p className="text-[10px] text-slate-400">
                   Thành viên sẽ đăng nhập bằng nút "Đăng nhập với Google" sử dụng đúng Gmail này.
@@ -482,7 +482,7 @@ export const StaffManagementPage = () => {
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     placeholder="Nguyễn Văn A"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#1a2232] border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#1a2232] border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   />
                 </div>
 
@@ -495,7 +495,7 @@ export const StaffManagementPage = () => {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="0912 345 678"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#1a2232] border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8]"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#1a2232] border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   />
                 </div>
               </div>
@@ -575,7 +575,7 @@ export const StaffManagementPage = () => {
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => handleToggleClass(cls.classId)}
-                          className="rounded text-[#00b4d8]"
+                          className="rounded text-[#c27803]"
                         />
                         <span className="font-bold text-slate-800 dark:text-slate-200">{cls.code}</span>
                         <span className="text-slate-500 truncate">- {cls.name}</span>
@@ -597,7 +597,7 @@ export const StaffManagementPage = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-6 py-2.5 rounded-xl bg-[#00b4d8] hover:bg-[#0096c7] disabled:opacity-50 text-white text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:scale-95"
+                  className="px-6 py-2.5 rounded-xl bg-[#c27803] hover:bg-[#92400e] disabled:opacity-50 text-white text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:scale-95"
                 >
                   {submitting ? "Đang lưu..." : editingStaff ? "Lưu Thay Đổi" : "Cấp Quyền Nhân Sự"}
                 </button>

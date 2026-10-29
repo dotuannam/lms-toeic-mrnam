@@ -291,9 +291,9 @@ export const ClassDriveMaterialsModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="px-6 py-5 bg-gradient-to-r from-[#151b26] via-[#1e2738] to-[#151b26] text-white flex items-center justify-between border-b border-slate-700/60">
+        <div className="px-6 py-5 bg-gradient-to-r from-[#1c1610] via-[#261e16] to-[#1c1610] text-white flex items-center justify-between border-b border-slate-700/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#1e2738] border border-[#00b4d8]/40 flex items-center justify-center text-xl shadow-inner ring-2 ring-[#00b4d8]/20">
+            <div className="w-10 h-10 rounded-xl bg-[#261e16] border border-[#c27803]/40 flex items-center justify-center text-xl shadow-inner ring-2 ring-[#c27803]/20">
               📁
             </div>
             <div>
@@ -301,7 +301,7 @@ export const ClassDriveMaterialsModal = ({
                 <h2 className="text-base font-heading font-extrabold text-white uppercase tracking-wide">
                   {t("driveUploadTitle")}
                 </h2>
-                <span className="px-2 py-0.5 rounded-full bg-[#00b4d8]/20 text-[#72d5cd] font-mono text-[11px] font-bold">
+                <span className="px-2 py-0.5 rounded-full bg-[#c27803]/20 text-[#f59e0b] font-mono text-[11px] font-bold">
                   {cls.code}
                 </span>
               </div>
@@ -393,13 +393,13 @@ export const ClassDriveMaterialsModal = ({
             </div>
 
             {/* Box 2: Batch Share Drive Permission */}
-            <div className="p-4 bg-cyan-50/60 border border-[#00b4d8]/30 rounded-xl space-y-2.5">
+            <div className="p-4 bg-cyan-50/60 border border-[#c27803]/30 rounded-xl space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-heading font-bold text-[#1e2738] uppercase tracking-wider flex items-center gap-1.5">
+                <span className="text-xs font-heading font-bold text-[#261e16] uppercase tracking-wider flex items-center gap-1.5">
                   <span>👥</span>
                   <span>{isVi ? "Cấp quyền xem Drive" : "Drive View Permissions"}</span>
                 </span>
-                <span className="text-xs font-bold text-[#00b4d8] bg-white px-2 py-0.5 rounded-full border border-[#00b4d8]/20">
+                <span className="text-xs font-bold text-[#c27803] bg-white px-2 py-0.5 rounded-full border border-[#c27803]/20">
                   {validStudentEmails.length} {isVi ? "học viên" : "students"}
                 </span>
               </div>
@@ -414,7 +414,7 @@ export const ClassDriveMaterialsModal = ({
                 type="button"
                 onClick={handleBatchShare}
                 disabled={isSharingBatch || !folderId || validStudentEmails.length === 0}
-                className="w-full py-2.5 px-4 bg-[#00b4d8] hover:bg-[#0096c7] disabled:opacity-50 text-white rounded-lg text-xs font-heading font-bold uppercase tracking-wider shadow-xs transition flex items-center justify-center gap-2 active:translate-y-px"
+                className="w-full py-2.5 px-4 bg-[#c27803] hover:bg-[#92400e] disabled:opacity-50 text-white rounded-lg text-xs font-heading font-bold uppercase tracking-wider shadow-xs transition flex items-center justify-center gap-2 active:translate-y-px"
               >
                 {isSharingBatch ? (
                   <>
@@ -586,7 +586,7 @@ export const ClassDriveMaterialsModal = ({
                       rel="noreferrer"
                       className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[11px] whitespace-nowrap transition"
                     >
-                      {isVi ? "Xem trên Drive" : "View on Drive"} &rarr;
+                      {isVi ? "Xem trên Drive" : "View on Drive"} →
                     </a>
                   )}
                 </div>
@@ -605,7 +605,7 @@ export const ClassDriveMaterialsModal = ({
                 <button
                   type="submit"
                   disabled={!selectedFile || isUploading || !folderId}
-                  className="px-5 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] disabled:opacity-50 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2 active:translate-y-px"
+                  className="px-5 py-2.5 bg-[#c27803] hover:bg-[#92400e] disabled:opacity-50 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2 active:translate-y-px"
                 >
                   {isUploading ? (
                     <>

@@ -17,7 +17,24 @@ import { db } from "../../config/firebase";
 
 export const LandingPage = ({ onGoToPortal }) => {
   const { currentUser, role, isStaff, loginWithEmail, loginWithGoogle, resetPassword } = useAuth();
-  const { centerConfig } = useSettings();
+  const { centerConfig, landingPageContent } = useSettings();
+
+  const content = landingPageContent || {};
+  const teacher = { ...TEACHER_PROFILE, ...(content.profile || {}) };
+  const hero = {
+    badge: "⭐ Thạc sĩ Ngôn ngữ Anh • TOEIC 980 / 990 IIG Vietnam",
+    headline: "Chinh Phục TOEIC Bằng Phương Pháp Khoa Học & Trải Nghiệm Thực Chiến.",
+    subHeadline: teacher.bioShort,
+    primaryCta: "Làm Mini Test 3 Phút →",
+    secondaryCta: "Hẹn Lịch Tư Vấn 1-1",
+    ...(content.hero || {}),
+  };
+  const stats = content.stats && content.stats.length > 0 ? content.stats : IMPACT_STATS;
+  const education = content.education && content.education.length > 0 ? content.education : EDUCATION_LIST;
+  const certifications = content.certifications && content.certifications.length > 0 ? content.certifications : CERTIFICATIONS_LIST;
+  const career = content.career && content.career.length > 0 ? content.career : CAREER_EXPERIENCE;
+  const courses = content.courses && content.courses.length > 0 ? content.courses : FEATURED_COURSES;
+  const testimonials = content.testimonials && content.testimonials.length > 0 ? content.testimonials : STUDENT_TESTIMONIALS;
 
   // Navigation & Modal States
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -190,7 +207,7 @@ export const LandingPage = ({ onGoToPortal }) => {
             </div>
             <div>
               <span className="font-heading font-black text-base sm:text-lg tracking-tight block text-neutral-900">
-                {TEACHER_PROFILE.name}
+                {teacher.name}
               </span>
               <span className="text-[10px] sm:text-[11px] font-mono text-neutral-500 uppercase tracking-wider block">
                 English Teacher & TOEIC Specialist
@@ -268,17 +285,15 @@ export const LandingPage = ({ onGoToPortal }) => {
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-300 text-amber-900 text-xs font-semibold tracking-wide">
                 <span>⭐</span>
-                <span>Thạc sĩ Ngôn ngữ Anh • TOEIC 980 / 990 IIG Vietnam</span>
+                <span>{hero.badge}</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-neutral-950 leading-[1.15] tracking-tight">
-                Chinh Phục TOEIC Bằng <br />
-                <span className="italic font-normal text-amber-800">Phương Pháp Khoa Học</span> & <br />
-                Trải Nghiệm Thực Chiến.
+                {hero.headline}
               </h1>
 
               <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-xl">
-                {TEACHER_PROFILE.bioShort}
+                {hero.subHeadline || teacher.bioShort}
               </p>
 
               {/* CTAs */}
@@ -288,14 +303,14 @@ export const LandingPage = ({ onGoToPortal }) => {
                   className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-lg hover:shadow-amber-500/30 transition-all transform hover:-translate-y-0.5 cursor-pointer flex items-center gap-2"
                 >
                   <span>📝</span>
-                  <span>Làm Mini Test 3 Phút &rarr;</span>
+                  <span>{hero.primaryCta || "Làm Mini Test 3 Phút →"}</span>
                 </button>
 
                 <button
                   onClick={() => scrollToSection(bookingRef)}
                   className="px-6 py-3.5 bg-white hover:bg-neutral-100 text-neutral-900 font-heading font-bold text-xs uppercase tracking-wider rounded-xl border border-neutral-300 shadow-xs transition cursor-pointer"
                 >
-                  Hẹn Lịch Tư Vấn 1-1
+                  {hero.secondaryCta || "Hẹn Lịch Tư Vấn 1-1"}
                 </button>
 
                 {!currentUser && (
@@ -340,7 +355,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                     </div>
                     <div>
                       <h3 className="font-serif font-bold text-xl text-neutral-950">
-                        {TEACHER_PROFILE.name}
+                        {teacher.name}
                       </h3>
                       <p className="text-xs text-amber-800 font-semibold mt-0.5">
                         Thạc sĩ Ngôn ngữ Anh (Saigon University)
@@ -373,21 +388,21 @@ export const LandingPage = ({ onGoToPortal }) => {
 
                   {/* Quote */}
                   <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200/60 text-xs text-neutral-700 italic leading-relaxed">
-                    "{TEACHER_PROFILE.academicQuote}"
+                    "{teacher.academicQuote}"
                   </div>
 
                   {/* Direct Contact info */}
                   <div className="pt-2 text-xs text-neutral-600 space-y-1.5 border-t border-neutral-100 font-mono">
                     <div className="flex items-center gap-2">
                       <span className="text-neutral-400">📞 SĐT/Zalo:</span>
-                      <a href={`tel:${TEACHER_PROFILE.phone}`} className="font-bold text-neutral-900 hover:underline">
-                        {TEACHER_PROFILE.phone}
+                      <a href={`tel:${teacher.phone}`} className="font-bold text-neutral-900 hover:underline">
+                        {teacher.phone}
                       </a>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-neutral-400">✉️ Email:</span>
                       <span className="font-bold text-neutral-900 truncate">
-                        {TEACHER_PROFILE.email}
+                        {teacher.email}
                       </span>
                     </div>
                   </div>
@@ -404,7 +419,7 @@ export const LandingPage = ({ onGoToPortal }) => {
       <section className="py-12 bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {IMPACT_STATS.map((stat, idx) => (
+            {stats.map((stat, idx) => (
               <div
                 key={idx}
                 className="p-5 rounded-2xl bg-[#FAF9F6] border border-neutral-200/70 hover:border-amber-400 transition-colors space-y-1.5"
@@ -456,7 +471,7 @@ export const LandingPage = ({ onGoToPortal }) => {
               </h3>
 
               <div className="space-y-4">
-                {EDUCATION_LIST.map((edu, idx) => (
+                {education.map((edu, idx) => (
                   <div
                     key={idx}
                     className="p-6 bg-white rounded-2xl border border-neutral-200 shadow-xs space-y-2.5"
@@ -488,7 +503,7 @@ export const LandingPage = ({ onGoToPortal }) => {
               </h3>
 
               <div className="space-y-4">
-                {CERTIFICATIONS_LIST.map((cert, idx) => (
+                {certifications.map((cert, idx) => (
                   <div
                     key={idx}
                     className="p-6 bg-white rounded-2xl border border-neutral-200 shadow-xs space-y-2 hover:border-amber-400 transition"
@@ -534,7 +549,7 @@ export const LandingPage = ({ onGoToPortal }) => {
 
           {/* Interactive Career Timeline Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {CAREER_EXPERIENCE.map((exp, idx) => (
+            {career.map((exp, idx) => (
               <div
                 key={idx}
                 className="p-6 rounded-2xl bg-[#FAF9F6] border border-neutral-200 flex flex-col justify-between space-y-4 hover:shadow-lg transition-all"
@@ -594,7 +609,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {FEATURED_COURSES.map((course) => (
+            {courses.map((course) => (
               <div
                 key={course.id}
                 className={`bg-white rounded-3xl p-6 shadow-sm border-2 ${course.highlightColor} flex flex-col justify-between space-y-6 hover:shadow-xl transition-all relative`}
@@ -650,7 +665,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                     }}
                     className="w-full py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer text-center"
                   >
-                    Tư Vấn Khóa Này &rarr;
+                    Tư Vấn Khóa Này →
                   </button>
                 </div>
               </div>
@@ -800,7 +815,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                     onChange={(e) => setBookingData({ ...bookingData, program: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
                   >
-                    {FEATURED_COURSES.map((c) => (
+                    {courses.map((c) => (
                       <option key={c.id} value={c.programName}>
                         {c.programName}
                       </option>
@@ -859,7 +874,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   disabled={bookingLoading}
                   className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition cursor-pointer disabled:opacity-60"
                 >
-                  {bookingLoading ? "Đang gửi đăng ký..." : "Xác Nhận Đăng Ký Tư Vấn 1-1 &rarr;"}
+                  {bookingLoading ? "Đang gửi đăng ký..." : "Xác Nhận Đăng Ký Tư Vấn 1-1 →"}
                 </button>
               </div>
             </form>
@@ -885,7 +900,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {STUDENT_TESTIMONIALS.map((testm, idx) => (
+            {testimonials.map((testm, idx) => (
               <div
                 key={idx}
                 className="bg-white p-7 rounded-3xl border border-neutral-200/80 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition"
@@ -933,7 +948,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                 Gửi Lời Nhắn Cho Thầy Nam
               </h2>
               <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-                {TEACHER_PROFILE.contactQuote}
+                {teacher.contactQuote}
               </p>
 
               <div className="space-y-3 text-xs">
@@ -941,8 +956,8 @@ export const LandingPage = ({ onGoToPortal }) => {
                   <span className="text-neutral-400 font-bold uppercase text-[10px] block">
                     Điện Thoại / Zalo
                   </span>
-                  <a href={`tel:${TEACHER_PROFILE.phone}`} className="font-bold text-neutral-900 text-sm hover:underline">
-                    {TEACHER_PROFILE.phone}
+                  <a href={`tel:${teacher.phone}`} className="font-bold text-neutral-900 text-sm hover:underline">
+                    {teacher.phone}
                   </a>
                 </div>
 
@@ -950,8 +965,8 @@ export const LandingPage = ({ onGoToPortal }) => {
                   <span className="text-neutral-400 font-bold uppercase text-[10px] block">
                     Email Trực Tiếp
                   </span>
-                  <a href={`mailto:${TEACHER_PROFILE.email}`} className="font-bold text-neutral-900 text-sm hover:underline">
-                    {TEACHER_PROFILE.email}
+                  <a href={`mailto:${teacher.email}`} className="font-bold text-neutral-900 text-sm hover:underline">
+                    {teacher.email}
                   </a>
                 </div>
 
@@ -960,7 +975,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                     Địa Điểm
                   </span>
                   <p className="font-semibold text-neutral-900">
-                    {TEACHER_PROFILE.location} ({TEACHER_PROFILE.teachingMode})
+                    {teacher.location} ({teacher.teachingMode})
                   </p>
                 </div>
               </div>
@@ -1022,7 +1037,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   disabled={contactLoading}
                   className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
                 >
-                  {contactLoading ? "Đang gửi..." : "Gửi Tin Nhắn Đi &rarr;"}
+                  {contactLoading ? "Đang gửi..." : "Gửi Tin Nhắn Đi →"}
                 </button>
               </form>
             </div>
@@ -1042,7 +1057,7 @@ export const LandingPage = ({ onGoToPortal }) => {
               </div>
               <div>
                 <span className="font-heading font-black text-base text-white block">
-                  {TEACHER_PROFILE.name}
+                  {teacher.name}
                 </span>
                 <span className="text-[11px] text-neutral-500">
                   English Teacher & Senior TOEIC Trainer
@@ -1067,7 +1082,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-500">
-            <p>© 2026 {TEACHER_PROFILE.name}. Thiết kế tinh tế theo phong cách Portfolio & Learning Management System.</p>
+            <p>© 2026 {teacher.name}. Thiết kế tinh tế theo phong cách Portfolio & Learning Management System.</p>
             <p>Thành phố Hồ Chí Minh, Việt Nam</p>
           </div>
         </div>
@@ -1306,15 +1321,15 @@ export const LandingPage = ({ onGoToPortal }) => {
               {/* Header */}
               <div className="border-b border-neutral-200 pb-6">
                 <h1 className="text-3xl font-serif font-black tracking-tight text-neutral-950">
-                  {TEACHER_PROFILE.name}
+                  {teacher.name}
                 </h1>
                 <p className="text-amber-800 font-bold mt-1 text-base">
-                  {TEACHER_PROFILE.titles[0]}
+                  {teacher.titles[0]}
                 </p>
                 <div className="flex flex-wrap gap-4 text-xs text-neutral-500 mt-3 font-mono">
-                  <span>📞 {TEACHER_PROFILE.phone}</span>
-                  <span>✉️ {TEACHER_PROFILE.email}</span>
-                  <span>📍 {TEACHER_PROFILE.location}</span>
+                  <span>📞 {teacher.phone}</span>
+                  <span>✉️ {teacher.email}</span>
+                  <span>📍 {teacher.location}</span>
                 </div>
               </div>
 
@@ -1324,7 +1339,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   Giới Thiệu Bản Thân
                 </h2>
                 <p className="text-neutral-700 leading-relaxed text-justify">
-                  {TEACHER_PROFILE.bioDetailed}
+                  {teacher.bioDetailed}
                 </p>
               </div>
 
@@ -1334,7 +1349,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   Trình Độ Học Thuật & Đào Tạo
                 </h2>
                 <div className="space-y-3">
-                  {EDUCATION_LIST.map((edu, idx) => (
+                  {education.map((edu, idx) => (
                     <div key={idx} className="space-y-1">
                       <div className="flex justify-between font-bold text-neutral-900">
                         <span>{edu.degree}</span>
@@ -1353,7 +1368,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   Kinh Nghiệm Giảng Dạy & Làm Việc
                 </h2>
                 <div className="space-y-4">
-                  {CAREER_EXPERIENCE.map((exp, idx) => (
+                  {career.map((exp, idx) => (
                     <div key={idx} className="space-y-1.5">
                       <div className="flex justify-between font-bold text-neutral-900">
                         <span>{exp.role} — {exp.company}</span>
@@ -1375,7 +1390,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   Chứng Chỉ Quốc Tế & Thành Tích
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {CERTIFICATIONS_LIST.map((c, idx) => (
+                  {certifications.map((c, idx) => (
                     <div key={idx} className="p-3 bg-neutral-50 rounded-xl border border-neutral-200 space-y-1">
                       <span className="font-bold text-neutral-900 block">{c.title}</span>
                       <span className="text-[11px] text-neutral-500 block">{c.issuer}</span>

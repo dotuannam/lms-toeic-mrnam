@@ -13,7 +13,7 @@ export const ThemeToggle = ({ variant = "pill", className = "", showLabel = fals
         onClick={toggleTheme}
         className={`p-2 rounded-xl transition-all duration-200 border flex items-center justify-center ${
           isDark
-            ? "bg-[#1e2738] hover:bg-[#283548] text-amber-300 border-slate-700 shadow-inner"
+            ? "bg-[#261e16] hover:bg-[#283548] text-amber-300 border-slate-700 shadow-inner"
             : "bg-white hover:bg-slate-100 text-amber-500 border-slate-200 shadow-xs"
         } ${className}`}
         title={isDark ? t("switchToLight") : t("switchToDark")}
@@ -38,7 +38,7 @@ export const ThemeToggle = ({ variant = "pill", className = "", showLabel = fals
     <div
       className={`inline-flex items-center p-1 rounded-xl border text-xs font-semibold shadow-inner transition-colors duration-200 ${
         isDark
-          ? "bg-[#151b26] border-[#2a354b]"
+          ? "bg-[#1c1610] border-[#2a354b]"
           : "bg-slate-100/90 hover:bg-slate-100 border-slate-200/80"
       } ${className}`}
       role="group"
@@ -49,7 +49,7 @@ export const ThemeToggle = ({ variant = "pill", className = "", showLabel = fals
         onClick={() => setTheme("light")}
         className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg transition-all duration-150 flex items-center gap-1.5 ${
           !isDark
-            ? "bg-[#00b4d8] text-white shadow-md shadow-[#00b4d8]/25 font-heading font-bold scale-[1.02]"
+            ? "bg-[#c27803] text-white shadow-md shadow-[#c27803]/25 font-heading font-bold scale-[1.02]"
             : "text-slate-400 hover:text-slate-200 font-medium"
         }`}
         title={t("lightMode")}
@@ -63,7 +63,7 @@ export const ThemeToggle = ({ variant = "pill", className = "", showLabel = fals
         onClick={() => setTheme("dark")}
         className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg transition-all duration-150 flex items-center gap-1.5 ${
           isDark
-            ? "bg-[#00b4d8] text-white shadow-md shadow-[#00b4d8]/25 font-heading font-bold scale-[1.02]"
+            ? "bg-[#c27803] text-white shadow-md shadow-[#c27803]/25 font-heading font-bold scale-[1.02]"
             : "text-slate-600 hover:text-slate-900 font-medium"
         }`}
         title={t("darkMode")}

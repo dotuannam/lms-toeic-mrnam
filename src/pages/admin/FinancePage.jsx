@@ -176,7 +176,7 @@ export const FinancePage = () => {
           onClick={() => setActiveSubTab("tuition")}
           className={`py-3 px-5 text-xs font-heading font-bold uppercase tracking-wider border-b-2 transition ${
             activeSubTab === "tuition"
-              ? "border-[#00b4d8] text-[#00b4d8]"
+              ? "border-[#c27803] text-[#c27803]"
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
@@ -186,7 +186,7 @@ export const FinancePage = () => {
           onClick={() => setActiveSubTab("ledger")}
           className={`py-3 px-5 text-xs font-heading font-bold uppercase tracking-wider border-b-2 transition ${
             activeSubTab === "ledger"
-              ? "border-[#00b4d8] text-[#00b4d8]"
+              ? "border-[#c27803] text-[#c27803]"
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
@@ -196,7 +196,7 @@ export const FinancePage = () => {
           onClick={() => setActiveSubTab("profit_loss")}
           className={`py-3 px-5 text-xs font-heading font-bold uppercase tracking-wider border-b-2 transition ${
             activeSubTab === "profit_loss"
-              ? "border-[#00b4d8] text-[#00b4d8]"
+              ? "border-[#c27803] text-[#c27803]"
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
@@ -255,10 +255,10 @@ export const FinancePage = () => {
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-heading font-bold text-[#00b4d8] uppercase tracking-wider">
+                    <span className="text-xs font-heading font-bold text-[#c27803] uppercase tracking-wider">
                       {lang === "vi" ? "Tổng học phí cam kết" : "Total Expected Tuition"}
                     </span>
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-cyan-50 text-[#00b4d8] font-bold border border-[#00b4d8]/20">
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-cyan-50 text-[#c27803] font-bold border border-[#c27803]/20">
                       {lang === "vi" ? "Tổng khóa" : "Total"}
                     </span>
                   </div>
@@ -380,14 +380,14 @@ export const FinancePage = () => {
                             {t.debtAmount > 0 && (
                               <button
                                 onClick={() => openVietQr(t)}
-                                className="px-2.5 py-1 bg-cyan-50 hover:bg-cyan-100 text-[#00b4d8] border border-[#00b4d8]/30 rounded-lg text-xs font-bold transition"
+                                className="px-2.5 py-1 bg-cyan-50 hover:bg-cyan-100 text-[#c27803] border border-[#c27803]/30 rounded-lg text-xs font-bold transition"
                               >
                                 VietQR
                               </button>
                             )}
                             <button
                               onClick={() => openPayment(t)}
-                              className="px-3 py-1 bg-[#1e2738] hover:bg-[#151b26] text-white rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition"
+                              className="px-3 py-1 bg-[#261e16] hover:bg-[#1c1610] text-white rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition"
                             >
                               Record Payment
                             </button>
@@ -421,18 +421,18 @@ export const FinancePage = () => {
               </div>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-heading font-bold text-[#00b4d8] uppercase tracking-wider">Running Balance</span>
-              <div className="text-2xl font-bold text-[#00b4d8] mt-1">
+              <span className="text-xs font-heading font-bold text-[#c27803] uppercase tracking-wider">Running Balance</span>
+              <div className="text-2xl font-bold text-[#c27803] mt-1">
                 {runningBalance.toLocaleString("vi-VN")} ₫
               </div>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-heading font-bold text-[#1e2738] uppercase">Recent Transactions</h3>
+            <h3 className="text-base font-heading font-bold text-[#261e16] uppercase">Recent Transactions</h3>
             <button
               onClick={() => setShowTxModal(true)}
-              className="py-2.5 px-4 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:translate-y-px"
+              className="py-2.5 px-4 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:translate-y-px"
             >
               + Add Transaction
             </button>
@@ -626,7 +626,7 @@ export const FinancePage = () => {
                 <button
                   type="submit"
                   disabled={submittingPayment}
-                  className="flex-1 py-2.5 px-3 bg-[#00b4d8] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-[#0096c7] disabled:opacity-50 transition active:translate-y-px"
+                  className="flex-1 py-2.5 px-3 bg-[#c27803] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-[#92400e] disabled:opacity-50 transition active:translate-y-px"
                 >
                   {submittingPayment ? "Processing..." : "Confirm Payment"}
                 </button>
@@ -771,7 +771,7 @@ export const FinancePage = () => {
                 <button
                   type="submit"
                   disabled={submittingTx}
-                  className="flex-1 py-2.5 px-3 bg-[#00b4d8] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-[#0096c7] disabled:opacity-50 transition active:translate-y-px"
+                  className="flex-1 py-2.5 px-3 bg-[#c27803] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-[#92400e] disabled:opacity-50 transition active:translate-y-px"
                 >
                   {submittingTx ? "Saving..." : "Save Entry"}
                 </button>

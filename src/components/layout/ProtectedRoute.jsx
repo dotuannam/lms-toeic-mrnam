@@ -6,9 +6,9 @@ export const ProtectedRoute = ({ children, requiredRole, fallbackPath = "/login"
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#151b26] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#1c1610] text-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-[#00b4d8] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-[#c27803] border-t-transparent rounded-full animate-spin"></div>
           <span className="text-sm font-heading font-medium tracking-wide uppercase text-slate-300">Checking permissions...</span>
         </div>
       </div>

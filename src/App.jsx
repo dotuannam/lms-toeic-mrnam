@@ -32,9 +32,9 @@ const AppContent = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#151b26] flex flex-col items-center justify-center text-white">
-        <div className="w-12 h-12 border-4 border-[#00b4d8] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-heading font-bold tracking-wider uppercase text-slate-300">Initializing LMS Platform...</p>
+      <div className="min-h-screen bg-[#1c1610] flex flex-col items-center justify-center text-white">
+        <div className="w-12 h-12 border-4 border-[#c27803] border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-sm font-heading font-bold tracking-wider uppercase text-amber-200">Initializing LMS Platform...</p>
       </div>
     );
   }
@@ -54,7 +54,7 @@ const AppContent = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <GlobalAnnouncementBanner />
-        <div className="bg-[#1e2738] text-white px-4 py-2.5 flex items-center justify-between text-xs font-semibold shadow-md border-b border-[#00b4d8]/40 sticky top-0 z-50">
+        <div className="bg-[#261e16] text-amber-100 px-4 py-2.5 flex items-center justify-between text-xs font-semibold shadow-md border-b border-[#c27803]/40 sticky top-0 z-50">
           <div className="flex items-center gap-2">
             <span className="text-amber-400">🌐</span>
             <span className="font-heading font-medium tracking-wide">
@@ -63,9 +63,9 @@ const AppContent = () => {
           </div>
           <button
             onClick={() => setViewMode(isStaff ? "admin" : "student")}
-            className="px-3.5 py-1.5 bg-[#00b4d8] text-white hover:bg-[#0096c7] rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm cursor-pointer"
+            className="px-3.5 py-1.5 bg-[#c27803] text-white hover:bg-[#92400e] rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm cursor-pointer"
           >
-            Quay lại Portal Dashboard &rarr;
+            Quay lại Portal Dashboard →
           </button>
         </div>
         <LandingPage onGoToPortal={() => setViewMode(isStaff ? "admin" : "student")} />
@@ -106,7 +106,7 @@ const AppContent = () => {
     <div className="relative min-h-screen flex flex-col">
       <GlobalAnnouncementBanner />
       {isStaff && (
-        <div className="bg-[#1e2738] text-white px-4 py-2.5 flex items-center justify-between text-xs font-semibold shadow-md border-b border-[#00b4d8]/40 sticky top-0 z-50">
+        <div className="bg-[#261e16] text-amber-100 px-4 py-2.5 flex items-center justify-between text-xs font-semibold shadow-md border-b border-[#c27803]/40 sticky top-0 z-50">
           <div className="flex items-center gap-2">
             <span className="text-amber-400">🛡️</span>
             <span className="font-heading font-medium tracking-wide">Bạn đang xem thử giao diện Học viên (Preview Mode)</span>
@@ -114,15 +114,15 @@ const AppContent = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setViewMode("landing")}
-              className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm cursor-pointer"
+              className="px-3 py-1 bg-stone-700 hover:bg-stone-600 text-white rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm cursor-pointer"
             >
               🌐 Landing Page
             </button>
             <button
               onClick={() => setViewMode("admin")}
-              className="px-3 py-1 bg-[#00b4d8] text-white hover:bg-[#0096c7] rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm cursor-pointer"
+              className="px-3 py-1 bg-[#c27803] text-white hover:bg-[#92400e] rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm cursor-pointer"
             >
-              Quay lại Admin/Staff Dashboard &rarr;
+              Quay lại Admin/Staff Dashboard →
             </button>
           </div>
         </div>
