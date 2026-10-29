@@ -19,18 +19,13 @@ import {
   createReferral,
   settleReferralCommission,
   processPosSale,
-  getWebhookConfig,
-  saveWebhookConfig,
-  subscribeWebhookLogs,
-  processBankBalanceWebhook,
-  simulateBankWebhookTest,
 } from "../../services/pricingReferralWebhookService";
 
 export const FinancePage = () => {
   const { t, lang } = useLanguage();
   const { bankingConfig, buildQrUrl } = useSettings();
 
-  // Subtab: "pos" | "pricing" | "referrals" | "webhook" | "tuition" | "ledger" | "profit_loss"
+  // Subtab: "pos" | "pricing" | "referrals" | "tuition" | "ledger" | "profit_loss"
   const [activeSubTab, setActiveSubTab] = useState("pos");
 
   // Core Data
@@ -44,8 +39,6 @@ export const FinancePage = () => {
   // Giai đoạn 4 Data
   const [pricingTiers, setPricingTiers] = useState([]);
   const [referrals, setReferrals] = useState([]);
-  const [webhookLogs, setWebhookLogs] = useState([]);
-  const [webhookConfig, setWebhookConfig] = useState(null);
 
   // Filter
   const [selectedClassFilter, setSelectedClassFilter] = useState("all");
@@ -146,32 +139,19 @@ export const FinancePage = () => {
   });
 
   // ==========================================
-  // STATE: WEBHOOK SIMULATOR
-  // ==========================================
-  const [simStudentId, setSimStudentId] = useState("");
-  const [simAmount, setSimAmount] = useState(2500000);
-  const [simDesc, setSimDesc] = useState("HP HV01 chuyen khoan hoc phi");
-  const [simBank, setSimBank] = useState("MBBank");
-  const [simulating, setSimulating] = useState(false);
-  const [simulationResult, setSimulationResult] = useState(null);
-  const [copiedUrl, setCopiedUrl] = useState(false);
-
-  // ==========================================
   // DATA LOAD & REALTIME LISTENERS
   // ==========================================
   const loadFinanceData = async () => {
     setLoading(true);
     try {
-      const [tList, txList, sumList, cfg] = await Promise.all([
+      const [tList, txList, sumList] = await Promise.all([
         getTuitions(selectedClassFilter),
         getLedgerTransactions(50),
         getMonthlySummaries(),
-        getWebhookConfig(),
       ]);
       setTuitions(tList);
       setTransactions(txList);
       setMonthlySummaries(sumList);
-      setWebhookConfig(cfg);
     } catch (err) {
       console.error("Finance data loading error:", err);
     } finally {
@@ -193,30 +173,14 @@ export const FinancePage = () => {
       }
     });
     const unsubRefs = subscribeReferrals((refs) => setReferrals(refs));
-    const unsubLogs = subscribeWebhookLogs((logs) => setWebhookLogs(logs), 30);
 
     return () => {
       unsubClasses();
       unsubStudents();
       unsubTiers();
       unsubRefs();
-      unsubLogs();
     };
   }, []);
-
-  // Set default simulator data when tuitions or students load
-  useEffect(() => {
-    const debtTuition = tuitions.find((t) => (t.debtAmount || 0) > 0);
-    if (debtTuition) {
-      setSimStudentId(debtTuition.studentId);
-      setSimAmount(debtTuition.debtAmount);
-      setSimDesc(`HP ${debtTuition.studentId} nop hoc phi khoa ${debtTuition.className || "TOEIC"}`);
-    } else if (students.length > 0) {
-      setSimStudentId(students[0].studentId);
-      setSimAmount(2000000);
-      setSimDesc(`HP ${students[0].studentId} thanh toan hoc phi`);
-    }
-  }, [tuitions, students]);
 
   // ==========================================
   // POS CALCULATION
@@ -373,28 +337,6 @@ export const FinancePage = () => {
       }
     } catch (err) {
       alert("Lỗi quyết toán: " + err.message);
-    }
-  };
-
-  // ==========================================
-  // HANDLERS: WEBHOOK SIMULATOR TEST
-  // ==========================================
-  const handleRunSimulator = async () => {
-    setSimulating(true);
-    setSimulationResult(null);
-    try {
-      const res = await simulateBankWebhookTest({
-        studentId: simStudentId,
-        amount: Number(simAmount),
-        description: simDesc,
-        bankName: simBank,
-      });
-      setSimulationResult(res);
-      await loadFinanceData();
-    } catch (err) {
-      setSimulationResult({ success: false, message: err.message });
-    } finally {
-      setSimulating(false);
     }
   };
 
@@ -564,18 +506,6 @@ export const FinancePage = () => {
               {(pendingReferralCommissions / 1000).toLocaleString("vi-VN")}k
             </span>
           )}
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab("webhook")}
-          className={`py-3 px-4 sm:px-5 text-xs font-heading font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition flex items-center gap-2 ${
-            activeSubTab === "webhook"
-              ? "border-[#c27803] text-[#c27803] bg-amber-50/50"
-              : "border-transparent text-slate-500 hover:text-slate-800"
-          }`}
-        >
-          <span>⚡</span>
-          <span>{lang === "vi" ? "Webhook Ngân Hàng" : "Bank Webhook"}</span>
         </button>
 
         <button
@@ -1986,283 +1916,7 @@ export const FinancePage = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 4. WEBHOOK NGÂN HÀNG & ĐỐI SOÁT TỰ ĐỘNG (BANK BALANCE WEBHOOK) */}
-      {/* ========================================================================= */}
-      {activeSubTab === "webhook" && (
-        <div className="space-y-6">
-          {/* Cấu hình Webhook & Trình giả lập Test */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Cột trái: Thông số Webhook & Hướng dẫn kết nối (5 cols) */}
-            <div className="lg:col-span-5 space-y-5">
-              <div className="bg-white p-5 rounded-2xl border border-amber-900/10 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-heading font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                    <span>⚡</span>
-                    {lang === "vi" ? "Thông Số Webhook Đối Soát" : "Webhook Configuration"}
-                  </h3>
-                  <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
-                    Active Endpoint
-                  </span>
-                </div>
-
-                <div className="space-y-3 text-xs">
-                  <div>
-                    <label className="block text-slate-500 font-semibold mb-1">Webhook Endpoint URL:</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        readOnly
-                        value={webhookConfig?.endpointUrl || "https://auto-lms-43b1d.web.app/api/bank-webhook"}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[11px] text-slate-700 select-all"
-                      />
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            webhookConfig?.endpointUrl || "https://auto-lms-43b1d.web.app/api/bank-webhook"
-                          );
-                          setCopiedUrl(true);
-                          setTimeout(() => setCopiedUrl(false), 2000);
-                        }}
-                        className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition shrink-0"
-                      >
-                        {copiedUrl ? "✓ Đã chép" : "Chép"}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-500 font-semibold mb-1">Secret Token / API Key:</label>
-                    <input
-                      type="text"
-                      readOnly
-                      value={webhookConfig?.secretKey || "sec_live_vietqr_reconcile_9988"}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[11px] text-slate-700 select-all"
-                    />
-                  </div>
-
-                  <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200/50 space-y-1 text-slate-700">
-                    <span className="font-bold text-[#c27803] block">Cú pháp chuyển khoản tự động nhận diện:</span>
-                    <p>• <code className="bg-white px-1.5 py-0.5 rounded font-bold font-mono">HP [Mã Học Viên]</code> (Ví dụ: <code className="text-amber-900 font-bold">HP HV01</code>)</p>
-                    <p>• Hệ thống sử dụng Regex thông minh để bóc tách mã học viên, tự động đối soát với công nợ và gạch nợ học phí ngay lập tức mà không cần bấm tay.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Cột phải: Trình giả lập Bắn Webhook Thử Nghiệm (Simulator) (7 cols) */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="bg-white p-5 rounded-2xl border border-amber-900/10 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-heading font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                      <span>🧪</span>
-                      {lang === "vi" ? "Trình Giả Lập Test Webhook Ngân Hàng" : "Bank Webhook Test Simulator"}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Giả lập sự kiện biến động số dư ngân hàng bắn về để kiểm tra luồng tự động gạch nợ học phí.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">Chọn Học Viên Cần Gạch Nợ:</label>
-                    <select
-                      value={simStudentId}
-                      onChange={(e) => {
-                        const sid = e.target.value;
-                        setSimStudentId(sid);
-                        const t = tuitions.find((item) => item.studentId === sid);
-                        if (t && t.debtAmount > 0) {
-                          setSimAmount(t.debtAmount);
-                          setSimDesc(`HP ${sid} nop tien hoc phi`);
-                        } else {
-                          setSimDesc(`HP ${sid} chuyen khoan`);
-                        }
-                      }}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
-                    >
-                      <option value="">-- Chọn học viên --</option>
-                      {students.map((s) => {
-                        const t = tuitions.find((item) => item.studentId === s.studentId);
-                        const debt = t?.debtAmount || 0;
-                        return (
-                          <option key={s.studentId} value={s.studentId}>
-                            [{s.studentId}] {s.fullName || s.name} {debt > 0 ? `(Nợ: ${debt.toLocaleString("vi-VN")}₫)` : "(Đã đủ)"}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">Số Tiền Chuyển Khoản (₫):</label>
-                    <input
-                      type="number"
-                      step="100000"
-                      value={simAmount}
-                      onChange={(e) => setSimAmount(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#c27803]"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label className="block font-semibold text-slate-700 mb-1">
-                      Nội Dung Chuyển Khoản (Chứa mã học viên):
-                    </label>
-                    <input
-                      type="text"
-                      value={simDesc}
-                      onChange={(e) => setSimDesc(e.target.value)}
-                      placeholder="HP HV01 nop hoc phi..."
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-800"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 pt-2">
-                  <button
-                    onClick={handleRunSimulator}
-                    disabled={simulating}
-                    className="py-2.5 px-5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-md flex items-center gap-2 disabled:opacity-50"
-                  >
-                    {simulating ? "Đang bắn Webhook..." : "🚀 Bắn Webhook Thử Nghiệm Ngay"}
-                  </button>
-
-                  <button
-                    onClick={loadFinanceData}
-                    className="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition"
-                  >
-                    ↻ Tải Lại Dữ Liệu
-                  </button>
-                </div>
-
-                {/* Kết quả Simulator */}
-                {simulationResult && (
-                  <div
-                    className={`p-3.5 rounded-xl border text-xs animate-fadeIn ${
-                      simulationResult.success
-                        ? "bg-emerald-50 border-emerald-200 text-emerald-900"
-                        : "bg-rose-50 border-rose-200 text-rose-900"
-                    }`}
-                  >
-                    <div className="font-bold flex items-center gap-1.5">
-                      <span>{simulationResult.success ? "✅ ĐỐI SOÁT THÀNH CÔNG" : "⚠️ ĐỐI SOÁT KHÔNG KHỚP"}</span>
-                      <span className="font-mono text-[10px] text-slate-500">({simulationResult.refId})</span>
-                    </div>
-                    <p className="mt-1">{simulationResult.message}</p>
-                    {simulationResult.studentName && (
-                      <p className="mt-0.5 text-slate-700">
-                        • Học viên: <strong>{simulationResult.studentName}</strong> ({simulationResult.matchedStudentId})
-                        <br />
-                        • Số tiền đã ghi nhận thanh toán:{" "}
-                        <strong>{simulationResult.paidAmount?.toLocaleString("vi-VN")} ₫</strong>
-                        <br />
-                        • Công nợ còn lại sau gạch nợ:{" "}
-                        <strong>{simulationResult.remainingDebt?.toLocaleString("vi-VN")} ₫</strong>
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Bảng Nhật ký biến động số dư (Webhook Audit Logs) */}
-          <div className="bg-white rounded-2xl border border-amber-900/10 shadow-sm overflow-hidden">
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold font-heading text-slate-900 uppercase tracking-wider">
-                  {lang === "vi" ? "Nhật Ký Biến Động Số Dư & Đối Soát (Webhook Logs)" : "Bank Webhook Audit Logs"}
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Lịch sử các giao dịch ngân hàng gửi về thời gian thực qua Webhook.
-                </p>
-              </div>
-
-              <span className="text-xs text-slate-400 font-mono">
-                {webhookLogs.length} sự kiện gần nhất
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="bg-amber-50/50 border-b border-amber-900/10 text-slate-700 font-heading font-bold uppercase tracking-wider">
-                    <th className="py-3 px-4">Thời Gian</th>
-                    <th className="py-3 px-4">Mã Giao Dịch</th>
-                    <th className="py-3 px-4">Ngân Hàng</th>
-                    <th className="py-3 px-4">Nội Dung Chuyển Khoản</th>
-                    <th className="py-3 px-4 text-right">Số Tiền</th>
-                    <th className="py-3 px-4 text-center">Trạng Thái Đối Soát</th>
-                    <th className="py-3 px-4">Kết Quả Gạch Nợ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-sans">
-                  {webhookLogs.length === 0 ? (
-                    <tr>
-                      <td colSpan="7" className="py-8 text-center text-slate-400">
-                        Chưa có log biến động số dư nào được ghi nhận
-                      </td>
-                    </tr>
-                  ) : (
-                    webhookLogs.map((log) => {
-                      const isMatched = log.status === "MATCHED";
-                      return (
-                        <tr key={log.id} className="hover:bg-slate-50 transition">
-                          <td className="py-3.5 px-4 text-slate-500 whitespace-nowrap">
-                            {log.createdAt ? new Date(log.createdAt).toLocaleString("vi-VN") : "N/A"}
-                          </td>
-                          <td className="py-3.5 px-4 font-mono font-semibold text-slate-800">
-                            {log.refId}
-                          </td>
-                          <td className="py-3.5 px-4 font-semibold text-slate-700">
-                            {log.bankName || "Bank"}
-                          </td>
-                          <td className="py-3.5 px-4 font-mono text-[11px] text-slate-700 max-w-xs truncate">
-                            {log.description}
-                          </td>
-                          <td className="py-3.5 px-4 text-right font-bold text-emerald-600">
-                            +{log.amount?.toLocaleString("vi-VN")} ₫
-                          </td>
-                          <td className="py-3.5 px-4 text-center">
-                            {isMatched ? (
-                              <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
-                                MATCHED (Khớp lệnh)
-                              </span>
-                            ) : log.status === "ALREADY_PAID" ? (
-                              <span className="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded-full border border-blue-200">
-                                ĐÃ HẾT NỢ
-                              </span>
-                            ) : (
-                              <span className="text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-full border border-amber-200">
-                                {log.status || "UNMATCHED"}
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-3.5 px-4 text-slate-600">
-                            {log.reconciliationResult?.studentName ? (
-                              <span>
-                                Gạch nợ cho <strong>{log.reconciliationResult.studentName}</strong> (
-                                {log.matchedStudentId})
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">{log.error || log.message || "—"}</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 5. THEO DÕI HỌC PHÍ (TUITION TRACKING - NÂNG CẤP TỪ BẢN CŨ) */}
+      {/* 4. THEO DÕI HỌC PHÍ (TUITION TRACKING) */}
       {/* ========================================================================= */}
       {activeSubTab === "tuition" && (
         <div className="space-y-5">

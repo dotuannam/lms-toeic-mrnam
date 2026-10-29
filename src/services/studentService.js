@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { inviteStudentToClassroom, shareDriveFolderWithStudent } from "./api";
 import { addLedgerTransaction } from "./financeService";
+import { createReferral } from "./pricingReferralWebhookService";
 import { db } from "../config/firebase";
 
 const COLLECTION_NAME = "students";
@@ -45,12 +46,18 @@ export const subscribeStudents = (callback) => {
 };
 
 /**
- * Create a new student profile
+ * Create a new student profile with optional Referral Program integration
  * @param {Object} studentData - Student fields
  * @param {Object} [selectedClass] - Assigned class object
  * @param {boolean} [sendClassroomInvite=true] - Trigger automated Classroom email invite
+ * @param {Object} [referralData] - Optional referral information (Group 1: referrer, Group 2: commission)
  */
-export const createStudent = async (studentData, selectedClass = null, sendClassroomInvite = true) => {
+export const createStudent = async (
+  studentData,
+  selectedClass = null,
+  sendClassroomInvite = true,
+  referralData = null
+) => {
   const studentId = studentData.studentId.trim().toUpperCase();
   const docRef = doc(db, COLLECTION_NAME, studentId);
 
@@ -65,7 +72,12 @@ export const createStudent = async (studentData, selectedClass = null, sendClass
       ]
     : [];
 
-  const totalFee = Number(studentData.tuitionFee ?? selectedClass?.tuitionFee ?? 0);
+  const rawFee = Number(studentData.tuitionFee ?? selectedClass?.tuitionFee ?? 0);
+  const referralDiscount = referralData?.hasReferral
+    ? Number(referralData.newStudentDiscount || 0)
+    : 0;
+  const totalFee = Math.max(0, rawFee - referralDiscount); // Giá sau giảm giá referral nếu có
+
   const tuitionStatus = studentData.tuitionStatus || "debt"; // "completed" | "debt" | "installment"
   let initialPaid = 0;
   if (tuitionStatus === "completed") {
@@ -74,7 +86,12 @@ export const createStudent = async (studentData, selectedClass = null, sendClass
     initialPaid = Number(studentData.paidAmount || 0);
   }
   const remainingDebt = Math.max(0, totalFee - initialPaid);
-  const statusStr = tuitionStatus === "completed" || remainingDebt === 0 ? "paid" : initialPaid > 0 ? "partial" : "unpaid";
+  const statusStr =
+    tuitionStatus === "completed" || remainingDebt === 0
+      ? "paid"
+      : initialPaid > 0
+      ? "partial"
+      : "unpaid";
 
   const newStudent = {
     studentId,
@@ -87,16 +104,50 @@ export const createStudent = async (studentData, selectedClass = null, sendClass
     enrolledClasses,
     tuitionOverview: {
       tuitionStatus,
+      rawAmount: rawFee,
+      discountAmount: referralDiscount,
       totalAmount: totalFee,
       paidAmount: initialPaid,
       totalDebt: remainingDebt,
       lastPaymentDate: initialPaid > 0 ? new Date().toISOString() : null,
     },
+    // Lưu thông tin Referral trực tiếp vào hồ sơ học viên
+    referral: referralData?.hasReferral
+      ? {
+          referrerType: referralData.referrerType, // "student" | "external"
+          referrerInfo: referralData.referrerInfo,
+          rewardType: referralData.rewardType, // "tuition_deduction" | "cash"
+          referrerReward: Number(referralData.referrerReward || 0),
+          newStudentDiscount: referralDiscount,
+          createdAt: new Date().toISOString(),
+        }
+      : null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
 
   await setDoc(docRef, newStudent);
+
+  // Tự động tạo bản ghi referral trong Firestore collection `referrals` để đồng bộ với tab Referral
+  if (referralData?.hasReferral) {
+    try {
+      await createReferral({
+        referrerType: referralData.referrerType,
+        referrerInfo: referralData.referrerInfo,
+        rewardType: referralData.rewardType,
+        referrerReward: Number(referralData.referrerReward || 0),
+        newStudentDiscount: referralDiscount,
+        studentId,
+        studentName: newStudent.fullName,
+        studentPhone: newStudent.phone,
+        classId: selectedClass?.classId || "",
+        className: selectedClass?.name || "",
+        notes: referralData.notes || `Ghi nhận khi tạo hồ sơ học viên mới [${studentId}]`,
+      });
+    } catch (refErr) {
+      console.warn("Auto create referral from student creation error:", refErr);
+    }
+  }
 
   // If assigned to a class, increment student count and create initial tuition record
   if (selectedClass) {
@@ -116,7 +167,10 @@ export const createStudent = async (studentData, selectedClass = null, sendClass
           method: "bank_transfer",
           paidAt: new Date().toISOString(),
           receivedBy: "Admin",
-          note: tuitionStatus === "completed" ? "Đã hoàn tất học phí khi ghi danh" : "Thanh toán đợt 1 / đặt cọc",
+          note:
+            tuitionStatus === "completed"
+              ? "Đã hoàn tất học phí khi ghi danh"
+              : "Thanh toán đợt 1 / đặt cọc",
         });
       }
 
@@ -128,14 +182,15 @@ export const createStudent = async (studentData, selectedClass = null, sendClass
         classId: selectedClass.classId,
         className: selectedClass.name,
         tuitionStatus, // "completed" | "debt" | "installment"
-        totalAmount: totalFee,
-        discountAmount: 0,
+        totalAmount: rawFee,
+        discountAmount: referralDiscount,
         finalAmount: totalFee,
         paidAmount: initialPaid,
         debtAmount: remainingDebt,
         status: statusStr,
         installmentNote: studentData.installmentNote || "",
         paymentHistory,
+        referral: newStudent.referral,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });

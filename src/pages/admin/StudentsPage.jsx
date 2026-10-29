@@ -37,6 +37,21 @@ export const StudentsPage = () => {
     installmentNote: "",
   });
 
+  // Referral Program at Student Creation
+  const [hasReferral, setHasReferral] = useState(false);
+  const [referralData, setReferralData] = useState({
+    referrerType: "student", // "student" | "external"
+    referrerStudentId: "",
+    externalName: "",
+    externalPhone: "",
+    externalIdCard: "",
+    externalBank: "",
+    rewardType: "cash", // "cash" | "tuition_deduction"
+    referrerReward: 300000,
+    newStudentDiscount: 200000,
+    notes: "",
+  });
+
   useEffect(() => {
     const unsubStudents = subscribeStudents((data) => {
       setStudents(data);
@@ -95,6 +110,21 @@ export const StudentsPage = () => {
       paidAmount: defaultFee,
       installmentNote: "",
     });
+
+    setHasReferral(false);
+    setReferralData({
+      referrerType: "student",
+      referrerStudentId: "",
+      externalName: "",
+      externalPhone: "",
+      externalIdCard: "",
+      externalBank: "",
+      rewardType: "cash",
+      referrerReward: 300000,
+      newStudentDiscount: 200000,
+      notes: "",
+    });
+
     setShowModal(true);
   };
 
@@ -114,6 +144,7 @@ export const StudentsPage = () => {
       paidAmount: std.tuitionOverview?.paidAmount || 0,
       installmentNote: "",
     });
+    setHasReferral(false);
     setShowModal(true);
   };
 
@@ -133,6 +164,37 @@ export const StudentsPage = () => {
           status: formData.status,
         });
       } else {
+        let effectiveReferral = null;
+        if (hasReferral) {
+          let referrerInfo = {};
+          if (referralData.referrerType === "student") {
+            const refStu = students.find((s) => s.studentId === referralData.referrerStudentId);
+            referrerInfo = {
+              studentId: refStu?.studentId || referralData.referrerStudentId,
+              name: refStu?.fullName || refStu?.name || "Học viên",
+              phone: refStu?.phone || "",
+              className: refStu?.classId || "",
+            };
+          } else {
+            referrerInfo = {
+              name: referralData.externalName,
+              phone: referralData.externalPhone,
+              idCard: referralData.externalIdCard,
+              bankAccount: referralData.externalBank,
+            };
+          }
+
+          effectiveReferral = {
+            hasReferral: true,
+            referrerType: referralData.referrerType,
+            referrerInfo,
+            rewardType: referralData.rewardType,
+            referrerReward: Number(referralData.referrerReward || 0),
+            newStudentDiscount: Number(referralData.newStudentDiscount || 0),
+            notes: referralData.notes,
+          };
+        }
+
         await createStudent(
           {
             studentId: formData.studentId,
@@ -150,7 +212,8 @@ export const StudentsPage = () => {
             installmentNote: formData.installmentNote || "",
           },
           selectedClass,
-          formData.sendClassroomInvite
+          formData.sendClassroomInvite,
+          effectiveReferral
         );
       }
       setShowModal(false);
@@ -272,7 +335,26 @@ export const StudentsPage = () => {
                         </span>
                       </td>
                       <td className="py-3.5 px-4 font-semibold text-slate-900">
-                        {std.fullName}
+                        <div>{std.fullName}</div>
+                        {std.referral && (
+                          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                            <span className="inline-flex items-center gap-1 text-[10px] bg-amber-50 text-[#c27803] font-bold px-2 py-0.5 rounded-md border border-amber-200">
+                              <span>👥 GT bởi:</span>
+                              <span className="font-semibold text-slate-800">
+                                {std.referral.referrerInfo?.name || "Người giới thiệu"}
+                              </span>
+                              <span className="text-[9px] text-amber-700">
+                                ({std.referral.referrerType === "student" ? "Học viên" : "Người ngoài"} •{" "}
+                                {std.referral.rewardType === "tuition_deduction" ? "Trừ HP" : "Tiền mặt"})
+                              </span>
+                            </span>
+                            {std.referral.newStudentDiscount > 0 && (
+                              <span className="text-[10px] text-emerald-600 font-bold">
+                                -{(std.referral.newStudentDiscount / 1000).toLocaleString("vi-VN")}k
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 text-xs text-slate-500">
                         <div>{std.email}</div>
@@ -399,7 +481,7 @@ export const StudentsPage = () => {
       {/* Add / Edit Student Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold text-slate-900 mb-1">
               {editingStudent ? "Edit Student Details" : "Enroll New Student"}
             </h3>
@@ -678,6 +760,203 @@ export const StudentsPage = () => {
                         />
                       </div>
                     </>
+                  )}
+                </div>
+              )}
+
+              {/* Referral Program Integration for New Students */}
+              {!editingStudent && (
+                <div className="p-4 bg-amber-50/70 border border-amber-200/90 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={hasReferral}
+                        onChange={(e) => setHasReferral(e.target.checked)}
+                        className="w-4 h-4 rounded text-[#c27803] focus:ring-[#c27803]"
+                      />
+                      <span className="text-xs font-heading font-bold uppercase tracking-wide text-amber-950">
+                        {lang === "vi" ? "Cơ chế Referral (Có người giới thiệu)" : "Referral Program"}
+                      </span>
+                    </label>
+                    <span className="text-[10px] bg-amber-100 text-[#c27803] font-bold px-2 py-0.5 rounded-full border border-amber-200">
+                      Đồng bộ Tab Referral
+                    </span>
+                  </div>
+
+                  {hasReferral && (
+                    <div className="space-y-3 pt-1 text-xs">
+                      {/* Nhóm 1: Định danh người giới thiệu */}
+                      <div className="p-3 bg-white rounded-lg border border-amber-200 space-y-2.5">
+                        <span className="font-bold text-amber-900 uppercase block text-[11px]">
+                          📌 Nhóm 1: Phân loại Người giới thiệu
+                        </span>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setReferralData({ ...referralData, referrerType: "student" })}
+                            className={`py-1.5 px-2 rounded-lg font-bold border transition ${
+                              referralData.referrerType === "student"
+                                ? "bg-[#c27803] text-white border-[#c27803] shadow-sm"
+                                : "bg-slate-50 text-slate-700 border-slate-200"
+                            }`}
+                          >
+                            🎓 Học viên hiện tại
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setReferralData({ ...referralData, referrerType: "external" })}
+                            className={`py-1.5 px-2 rounded-lg font-bold border transition ${
+                              referralData.referrerType === "external"
+                                ? "bg-[#c27803] text-white border-[#c27803] shadow-sm"
+                                : "bg-slate-50 text-slate-700 border-slate-200"
+                            }`}
+                          >
+                            🌐 Người ngoài
+                          </button>
+                        </div>
+
+                        {referralData.referrerType === "student" ? (
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                              Chọn Học Viên Giới Thiệu:
+                            </label>
+                            <select
+                              value={referralData.referrerStudentId}
+                              onChange={(e) =>
+                                setReferralData({ ...referralData, referrerStudentId: e.target.value })
+                              }
+                              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold"
+                            >
+                              <option value="">-- Chọn học viên --</option>
+                              {students.map((s) => (
+                                <option key={s.studentId} value={s.studentId}>
+                                  [{s.studentId}] {s.fullName || s.name} - {s.phone || "N/A"}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <label className="block font-semibold text-slate-700 mb-0.5">Họ tên (*):</label>
+                              <input
+                                type="text"
+                                required={hasReferral}
+                                placeholder="Nguyễn Văn B"
+                                value={referralData.externalName}
+                                onChange={(e) =>
+                                  setReferralData({ ...referralData, externalName: e.target.value })
+                                }
+                                className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-md"
+                              />
+                            </div>
+                            <div>
+                              <label className="block font-semibold text-slate-700 mb-0.5">Số điện thoại (*):</label>
+                              <input
+                                type="tel"
+                                required={hasReferral}
+                                placeholder="0987654321"
+                                value={referralData.externalPhone}
+                                onChange={(e) =>
+                                  setReferralData({ ...referralData, externalPhone: e.target.value })
+                                }
+                                className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-md"
+                              />
+                            </div>
+                            <div>
+                              <label className="block font-semibold text-slate-700 mb-0.5">CCCD / CMND (*):</label>
+                              <input
+                                type="text"
+                                placeholder="00120100xxxx"
+                                value={referralData.externalIdCard}
+                                onChange={(e) =>
+                                  setReferralData({ ...referralData, externalIdCard: e.target.value })
+                                }
+                                className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-md"
+                              />
+                            </div>
+                            <div>
+                              <label className="block font-semibold text-slate-700 mb-0.5">STK & Ngân hàng (*):</label>
+                              <input
+                                type="text"
+                                placeholder="MB 0987... NGUYEN VAN B"
+                                value={referralData.externalBank}
+                                onChange={(e) =>
+                                  setReferralData({ ...referralData, externalBank: e.target.value })
+                                }
+                                className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-md"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Nhóm 2: Hình thức Commission */}
+                      <div className="p-3 bg-white rounded-lg border border-amber-200 space-y-2.5">
+                        <span className="font-bold text-amber-900 uppercase block text-[11px]">
+                          💰 Nhóm 2: Hình thức nhận Commission
+                        </span>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setReferralData({ ...referralData, rewardType: "cash" })}
+                            className={`py-1.5 px-2 rounded-lg font-bold border transition ${
+                              referralData.rewardType === "cash"
+                                ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                                : "bg-slate-50 text-slate-700 border-slate-200"
+                            }`}
+                          >
+                            💵 Tiền mặt / CK
+                          </button>
+                          <button
+                            type="button"
+                            disabled={referralData.referrerType === "external"}
+                            onClick={() =>
+                              setReferralData({ ...referralData, rewardType: "tuition_deduction" })
+                            }
+                            className={`py-1.5 px-2 rounded-lg font-bold border transition ${
+                              referralData.rewardType === "tuition_deduction"
+                                ? "bg-[#c27803] text-white border-[#c27803] shadow-sm"
+                                : "bg-slate-50 text-slate-700 border-slate-200 disabled:opacity-40"
+                            }`}
+                          >
+                            🎓 Trừ vào học phí
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block font-semibold text-slate-700 mb-0.5">
+                              Hoa hồng người GT (₫):
+                            </label>
+                            <input
+                              type="number"
+                              step="50000"
+                              value={referralData.referrerReward}
+                              onChange={(e) =>
+                                setReferralData({ ...referralData, referrerReward: Number(e.target.value) })
+                              }
+                              className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-md font-bold text-emerald-600"
+                            />
+                          </div>
+                          <div>
+                            <label className="block font-semibold text-slate-700 mb-0.5">
+                              Giảm giá HV mới (₫):
+                            </label>
+                            <input
+                              type="number"
+                              step="50000"
+                              value={referralData.newStudentDiscount}
+                              onChange={(e) =>
+                                setReferralData({ ...referralData, newStudentDiscount: Number(e.target.value) })
+                              }
+                              className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-md font-bold text-[#c27803]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
