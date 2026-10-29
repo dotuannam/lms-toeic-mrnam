@@ -15,11 +15,13 @@ import { ReportsPage } from "./pages/admin/ReportsPage";
 import { WebsiteAdminPage } from "./pages/admin/WebsiteAdminPage";
 import { StaffManagementPage } from "./pages/admin/StaffManagementPage";
 import { StudentDashboard } from "./pages/student/StudentDashboard";
+import { LandingPage } from "./components/landing/LandingPage";
+import { GlobalAnnouncementBanner } from "./components/common/GlobalAnnouncementBanner";
 
 const AppContent = () => {
   const { currentUser, role, isStaff, userProfile, loading } = useAuth();
   const [adminTab, setAdminTab] = useState(() => (role === "instructor" ? "classes" : "students"));
-  const [viewMode, setViewMode] = useState("admin"); // 'admin' | 'student_preview'
+  const [viewMode, setViewMode] = useState("admin"); // 'admin' | 'student_preview' | 'landing'
 
   // Update tab default if instructor logs in
   useEffect(() => {
@@ -37,19 +39,50 @@ const AppContent = () => {
     );
   }
 
-  // Unauthenticated -> Render Login
+  // Unauthenticated -> Render Landing Page with Global Announcement & Integrated Login
   if (!currentUser) {
-    return <Login />;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <GlobalAnnouncementBanner />
+        <LandingPage onGoToPortal={() => {}} />
+      </div>
+    );
+  }
+
+  // Authenticated user explicitly viewing Landing Page
+  if (viewMode === "landing") {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <GlobalAnnouncementBanner />
+        <div className="bg-[#1e2738] text-white px-4 py-2.5 flex items-center justify-between text-xs font-semibold shadow-md border-b border-[#00b4d8]/40 sticky top-0 z-50">
+          <div className="flex items-center gap-2">
+            <span className="text-amber-400">🌐</span>
+            <span className="font-heading font-medium tracking-wide">
+              Bạn đang xem Landing Page ({isStaff ? "Admin / Staff" : "Học viên"})
+            </span>
+          </div>
+          <button
+            onClick={() => setViewMode(isStaff ? "admin" : "student")}
+            className="px-3.5 py-1.5 bg-[#00b4d8] text-white hover:bg-[#0096c7] rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm cursor-pointer"
+          >
+            Quay lại Portal Dashboard &rarr;
+          </button>
+        </div>
+        <LandingPage onGoToPortal={() => setViewMode(isStaff ? "admin" : "student")} />
+      </div>
+    );
   }
 
   // Admin & Staff Portal View (for Super Admin, Admin, Consultants, Instructors)
   if (isStaff && viewMode === "admin") {
     return (
-      <div className="relative">
+      <div className="relative min-h-screen flex flex-col">
+        <GlobalAnnouncementBanner />
         <AdminLayout
           activeTab={adminTab}
           onTabChange={setAdminTab}
           onSwitchToStudentView={() => setViewMode("student_preview")}
+          onViewLandingPage={() => setViewMode("landing")}
         >
           {adminTab === "students" && <StudentsPage />}
           {adminTab === "classes" && <ClassesPage />}
@@ -70,24 +103,34 @@ const AppContent = () => {
 
   // Student Portal View (Default for students, or preview for admins/staff)
   return (
-    <div className="relative">
+    <div className="relative min-h-screen flex flex-col">
+      <GlobalAnnouncementBanner />
       {isStaff && (
         <div className="bg-[#1e2738] text-white px-4 py-2.5 flex items-center justify-between text-xs font-semibold shadow-md border-b border-[#00b4d8]/40 sticky top-0 z-50">
           <div className="flex items-center gap-2">
             <span className="text-amber-400">🛡️</span>
             <span className="font-heading font-medium tracking-wide">Bạn đang xem thử giao diện Học viên (Preview Mode)</span>
           </div>
-          <button
-            onClick={() => setViewMode("admin")}
-            className="px-3 py-1 bg-[#00b4d8] text-white hover:bg-[#0096c7] rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm"
-          >
-            Quay lại Admin/Staff Dashboard &rarr;
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode("landing")}
+              className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm cursor-pointer"
+            >
+              🌐 Landing Page
+            </button>
+            <button
+              onClick={() => setViewMode("admin")}
+              className="px-3 py-1 bg-[#00b4d8] text-white hover:bg-[#0096c7] rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm cursor-pointer"
+            >
+              Quay lại Admin/Staff Dashboard &rarr;
+            </button>
+          </div>
         </div>
       )}
       <StudentLayout
         studentProfile={userProfile}
         onSwitchToAdminView={isStaff ? () => setViewMode("admin") : undefined}
+        onViewLandingPage={() => setViewMode("landing")}
       >
         <StudentDashboard />
       </StudentLayout>

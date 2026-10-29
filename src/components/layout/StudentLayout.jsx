@@ -6,7 +6,7 @@ import { DEFAULT_CENTER_CONFIG } from "../../services/settingsService";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
 import { ThemeToggle } from "../common/ThemeToggle";
 
-export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView }) => {
+export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView, onViewLandingPage }) => {
   const { currentUser, logout, isStaff } = useAuth();
   const { t, lang } = useLanguage();
   const { centerConfig } = useSettings();
@@ -81,6 +81,17 @@ export const StudentLayout = ({ children, studentProfile, onSwitchToAdminView })
             <span className="hidden sm:inline-block w-px h-3 bg-slate-700"></span>
 
             <div className="flex items-center gap-2">
+              {onViewLandingPage && (
+                <button
+                  type="button"
+                  onClick={onViewLandingPage}
+                  className="px-2.5 py-1 text-slate-300 hover:text-white hover:bg-white/10 rounded transition text-[11px] font-medium flex items-center gap-1"
+                  title="Xem Landing Page"
+                >
+                  <span>🌐</span>
+                  <span>Trang chủ</span>
+                </button>
+              )}
               {onSwitchToAdminView && (
                 <button
                   type="button"

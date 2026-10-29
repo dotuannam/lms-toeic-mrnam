@@ -5,7 +5,7 @@ import { useSettings } from "../../context/SettingsContext";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
 import { ThemeToggle } from "../common/ThemeToggle";
 
-export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, children }) => {
+export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onViewLandingPage, children }) => {
   const { userProfile, currentUser, logout, role, isSuperAdmin, isConsultant, isInstructor } = useAuth();
   const { centerConfig } = useSettings();
   const { t, lang } = useLanguage();
@@ -252,6 +252,18 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, chi
           <div className="flex items-center gap-2.5 sm:gap-3">
             <ThemeToggle variant="pill" />
             <LanguageSwitcher />
+
+            {onViewLandingPage && (
+              <button
+                type="button"
+                onClick={onViewLandingPage}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-heading font-bold uppercase tracking-wider border border-slate-300 dark:border-slate-700 transition"
+                title="Xem Landing Page"
+              >
+                <span>🌐</span>
+                <span className="hidden sm:inline">Landing Page</span>
+              </button>
+            )}
 
             {onSwitchToStudentView && (
               <button

@@ -4,14 +4,20 @@ import {
   subscribeBankingConfig,
   subscribeTeachingShifts,
   subscribeGasConfig,
+  subscribeAnnouncementConfig,
+  subscribeClassroomRules,
   saveCenterConfig,
   saveBankingConfig,
   saveTeachingShifts,
   saveGasConfig,
+  saveAnnouncementConfig,
+  saveClassroomRules,
   DEFAULT_CENTER_CONFIG,
   DEFAULT_BANKING_CONFIG,
   DEFAULT_SHIFTS,
   DEFAULT_GAS_CONFIG,
+  DEFAULT_ANNOUNCEMENT_CONFIG,
+  DEFAULT_CLASSROOM_RULES,
   buildDynamicVietQrUrl,
 } from "../services/settingsService";
 
@@ -30,6 +36,8 @@ export const SettingsProvider = ({ children }) => {
   const [bankingConfig, setBankingConfig] = useState(DEFAULT_BANKING_CONFIG);
   const [teachingShifts, setTeachingShifts] = useState(DEFAULT_SHIFTS);
   const [gasConfig, setGasConfig] = useState(DEFAULT_GAS_CONFIG);
+  const [announcementConfig, setAnnouncementConfig] = useState(DEFAULT_ANNOUNCEMENT_CONFIG);
+  const [classroomRules, setClassroomRules] = useState(DEFAULT_CLASSROOM_RULES);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,6 +61,16 @@ export const SettingsProvider = ({ children }) => {
       if (cfg) setGasConfig(cfg);
     });
 
+    // 5. Subscribe Global Announcement Banner
+    const unsubAnnouncement = subscribeAnnouncementConfig((cfg) => {
+      if (cfg) setAnnouncementConfig(cfg);
+    });
+
+    // 6. Subscribe Classroom Rules
+    const unsubRules = subscribeClassroomRules((rules) => {
+      if (rules) setClassroomRules(rules);
+    });
+
     setLoading(false);
 
     return () => {
@@ -60,6 +78,8 @@ export const SettingsProvider = ({ children }) => {
       unsubBanking();
       unsubShifts();
       unsubGas();
+      unsubAnnouncement();
+      unsubRules();
     };
   }, []);
 
@@ -87,6 +107,18 @@ export const SettingsProvider = ({ children }) => {
     return updated;
   };
 
+  const updateAnnouncement = async (data) => {
+    const updated = await saveAnnouncementConfig(data);
+    setAnnouncementConfig(updated);
+    return updated;
+  };
+
+  const updateRules = async (data) => {
+    const updated = await saveClassroomRules(data);
+    setClassroomRules(updated);
+    return updated;
+  };
+
   const buildQrUrl = ({ amount = 0, transferDescription = "" }) => {
     return buildDynamicVietQrUrl({
       amount,
@@ -102,10 +134,14 @@ export const SettingsProvider = ({ children }) => {
         bankingConfig,
         teachingShifts,
         gasConfig,
+        announcementConfig,
+        classroomRules,
         updateCenterConfig: updateCenter,
         updateBankingConfig: updateBanking,
         updateTeachingShifts: updateShifts,
         updateGasConfig: updateGas,
+        updateAnnouncementConfig: updateAnnouncement,
+        updateClassroomRules: updateRules,
         buildQrUrl,
         loading,
       }}

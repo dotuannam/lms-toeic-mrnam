@@ -10,6 +10,7 @@ import { useSettings } from "../../context/SettingsContext";
 import { DEFAULT_CENTER_CONFIG } from "../../services/settingsService";
 import { StudentMaterialsTab } from "../../components/student/StudentMaterialsTab";
 import { StudentClassroomGradesTab } from "../../components/student/StudentClassroomGradesTab";
+import { StudentClassroomRulesTab } from "../../components/student/StudentClassroomRulesTab";
 import { CelebrationBanners } from "../../components/common/CelebrationBanners";
 
 export const StudentDashboard = () => {
@@ -276,6 +277,19 @@ export const StudentDashboard = () => {
             <span>📁</span>
             <span>{t("tabMaterials")}</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("rules")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition-all ${
+              activeTab === "rules"
+                ? "bg-[#00b4d8] text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+          >
+            <span>📜</span>
+            <span>{isVi ? "Quy Định Lớp Học" : "Classroom Rules"}</span>
+          </button>
         </div>
 
         {/* Quick class switcher if enrolled in multiple courses */}
@@ -300,7 +314,9 @@ export const StudentDashboard = () => {
       </div>
 
       {/* RENDER ACTIVE TAB */}
-      {activeTab === "materials" ? (
+      {activeTab === "rules" ? (
+        <StudentClassroomRulesTab />
+      ) : activeTab === "materials" ? (
         <StudentMaterialsTab
           student={student}
           activeClass={activeClass}

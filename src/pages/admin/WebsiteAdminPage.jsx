@@ -8,6 +8,8 @@ import {
   DEFAULT_BANKING_CONFIG,
   DEFAULT_SHIFTS,
   DEFAULT_GAS_CONFIG,
+  DEFAULT_ANNOUNCEMENT_CONFIG,
+  DEFAULT_CLASSROOM_RULES,
 } from "../../services/settingsService";
 import { EmailTemplatesPage } from "./EmailTemplatesPage";
 import { callGasApi } from "../../services/api";
@@ -20,10 +22,14 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
     bankingConfig,
     teachingShifts,
     gasConfig,
+    announcementConfig,
+    classroomRules,
     updateCenterConfig,
     updateBankingConfig,
     updateTeachingShifts,
     updateGasConfig,
+    updateAnnouncementConfig,
+    updateClassroomRules,
   } = useSettings();
 
   const [activeSubTab, setActiveSubTab] = useState(initialSubTab);
@@ -232,6 +238,108 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
     }
   };
 
+  // =========================================================================
+  // SUB-TAB 6: BANNER THÔNG BÁO TỔNG STATE
+  // =========================================================================
+  const [announcementForm, setAnnouncementForm] = useState(
+    announcementConfig || DEFAULT_ANNOUNCEMENT_CONFIG
+  );
+  const [savingAnnouncement, setSavingAnnouncement] = useState(false);
+  const [announcementSaveSuccess, setAnnouncementSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    if (announcementConfig) {
+      setAnnouncementForm(announcementConfig);
+    }
+  }, [announcementConfig]);
+
+  const handleSaveAnnouncement = async (e) => {
+    e.preventDefault();
+    setSavingAnnouncement(true);
+    setAnnouncementSaveSuccess(false);
+    try {
+      await updateAnnouncementConfig(announcementForm);
+      setAnnouncementSaveSuccess(true);
+      setTimeout(() => setAnnouncementSaveSuccess(false), 4000);
+    } catch (err) {
+      alert("Lỗi khi lưu banner thông báo: " + err.message);
+    } finally {
+      setSavingAnnouncement(false);
+    }
+  };
+
+  // =========================================================================
+  // SUB-TAB 7: QUY ĐỊNH LỚP HỌC STATE
+  // =========================================================================
+  const [rulesForm, setRulesForm] = useState(
+    classroomRules || DEFAULT_CLASSROOM_RULES
+  );
+  const [savingRules, setSavingRules] = useState(false);
+  const [rulesSaveSuccess, setRulesSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    if (classroomRules) {
+      setRulesForm(classroomRules);
+    }
+  }, [classroomRules]);
+
+  const handleAddRuleSection = () => {
+    const newSec = {
+      id: "sec_" + Date.now(),
+      title: `${(rulesForm.sections?.length || 0) + 1}. Tiêu đề mục mới`,
+      icon: "verified",
+      rules: ["Nội dung điều khoản mới..."],
+    };
+    setRulesForm({
+      ...rulesForm,
+      sections: [...(rulesForm.sections || []), newSec],
+    });
+  };
+
+  const handleRemoveRuleSection = (idx) => {
+    const updated = (rulesForm.sections || []).filter((_, i) => i !== idx);
+    setRulesForm({ ...rulesForm, sections: updated });
+  };
+
+  const handleAddRuleItem = (secIdx) => {
+    const updated = [...(rulesForm.sections || [])];
+    updated[secIdx].rules = [...(updated[secIdx].rules || []), "Điều khoản quy định mới..."];
+    setRulesForm({ ...rulesForm, sections: updated });
+  };
+
+  const handleRemoveRuleItem = (secIdx, itemIdx) => {
+    const updated = [...(rulesForm.sections || [])];
+    updated[secIdx].rules = updated[secIdx].rules.filter((_, i) => i !== itemIdx);
+    setRulesForm({ ...rulesForm, sections: updated });
+  };
+
+  const handleUpdateRuleItem = (secIdx, itemIdx, val) => {
+    const updated = [...(rulesForm.sections || [])];
+    updated[secIdx].rules[itemIdx] = val;
+    setRulesForm({ ...rulesForm, sections: updated });
+  };
+
+  const handleUpdateSectionTitle = (secIdx, val) => {
+    const updated = [...(rulesForm.sections || [])];
+    updated[secIdx].title = val;
+    setRulesForm({ ...rulesForm, sections: updated });
+  };
+
+  const handleSaveRules = async (e) => {
+    e.preventDefault();
+    setSavingRules(true);
+    setRulesSaveSuccess(false);
+    try {
+      await updateClassroomRules(rulesForm);
+      setRulesSaveSuccess(true);
+      setTimeout(() => setRulesSaveSuccess(false), 4000);
+    } catch (err) {
+      alert("Lỗi khi lưu quy định lớp học: " + err.message);
+    } finally {
+      setSavingRules(false);
+    }
+  };
+
   const currentBankObj = VIETNAMESE_BANKS.find((b) => b.code === bankingForm.bankId) || {
     code: bankingForm.bankId,
     shortName: bankingForm.bankId,
@@ -339,6 +447,35 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
           >
             <span>⚡</span>
             <span>{lang === "vi" ? "Tự Động Hóa & API" : "Automations & API"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab("announcement-banner")}
+            className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 relative ${
+              activeSubTab === "announcement-banner"
+                ? "bg-[#00b4d8] text-white shadow-lg shadow-[#00b4d8]/30"
+                : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
+            }`}
+          >
+            <span>📢</span>
+            <span>{lang === "vi" ? "Banner Thông Báo Tổng" : "Global Banner"}</span>
+            {announcementConfig?.enabled && announcementConfig?.content?.trim() && (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab("classroom-rules")}
+            className={`px-4 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-2 ${
+              activeSubTab === "classroom-rules"
+                ? "bg-[#00b4d8] text-white shadow-lg shadow-[#00b4d8]/30"
+                : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
+            }`}
+          >
+            <span>📜</span>
+            <span>{lang === "vi" ? "Quy Định Lớp Học" : "Classroom Rules"}</span>
           </button>
         </div>
       </div>
@@ -1147,6 +1284,390 @@ export const WebsiteAdminPage = ({ initialSubTab = "email-templates" }) => {
                 Đồng bộ bảo mật theo thời gian thực (Real-time). Lưu trữ dữ liệu học viên, ca dạy và mẫu email.
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 6. SUB-TAB: BANNER THÔNG BÁO TỔNG (GLOBAL ANNOUNCEMENT BANNER)            */}
+      {/* ========================================================================= */}
+      {activeSubTab === "announcement-banner" && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+              <div>
+                <h3 className="text-lg font-heading font-bold text-slate-800 flex items-center gap-2">
+                  <span>📢</span>
+                  <span>Quản Lý Banner Thông Báo Toàn Hệ Thống</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Hiển thị thông báo khẩn cấp, lịch nghỉ lễ, ưu đãi hoặc lịch thi thử trên đầu trang của toàn bộ người dùng.
+                </p>
+              </div>
+
+              {/* Status Badge */}
+              <div className="flex items-center gap-2">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                    announcementForm.enabled && announcementForm.content?.trim()
+                      ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                      : "bg-slate-100 text-slate-600 border border-slate-200"
+                  }`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      announcementForm.enabled && announcementForm.content?.trim()
+                        ? "bg-emerald-500 animate-pulse"
+                        : "bg-slate-400"
+                    }`}
+                  ></span>
+                  <span>
+                    {announcementForm.enabled && announcementForm.content?.trim()
+                      ? "Đang hiển thị trực tiếp"
+                      : "Đang ẩn (Không chiếm diện tích)"}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSaveAnnouncement} className="space-y-6">
+              {/* Toggle Switch */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <label className="text-sm font-heading font-bold text-slate-800 cursor-pointer" htmlFor="toggle-banner">
+                    Bật hiển thị Banner thông báo
+                  </label>
+                  <p className="text-xs text-slate-500">
+                    Nếu tắt hoặc nội dung trống, banner sẽ ẩn hoàn toàn và không chiếm bất kỳ diện tích giao diện nào.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    id="toggle-banner"
+                    type="checkbox"
+                    checked={!!announcementForm.enabled}
+                    onChange={(e) =>
+                      setAnnouncementForm({ ...announcementForm, enabled: e.target.checked })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00b4d8]"></div>
+                </label>
+              </div>
+
+              {/* Content Textarea */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-heading font-bold uppercase tracking-wider text-slate-700 block">
+                  Nội Dung Thông Báo *
+                </label>
+                <textarea
+                  rows={3}
+                  value={announcementForm.content}
+                  onChange={(e) =>
+                    setAnnouncementForm({ ...announcementForm, content: e.target.value })
+                  }
+                  placeholder="Ví dụ: 📢 Lịch nghỉ lễ và dời lịch học bù: Toàn bộ các lớp 2-4-6 và 3-5-7 sẽ nghỉ ngày 30/4, lịch học bù bắt đầu từ tuần kế tiếp. Chúc các bạn học viên kỳ nghỉ vui vẻ!"
+                  className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/20 focus:border-[#00b4d8] leading-relaxed"
+                />
+              </div>
+
+              {/* Notification Type / Color Selection */}
+              <div className="space-y-2">
+                <label className="text-xs font-heading font-bold uppercase tracking-wider text-slate-700 block">
+                  Phân Loại Thông Báo & Màu Sắc
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { id: "info", label: "Thông Báo Chuẩn (Xanh dương)", icon: "📢", color: "bg-[#0077b6] text-white" },
+                    { id: "warning", label: "Lưu Ý Quan Trọng (Vàng hổ phách)", icon: "⚠️", color: "bg-amber-600 text-white" },
+                    { id: "alert", label: "Khẩn Cấp / Báo Động (Đỏ)", icon: "🚨", color: "bg-rose-700 text-white" },
+                    { id: "success", label: "Tin Vui / Chúc Mừng (Xanh lục)", icon: "🎉", color: "bg-emerald-700 text-white" },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setAnnouncementForm({ ...announcementForm, type: item.id })}
+                      className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition cursor-pointer ${
+                        announcementForm.type === item.id
+                          ? "border-[#00b4d8] ring-2 ring-[#00b4d8]/30 bg-slate-50 font-bold"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
+                      }`}
+                    >
+                      <span className="text-lg">{item.icon}</span>
+                      <div className="min-w-0">
+                        <span className="text-xs font-semibold text-slate-800 block truncate">
+                          {item.label}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Optional Link & Button Text */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-heading font-bold uppercase tracking-wider text-slate-700 block">
+                    Nhãn Nút Bấm Liên Kết (Tùy chọn)
+                  </label>
+                  <input
+                    type="text"
+                    value={announcementForm.linkText || ""}
+                    onChange={(e) =>
+                      setAnnouncementForm({ ...announcementForm, linkText: e.target.value })
+                    }
+                    placeholder="Ví dụ: Xem chi tiết &rarr;"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#00b4d8]"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-heading font-bold uppercase tracking-wider text-slate-700 block">
+                    Đường Dẫn URL (Tùy chọn)
+                  </label>
+                  <input
+                    type="text"
+                    value={announcementForm.linkUrl || ""}
+                    onChange={(e) =>
+                      setAnnouncementForm({ ...announcementForm, linkUrl: e.target.value })
+                    }
+                    placeholder="https://... hoặc #placement-test"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#00b4d8] font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* LIVE PREVIEW SECTION */}
+              <div className="space-y-2 pt-2">
+                <span className="text-xs font-heading font-bold uppercase tracking-wider text-slate-500 block">
+                  Xem Trước Trực Quan (Live Preview)
+                </span>
+                <div className="p-4 bg-slate-100 rounded-2xl border border-slate-200 space-y-2">
+                  {announcementForm.enabled && announcementForm.content?.trim() ? (
+                    <div
+                      className={`p-3.5 rounded-xl shadow-md text-white flex items-center justify-between gap-3 text-xs sm:text-sm ${
+                        announcementForm.type === "warning"
+                          ? "bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600"
+                          : announcementForm.type === "alert"
+                          ? "bg-gradient-to-r from-rose-700 via-rose-600 to-rose-700"
+                          : announcementForm.type === "success"
+                          ? "bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700"
+                          : "bg-gradient-to-r from-[#0077b6] via-[#0096c7] to-[#00b4d8]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-lg">
+                          {announcementForm.type === "warning"
+                            ? "⚠️"
+                            : announcementForm.type === "alert"
+                            ? "🚨"
+                            : announcementForm.type === "success"
+                            ? "🎉"
+                            : "📢"}
+                        </span>
+                        <span className="font-semibold truncate">
+                          {announcementForm.content}
+                        </span>
+                        {announcementForm.linkText && (
+                          <span className="shrink-0 ml-2 px-2.5 py-0.5 rounded-full bg-white text-slate-900 font-bold text-xs shadow-xs">
+                            {announcementForm.linkText}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-white/70 text-xs">✕</span>
+                    </div>
+                  ) : (
+                    <div className="py-6 text-center text-xs text-slate-400 italic">
+                      Banner đang tắt hoặc chưa có nội dung. Người dùng sẽ không nhìn thấy bất kỳ thanh thông báo nào trên màn hình.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <div>
+                  {announcementSaveSuccess && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold animate-fadeIn">
+                      ✓ Đã lưu banner thông báo thành công và áp dụng trực tiếp!
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={savingAnnouncement}
+                  className="px-6 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition cursor-pointer disabled:opacity-60 flex items-center gap-2"
+                >
+                  <span>💾</span>
+                  <span>{savingAnnouncement ? "Đang lưu..." : "Lưu Banner Thông Báo"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 7. SUB-TAB: QUY ĐỊNH LỚP HỌC (CLASSROOM RULES & REGULATIONS)             */}
+      {/* ========================================================================= */}
+      {activeSubTab === "classroom-rules" && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+              <div>
+                <h3 className="text-lg font-heading font-bold text-slate-800 flex items-center gap-2">
+                  <span>📜</span>
+                  <span>Quản Lý Quy Định & Nội Quy Lớp Học</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Chỉnh sửa các điều khoản nội quy chuyên cần, làm bài tập, tác phong và chính sách bảo lưu hiển thị trên Student Portal của học viên.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleAddRuleSection}
+                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>➕</span>
+                  <span>Thêm Mục Mới</span>
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveRules} className="space-y-6">
+              {/* Header Title & Subtitle */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-heading font-bold uppercase tracking-wider text-slate-700 block">
+                    Tiêu Đề Chính *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={rulesForm.title || ""}
+                    onChange={(e) => setRulesForm({ ...rulesForm, title: e.target.value })}
+                    placeholder="Quy Định & Nội Quy Lớp Học"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#00b4d8]"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-heading font-bold uppercase tracking-wider text-slate-700 block">
+                    Mô Tả / Tiêu Đề Phụ
+                  </label>
+                  <input
+                    type="text"
+                    value={rulesForm.subtitle || ""}
+                    onChange={(e) => setRulesForm({ ...rulesForm, subtitle: e.target.value })}
+                    placeholder="Áp dụng cho toàn bộ học viên các khóa học..."
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-[#00b4d8]"
+                  />
+                </div>
+              </div>
+
+              {/* Sections List */}
+              <div className="space-y-6">
+                {(rulesForm.sections || []).map((sec, secIdx) => (
+                  <div
+                    key={sec.id || secIdx}
+                    className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 relative"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/60 pb-3">
+                      <div className="flex items-center gap-3 flex-1">
+                        <select
+                          value={sec.icon || "verified"}
+                          onChange={(e) => {
+                            const updated = [...rulesForm.sections];
+                            updated[secIdx].icon = e.target.value;
+                            setRulesForm({ ...rulesForm, sections: updated });
+                          }}
+                          className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                        >
+                          <option value="calendar">📅 Lịch / Chuyên cần</option>
+                          <option value="assignment">📝 Bài tập / Thi thử</option>
+                          <option value="verified">🛡️ Kỷ luật / Tác phong</option>
+                          <option value="policy">💳 Học phí / Bảo lưu</option>
+                        </select>
+
+                        <input
+                          type="text"
+                          value={sec.title || ""}
+                          onChange={(e) => handleUpdateSectionTitle(secIdx, e.target.value)}
+                          placeholder="Tiêu đề mục (ví dụ: 1. Chuyên cần & Điểm danh)"
+                          className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-heading font-bold text-slate-800"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleAddRuleItem(secIdx)}
+                          className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[11px] font-semibold transition cursor-pointer"
+                        >
+                          + Thêm Điều Khoản
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveRuleSection(secIdx)}
+                          className="px-2.5 py-1 text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg text-[11px] font-semibold transition cursor-pointer"
+                        >
+                          Xóa Mục
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Rules Bullet Points */}
+                    <div className="space-y-2">
+                      {(sec.rules || []).map((rule, rIdx) => (
+                        <div key={rIdx} className="flex items-start gap-2">
+                          <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 mt-1">
+                            ✓
+                          </span>
+                          <textarea
+                            rows={2}
+                            value={rule}
+                            onChange={(e) => handleUpdateRuleItem(secIdx, rIdx, e.target.value)}
+                            className="flex-1 p-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#00b4d8] leading-relaxed"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveRuleItem(secIdx, rIdx)}
+                            className="p-2 text-slate-400 hover:text-rose-600 transition"
+                            title="Xóa điều khoản này"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <div>
+                  {rulesSaveSuccess && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold animate-fadeIn">
+                      ✓ Đã lưu Quy Định Lớp Học thành công! Học viên có thể xem ngay trên Student Portal.
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={savingRules}
+                  className="px-6 py-2.5 bg-[#00b4d8] hover:bg-[#0096c7] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition cursor-pointer disabled:opacity-60 flex items-center gap-2"
+                >
+                  <span>💾</span>
+                  <span>{savingRules ? "Đang lưu..." : "Lưu Quy Định Lớp Học"}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

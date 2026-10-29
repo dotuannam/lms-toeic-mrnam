@@ -7,6 +7,8 @@ const SETTINGS_COLLECTION = "system_settings";
 const SHIFTS_DOC_ID = "teaching_shifts";
 const CENTER_CONFIG_DOC_ID = "center_config";
 const BANKING_CONFIG_DOC_ID = "banking_config";
+const ANNOUNCEMENT_CONFIG_DOC_ID = "global_announcement";
+const CLASSROOM_RULES_DOC_ID = "classroom_rules";
 
 // Danh sách ngân hàng phổ biến tại Việt Nam hỗ trợ chuẩn VietQR
 export const VIETNAMESE_BANKS = [
@@ -434,6 +436,219 @@ export const saveGasConfig = async (configData) => {
     await setDoc(docRef, { ...updated, updatedAt: serverTimestamp() }, { merge: true });
   } catch (err) {
     console.warn("Firestore sync warning for GAS config, saved locally:", err);
+  }
+  return updated;
+};
+
+// =========================================================================
+// 5. BANNER THÔNG BÁO TỔNG (GLOBAL ANNOUNCEMENT BANNER)
+// =========================================================================
+export const DEFAULT_ANNOUNCEMENT_CONFIG = {
+  enabled: false,
+  content: "",
+  type: "info", // "info" | "warning" | "alert" | "success"
+  linkText: "",
+  linkUrl: "",
+  updatedAt: null,
+};
+
+const LOCAL_STORAGE_ANNOUNCEMENT_KEY = "lms_announcement_config_v1";
+
+const getLocalAnnouncementConfig = () => {
+  try {
+    const saved = localStorage.getItem(LOCAL_STORAGE_ANNOUNCEMENT_KEY);
+    if (saved) return { ...DEFAULT_ANNOUNCEMENT_CONFIG, ...JSON.parse(saved) };
+  } catch (e) {
+    console.warn("Could not read announcement config from localStorage:", e);
+  }
+  return DEFAULT_ANNOUNCEMENT_CONFIG;
+};
+
+const setLocalAnnouncementConfig = (cfg) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_ANNOUNCEMENT_KEY, JSON.stringify(cfg));
+  } catch (e) {
+    console.warn("Could not write announcement config to localStorage:", e);
+  }
+};
+
+export const getAnnouncementConfig = async () => {
+  try {
+    const docRef = doc(db, SETTINGS_COLLECTION, ANNOUNCEMENT_CONFIG_DOC_ID);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const merged = { ...DEFAULT_ANNOUNCEMENT_CONFIG, ...snap.data() };
+      setLocalAnnouncementConfig(merged);
+      return merged;
+    }
+  } catch (err) {
+    console.warn("Could not fetch announcement from Firestore, fallback to cache:", err);
+  }
+  return getLocalAnnouncementConfig();
+};
+
+export const subscribeAnnouncementConfig = (callback) => {
+  const docRef = doc(db, SETTINGS_COLLECTION, ANNOUNCEMENT_CONFIG_DOC_ID);
+  callback(getLocalAnnouncementConfig());
+
+  return onSnapshot(
+    docRef,
+    (snap) => {
+      if (snap.exists()) {
+        const merged = { ...DEFAULT_ANNOUNCEMENT_CONFIG, ...snap.data() };
+        setLocalAnnouncementConfig(merged);
+        callback(merged);
+      } else {
+        callback(getLocalAnnouncementConfig());
+      }
+    },
+    (err) => {
+      console.warn("Announcement subscription warning, fallback to cache:", err);
+      callback(getLocalAnnouncementConfig());
+    }
+  );
+};
+
+export const saveAnnouncementConfig = async (configData) => {
+  const updated = {
+    ...DEFAULT_ANNOUNCEMENT_CONFIG,
+    ...configData,
+    content: (configData.content || "").trim(),
+    updatedAt: new Date().toISOString(),
+  };
+  setLocalAnnouncementConfig(updated);
+
+  try {
+    const docRef = doc(db, SETTINGS_COLLECTION, ANNOUNCEMENT_CONFIG_DOC_ID);
+    await setDoc(docRef, { ...updated, updatedAt: serverTimestamp() }, { merge: true });
+  } catch (err) {
+    console.warn("Firestore sync warning for announcement config, saved locally:", err);
+  }
+  return updated;
+};
+
+// =========================================================================
+// 6. QUY ĐỊNH LỚP HỌC (CLASSROOM RULES)
+// =========================================================================
+export const DEFAULT_CLASSROOM_RULES = {
+  title: "Quy Định & Nội Quy Lớp Học",
+  subtitle: "Áp dụng cho toàn bộ học viên các khóa học TOEIC Thầy Đỗ Tuấn Nam",
+  lastUpdated: "2026-10-29",
+  sections: [
+    {
+      id: "attendance",
+      title: "1. Chuyên cần & Điểm danh",
+      icon: "calendar",
+      rules: [
+        "Học viên cần tham gia tối thiểu 80% tổng số buổi học của khóa để đủ điều kiện cam kết chuẩn đầu ra.",
+        "Nếu có lịch bận đột xuất, học viên vui lòng xin phép giáo viên hoặc tư vấn viên trước giờ vào lớp ít nhất 2 tiếng.",
+        "Học viên vắng có phép được cấp tài liệu, bài giảng và video record buổi học qua Google Drive lớp để tự ôn tập bù."
+      ]
+    },
+    {
+      id: "homework",
+      title: "2. Bài tập về nhà & Thi thử Mock-Test",
+      icon: "assignment",
+      rules: [
+        "Hoàn thành tối thiểu 90% bài tập về nhà (ngữ pháp, từ vựng, audio listening) được giao sau mỗi buổi học trên hệ thống LMS.",
+        "Tham gia đầy đủ các bài Mini Test tuần và Full Mock Test giữa kỳ/cuối kỳ để đánh giá chuẩn xác tiến độ nâng điểm.",
+        "Chủ động xem lại phần chữa bài chi tiết và ghi chú bẫy đề thi trong hệ thống LMS để khắc phục triệt để lỗi sai."
+      ]
+    },
+    {
+      id: "discipline",
+      title: "3. Tác phong & Ý thức trong giờ học",
+      icon: "verified",
+      rules: [
+        "Vào lớp đúng giờ (trực tiếp hoặc trực tuyến qua Google Meet). Chuẩn bị sẵn sổ ghi chép, tai nghe và tài liệu bài học.",
+        "Giữ thái độ học tập nghiêm túc, tích cực tương tác, phát biểu ý kiến và thực hành luyện tập cùng thầy cô và bạn học.",
+        "Tôn trọng không gian học tập chung: để điện thoại ở chế độ rung, không làm việc riêng ngoài môn học."
+      ]
+    },
+    {
+      id: "policy",
+      title: "4. Chính sách Học phí, Học bù & Bảo lưu",
+      icon: "policy",
+      rules: [
+        "Học phí hoàn thành theo đúng thời hạn và chính sách đăng ký khóa học.",
+        "Học viên có nhu cầu bảo lưu (do công tác xa, vấn đề sức khỏe) được bảo lưu kết quả và chuyển sang lớp tương đương trong vòng 06 tháng.",
+        "Mọi thắc mắc hoặc khó khăn trong quá trình học tập, học viên liên hệ trực tiếp Hotline/Zalo của Thầy Đỗ Tuấn Nam để được hỗ trợ kịp thời."
+      ]
+    }
+  ]
+};
+
+const LOCAL_STORAGE_RULES_KEY = "lms_classroom_rules_v1";
+
+const getLocalClassroomRules = () => {
+  try {
+    const saved = localStorage.getItem(LOCAL_STORAGE_RULES_KEY);
+    if (saved) return { ...DEFAULT_CLASSROOM_RULES, ...JSON.parse(saved) };
+  } catch (e) {
+    console.warn("Could not read classroom rules from localStorage:", e);
+  }
+  return DEFAULT_CLASSROOM_RULES;
+};
+
+const setLocalClassroomRules = (rules) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_RULES_KEY, JSON.stringify(rules));
+  } catch (e) {
+    console.warn("Could not write classroom rules to localStorage:", e);
+  }
+};
+
+export const getClassroomRules = async () => {
+  try {
+    const docRef = doc(db, SETTINGS_COLLECTION, CLASSROOM_RULES_DOC_ID);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const merged = { ...DEFAULT_CLASSROOM_RULES, ...snap.data() };
+      setLocalClassroomRules(merged);
+      return merged;
+    }
+  } catch (err) {
+    console.warn("Could not fetch classroom rules from Firestore, fallback to cache:", err);
+  }
+  return getLocalClassroomRules();
+};
+
+export const subscribeClassroomRules = (callback) => {
+  const docRef = doc(db, SETTINGS_COLLECTION, CLASSROOM_RULES_DOC_ID);
+  callback(getLocalClassroomRules());
+
+  return onSnapshot(
+    docRef,
+    (snap) => {
+      if (snap.exists()) {
+        const merged = { ...DEFAULT_CLASSROOM_RULES, ...snap.data() };
+        setLocalClassroomRules(merged);
+        callback(merged);
+      } else {
+        callback(getLocalClassroomRules());
+      }
+    },
+    (err) => {
+      console.warn("Classroom rules subscription warning, fallback to cache:", err);
+      callback(getLocalClassroomRules());
+    }
+  );
+};
+
+export const saveClassroomRules = async (rulesData) => {
+  const updated = {
+    ...DEFAULT_CLASSROOM_RULES,
+    ...rulesData,
+    lastUpdated: new Date().toISOString().split("T")[0],
+    updatedAt: new Date().toISOString(),
+  };
+  setLocalClassroomRules(updated);
+
+  try {
+    const docRef = doc(db, SETTINGS_COLLECTION, CLASSROOM_RULES_DOC_ID);
+    await setDoc(docRef, { ...updated, updatedAt: serverTimestamp() }, { merge: true });
+  } catch (err) {
+    console.warn("Firestore sync warning for classroom rules, saved locally:", err);
   }
   return updated;
 };
