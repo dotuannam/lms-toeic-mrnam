@@ -216,20 +216,23 @@ export const createStudent = async (
         }).catch((lErr) => console.warn("Initial ledger recording skipped:", lErr));
       }
 
-      // 1. Automatically grant Google Drive Viewer permission if folder exists
+      // 1. Automatically grant Google Drive Viewer permission if folder exists (only for real Google/Gmail emails)
       const driveFolderId = selectedClass.integrations?.googleDrive?.folderId;
-      if (driveFolderId && newStudent.email) {
+      const isVirtualEmail = newStudent.email?.endsWith("@hocvien.local");
+
+      if (driveFolderId && newStudent.email && !isVirtualEmail) {
         shareDriveFolderWithStudent({
           folderId: driveFolderId,
           studentEmail: newStudent.email,
         }).catch((err) => console.warn("Automated Drive permission grant skipped:", err));
       }
 
-      // 2. Trigger Google Classroom invite if configured
+      // 2. Trigger Google Classroom invite if configured (only for real Google/Gmail emails)
       if (
         sendClassroomInvite &&
         selectedClass.integrations?.googleClassroom?.courseId &&
-        newStudent.email
+        newStudent.email &&
+        !isVirtualEmail
       ) {
         inviteStudentToClassroom({
           courseId: selectedClass.integrations.googleClassroom.courseId,
@@ -280,5 +283,10 @@ export const deleteStudent = async (studentId, classId = null) => {
  */
 export const grantStudentDriveAccess = async (folderId, studentEmail) => {
   if (!folderId || !studentEmail) return false;
+  if (studentEmail.endsWith("@hocvien.local")) {
+    throw new Error(
+      "Học viên này đăng ký bằng Số điện thoại (dùng email ảo nội bộ @hocvien.local), không phải tài khoản Google/Gmail thật nên không thể cấp quyền trực tiếp trên Google Drive. Học viên vẫn xem và tải tài liệu đầy đủ trên Portal học viên!"
+    );
+  }
   return await shareDriveFolderWithStudent({ folderId, studentEmail });
 };

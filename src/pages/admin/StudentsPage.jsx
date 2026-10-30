@@ -464,8 +464,21 @@ export const StudentsPage = () => {
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-xs text-slate-500">
-                        <div>{std.email}</div>
-                        <div className="text-slate-400">{formatPhoneNumber(std.phone)}</div>
+                        {std.email?.endsWith("@hocvien.local") ? (
+                          <div>
+                            <span className="inline-block text-[10px] font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-full border border-amber-300">
+                              📱 Đăng nhập SĐT
+                            </span>
+                            <div className="text-slate-900 font-bold text-xs mt-1">
+                              {formatPhoneNumber(std.phone)}
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div>{std.email}</div>
+                            <div className="text-slate-400">{formatPhoneNumber(std.phone)}</div>
+                          </>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 text-xs">
                         {assignedClass ? (
@@ -528,7 +541,9 @@ export const StudentsPage = () => {
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <div className="inline-flex items-center gap-2">
-                          {assignedClass?.integrations?.googleDrive?.folderId && std.email && (
+                          {assignedClass?.integrations?.googleDrive?.folderId &&
+                            std.email &&
+                            !std.email.endsWith("@hocvien.local") && (
                             <>
                               <button
                                 type="button"
@@ -547,8 +562,8 @@ export const StudentsPage = () => {
                                     alert("Lỗi cấp quyền Drive: " + err.message);
                                   }
                                 }}
-                                className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition"
-                                title={lang === "vi" ? "Cấp quyền xem Drive lớp học" : "Grant class Drive access"}
+                                className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition cursor-pointer"
+                                title={lang === "vi" ? "Cấp quyền xem Drive lớp học (Yêu cầu tài khoản Google/Gmail)" : "Grant class Drive access"}
                               >
                                 📁 Drive
                               </button>
