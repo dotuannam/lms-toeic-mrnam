@@ -621,6 +621,55 @@ export const saveStudentVocabWordStatus = async ({ studentId, wordId, word, stat
 };
 
 /**
+ * Save student's personal note for a vocabulary word
+ */
+export const saveStudentVocabNote = async ({ studentId, wordId, word, note }) => {
+  if (!studentId || !wordId) return;
+  const historyDocId = `${studentId}_${wordId}`;
+  const docRef = doc(db, VOCAB_LEARNING_HISTORY, historyDocId);
+
+  const prev = await getDoc(docRef);
+  const prevData = prev.exists() ? prev.data() : {};
+
+  const cleanNote = (note || "").trim();
+
+  await setDoc(
+    docRef,
+    {
+      studentId,
+      wordId,
+      word: word || prevData.word || "",
+      note: cleanNote,
+      noteUpdatedAt: new Date().toISOString(),
+      status: prevData.status || "review",
+      reviewCount: prevData.reviewCount || 0,
+      lastReviewedAt: prevData.lastReviewedAt || new Date().toISOString(),
+      createdAt: prevData.createdAt || new Date().toISOString(),
+    },
+    { merge: true }
+  );
+
+  return { studentId, wordId, note: cleanNote };
+};
+
+/**
+ * Delete / clear student's personal note for a vocabulary word
+ */
+export const deleteStudentVocabNote = async ({ studentId, wordId }) => {
+  if (!studentId || !wordId) return;
+  const historyDocId = `${studentId}_${wordId}`;
+  const docRef = doc(db, VOCAB_LEARNING_HISTORY, historyDocId);
+  try {
+    await updateDoc(docRef, {
+      note: "",
+      noteUpdatedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.warn("Could not clear student vocab note:", err);
+  }
+};
+
+/**
  * Get student's vocab learning progress
  */
 export const getStudentVocabHistory = async (studentId) => {

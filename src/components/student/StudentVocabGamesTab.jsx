@@ -4,6 +4,8 @@ import {
   subscribeVocabWords,
   getGameSettings,
   saveStudentVocabWordStatus,
+  saveStudentVocabNote,
+  deleteStudentVocabNote,
   getStudentVocabHistory,
   saveGameSession,
   getStudentGameSessions,
@@ -28,11 +30,19 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
   const [vocabHistory, setVocabHistory] = useState([]);
   const [gameSessions, setGameSessions] = useState([]);
 
-  // Learn Mode State
+  // Learn Mode & Notebook State
+  const [learnViewMode, setLearnViewMode] = useState("flashcard"); // "flashcard" | "notebook"
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [learnFilter, setLearnFilter] = useState("all"); // "all" | "mastered" | "review"
+  const [learnFilter, setLearnFilter] = useState("all"); // "all" | "with_notes" | "mastered" | "review"
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Personal Note State
+  const [noteText, setNoteText] = useState("");
+  const [savingNote, setSavingNote] = useState(false);
+  const [noteSavedToast, setNoteSavedToast] = useState(false);
+  const [editingInlineWordId, setEditingInlineWordId] = useState(null);
+  const [inlineNoteDraft, setInlineNoteDraft] = useState("");
 
   // Game 1: Speedrun Quiz State
   const [quizState, setQuizState] = useState("idle"); // "idle" | "playing" | "finished"
@@ -94,38 +104,138 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
     }
   };
 
-  // Status mapping for quick lookup
+  // Status & Note mapping for quick lookup
+  const wordHistoryMap = useMemo(() => {
+    const map = {};
+    vocabHistory.forEach((item) => {
+      if (item && item.wordId) {
+        map[item.wordId] = item;
+      }
+    });
+    return map;
+  }, [vocabHistory]);
+
   const wordStatusMap = useMemo(() => {
     const map = {};
     vocabHistory.forEach((item) => {
-      map[item.wordId] = item.status;
+      if (item && item.wordId) {
+        map[item.wordId] = item.status;
+      }
     });
     return map;
   }, [vocabHistory]);
 
   const masteredCount = vocabHistory.filter((v) => v.status === "mastered").length;
   const reviewCount = vocabHistory.filter((v) => v.status === "review").length;
+  const notedCount = vocabHistory.filter((v) => v.note && v.note.trim().length > 0).length;
   const totalXp = gameSessions.reduce((acc, s) => acc + (s.score || 0), 0);
 
-  // Filtered words for learning
+  // Filtered words for learning and notebook
   const filteredWords = useMemo(() => {
     return words.filter((w) => {
       const status = wordStatusMap[w.id];
+      const hasNote = Boolean(wordHistoryMap[w.id]?.note && wordHistoryMap[w.id].note.trim());
+
       if (learnFilter === "mastered" && status !== "mastered") return false;
       if (learnFilter === "review" && status !== "review") return false;
+      if (learnFilter === "with_notes" && !hasNote) return false;
+
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
+        const note = (wordHistoryMap[w.id]?.note || "").toLowerCase();
         return (
           w.word.toLowerCase().includes(q) ||
           w.meaning.toLowerCase().includes(q) ||
-          (w.topic || "").toLowerCase().includes(q)
+          (w.topic || "").toLowerCase().includes(q) ||
+          note.includes(q)
         );
       }
       return true;
     });
-  }, [words, wordStatusMap, learnFilter, searchQuery]);
+  }, [words, wordStatusMap, wordHistoryMap, learnFilter, searchQuery]);
 
   const currentWord = filteredWords[currentWordIndex] || filteredWords[0] || words[0];
+
+  // Synchronize active note text when changing word in flashcard
+  useEffect(() => {
+    if (currentWord) {
+      const existingNote = wordHistoryMap[currentWord.id]?.note || "";
+      setNoteText(existingNote);
+      setNoteSavedToast(false);
+    }
+  }, [currentWord?.id, wordHistoryMap]);
+
+  // Save student personal note
+  const handleSaveNote = async (wordToSave = currentWord, customText = null) => {
+    if (!wordToSave || !studentId) return;
+    setSavingNote(true);
+    const textToSave = customText !== null ? customText : noteText;
+    try {
+      await saveStudentVocabNote({
+        studentId,
+        wordId: wordToSave.id,
+        word: wordToSave.word,
+        note: textToSave,
+      });
+
+      // Update local state immediately
+      setVocabHistory((prev) => {
+        const existingIdx = prev.findIndex((p) => p.wordId === wordToSave.id);
+        const updatedEntry = {
+          ...(existingIdx >= 0 ? prev[existingIdx] : {}),
+          studentId,
+          wordId: wordToSave.id,
+          word: wordToSave.word,
+          note: textToSave.trim(),
+          noteUpdatedAt: new Date().toISOString(),
+          status: (existingIdx >= 0 && prev[existingIdx]?.status) || "review",
+        };
+        if (existingIdx >= 0) {
+          const clone = [...prev];
+          clone[existingIdx] = updatedEntry;
+          return clone;
+        }
+        return [...prev, updatedEntry];
+      });
+
+      setNoteSavedToast(true);
+      setTimeout(() => setNoteSavedToast(false), 3000);
+      setEditingInlineWordId(null);
+    } catch (err) {
+      alert("Lỗi khi lưu ghi chú: " + err.message);
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
+  // Delete student personal note
+  const handleDeleteNote = async (wordToDelete = currentWord) => {
+    if (!wordToDelete || !studentId) return;
+    if (!window.confirm(`Bạn có chắc muốn xóa ghi chú cá nhân của từ "${wordToDelete.word}"?`)) return;
+    setSavingNote(true);
+    try {
+      await deleteStudentVocabNote({
+        studentId,
+        wordId: wordToDelete.id,
+      });
+
+      setVocabHistory((prev) =>
+        prev.map((item) =>
+          item.wordId === wordToDelete.id
+            ? { ...item, note: "", noteUpdatedAt: new Date().toISOString() }
+            : item
+        )
+      );
+      if (currentWord?.id === wordToDelete.id) {
+        setNoteText("");
+      }
+      setEditingInlineWordId(null);
+    } catch (err) {
+      alert("Lỗi khi xóa ghi chú: " + err.message);
+    } finally {
+      setSavingNote(false);
+    }
+  };
 
   // -------------------------------------------------------------
   // FLASHCARD ACTIONS
@@ -447,7 +557,7 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
           </div>
 
           {/* Gamification Stats Card */}
-          <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 grid grid-cols-3 gap-3 text-center self-start md:self-auto min-w-[280px]">
+          <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center self-start md:self-auto min-w-[280px]">
             <div>
               <div className="text-[10px] font-heading font-bold uppercase tracking-wider text-slate-300">
                 Tổng XP
@@ -462,6 +572,14 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
               </div>
               <div className="text-xl font-heading font-black text-emerald-400 mt-0.5">
                 {masteredCount}
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] font-heading font-bold uppercase tracking-wider text-slate-300">
+                Đã Ghi Chú
+              </div>
+              <div className="text-xl font-heading font-black text-amber-300 mt-0.5">
+                {notedCount}
               </div>
             </div>
             <div>
@@ -559,14 +677,44 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
         </div>
       </div>
 
-      {/* 2. MODE: 1. FLASHCARD LEARNING */}
-      {mode === "learn" && currentWord && (
+      {/* 2. MODE: 1. FLASHCARD LEARNING & PERSONAL NOTEBOOK */}
+      {mode === "learn" && (
         <div className="space-y-4 max-w-2xl mx-auto">
-          {/* Controls & Filter */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5">
+          {/* Top Switcher: Flashcard vs Notebook */}
+          <div className="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between text-xs">
+            {/* View Mode Pills */}
+            <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/60 shrink-0">
+              <button
+                type="button"
+                onClick={() => setLearnViewMode("flashcard")}
+                className={`px-3.5 py-1.5 rounded-lg font-heading font-bold uppercase tracking-wider transition flex items-center gap-1.5 ${
+                  learnViewMode === "flashcard"
+                    ? "bg-[#c27803] text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <span>🎴</span>
+                <span>Thẻ Flashcard 3D</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setLearnViewMode("notebook")}
+                className={`px-3.5 py-1.5 rounded-lg font-heading font-bold uppercase tracking-wider transition flex items-center gap-1.5 ${
+                  learnViewMode === "notebook"
+                    ? "bg-[#c27803] text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <span>📋</span>
+                <span>Sổ Tay Ghi Chú ({notedCount}/{words.length})</span>
+              </button>
+            </div>
+
+            {/* Filter Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
               {[
                 { id: "all", label: `Tất cả (${words.length})` },
+                { id: "with_notes", label: `📝 Có ghi chú (${notedCount})` },
                 { id: "review", label: `Cần ôn (${reviewCount})` },
                 { id: "mastered", label: `Đã thuộc (${masteredCount})` },
               ].map((f) => (
@@ -578,9 +726,9 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                     setCurrentWordIndex(0);
                     setIsFlipped(false);
                   }}
-                  className={`px-3 py-1.5 rounded-xl font-heading font-bold uppercase tracking-wider transition ${
+                  className={`px-3 py-1.5 rounded-xl font-heading font-bold text-[11px] uppercase tracking-wider transition whitespace-nowrap ${
                     learnFilter === f.id
-                      ? "bg-[#c27803] text-white"
+                      ? "bg-slate-900 text-white shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >
@@ -588,114 +736,443 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                 </button>
               ))}
             </div>
-
-            <div className="text-slate-400 font-medium">
-              Từ {currentWordIndex + 1} / {filteredWords.length}
-            </div>
           </div>
 
-          {/* 3D Flashcard */}
-          <div
-            onClick={() => setIsFlipped(!isFlipped)}
-            className="w-full min-h-[320px] bg-white rounded-3xl border-2 border-amber-300/80 shadow-md hover:shadow-xl transition-all cursor-pointer p-8 flex flex-col justify-between text-center relative overflow-hidden group select-none"
-          >
-            <div className="flex items-center justify-between text-xs">
-              <span className="px-2.5 py-0.5 rounded-full font-mono font-bold text-[10px] bg-amber-100 text-amber-900">
-                {currentWord.topic || "Business"} &bull; {currentWord.level || "B1"}
-              </span>
-
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  speak(currentWord.word);
-                }}
-                className="w-9 h-9 rounded-xl bg-amber-100 hover:bg-[#c27803] text-amber-900 hover:text-white flex items-center justify-center text-sm transition shadow-2xs"
-                title="Nghe phát âm chuẩn"
-              >
-                🔊
-              </button>
-            </div>
-
-            {/* Front & Back Content */}
-            {!isFlipped ? (
-              <div className="my-auto space-y-3">
-                <span className="text-xs uppercase font-heading font-bold text-slate-400 tracking-wider">
-                  Bấm vào thẻ để lật mặt sau
-                </span>
-                <h2 className="text-3xl sm:text-4xl font-heading font-black text-slate-900 group-hover:text-[#c27803] transition tracking-tight">
-                  {currentWord.word}
-                </h2>
-                <div className="font-mono text-base text-[#c27803] font-bold">
-                  {currentWord.ipa}
-                </div>
-                <span className="inline-block px-2.5 py-0.5 rounded text-xs font-bold text-slate-500 bg-slate-100">
-                  {currentWord.pos || "v."}
-                </span>
-              </div>
-            ) : (
-              <div className="my-auto space-y-3 bg-amber-50/50 p-6 rounded-2xl border border-amber-200">
-                <span className="text-xs uppercase font-heading font-bold text-[#c27803] tracking-wider">
-                  Nghĩa tiếng Việt & Ví dụ
-                </span>
-                <h3 className="text-2xl font-heading font-bold text-slate-900">
-                  {currentWord.meaning}
-                </h3>
-                <p className="text-xs text-slate-600 italic max-w-md mx-auto leading-relaxed">
-                  "{currentWord.example || "No example available"}"
-                </p>
-              </div>
-            )}
-
-            <div className="text-[11px] text-slate-400">
-              {wordStatusMap[currentWord.id] === "mastered" ? (
-                <span className="text-emerald-600 font-bold">✓ Bạn đã đánh dấu: ĐÃ THUỘC</span>
-              ) : wordStatusMap[currentWord.id] === "review" ? (
-                <span className="text-amber-600 font-bold">⚠️ Bạn đã đánh dấu: CẦN ÔN LẠI</span>
-              ) : (
-                "Chưa đánh dấu trạng thái"
+          {/* Search bar when in notebook mode or when filtering */}
+          {learnViewMode === "notebook" && (
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="🔍 Tìm kiếm từ tiếng Anh, nghĩa tiếng Việt, hoặc nội dung ghi chú..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#c27803]/40 focus:border-[#c27803] shadow-xs"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                >
+                  ✕
+                </button>
               )}
             </div>
-          </div>
+          )}
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-between gap-3 pt-2">
-            <button
-              type="button"
-              onClick={prevWord}
-              disabled={currentWordIndex === 0}
-              className="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-slate-50 transition disabled:opacity-40"
-            >
-              ← Từ Trước
-            </button>
+          {/* VIEW A: FLASHCARD 3D */}
+          {learnViewMode === "flashcard" && currentWord && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-xs px-1 text-slate-500 font-medium">
+                <span>
+                  Đang xem từ {currentWordIndex + 1} / {filteredWords.length}
+                </span>
+                {wordHistoryMap[currentWord.id]?.note && (
+                  <span className="text-[#c27803] font-bold flex items-center gap-1">
+                    <span>📝</span>
+                    <span>Bạn đã có ghi chú cho từ này</span>
+                  </span>
+                )}
+              </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleMarkWord("review")}
-                className="px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition active:translate-y-px"
+              {/* 3D Flashcard */}
+              <div
+                onClick={() => setIsFlipped(!isFlipped)}
+                className="w-full min-h-[300px] bg-white rounded-3xl border-2 border-amber-300/80 shadow-md hover:shadow-xl transition-all cursor-pointer p-6 sm:p-8 flex flex-col justify-between text-center relative overflow-hidden group select-none"
               >
-                Cần Ôn Lại ⚠️
-              </button>
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-2.5 py-0.5 rounded-full font-mono font-bold text-[10px] bg-amber-100 text-amber-900">
+                      {currentWord.topic || "Business"} &bull; {currentWord.level || "B1"}
+                    </span>
+                    {wordHistoryMap[currentWord.id]?.note && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200/70 text-amber-900 flex items-center gap-1">
+                        <span>📝</span>
+                        <span>Có ghi chú</span>
+                      </span>
+                    )}
+                  </div>
 
-              <button
-                type="button"
-                onClick={() => handleMarkWord("mastered")}
-                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm active:translate-y-px"
-              >
-                Đã Thuộc ✓
-              </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      speak(currentWord.word);
+                    }}
+                    className="w-9 h-9 rounded-xl bg-amber-100 hover:bg-[#c27803] text-amber-900 hover:text-white flex items-center justify-center text-sm transition shadow-2xs"
+                    title="Nghe phát âm chuẩn"
+                  >
+                    🔊
+                  </button>
+                </div>
+
+                {/* Front & Back Content */}
+                {!isFlipped ? (
+                  <div className="my-auto space-y-3">
+                    <span className="text-xs uppercase font-heading font-bold text-slate-400 tracking-wider">
+                      Bấm vào thẻ để lật mặt sau
+                    </span>
+                    <h2 className="text-3xl sm:text-4xl font-heading font-black text-slate-900 group-hover:text-[#c27803] transition tracking-tight">
+                      {currentWord.word}
+                    </h2>
+                    <div className="font-mono text-base text-[#c27803] font-bold">
+                      {currentWord.ipa}
+                    </div>
+                    <span className="inline-block px-2.5 py-0.5 rounded text-xs font-bold text-slate-500 bg-slate-100">
+                      {currentWord.pos || "v."}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="my-auto space-y-3 bg-amber-50/50 p-6 rounded-2xl border border-amber-200">
+                    <span className="text-xs uppercase font-heading font-bold text-[#c27803] tracking-wider">
+                      Nghĩa tiếng Việt & Ví dụ
+                    </span>
+                    <h3 className="text-2xl font-heading font-bold text-slate-900">
+                      {currentWord.meaning}
+                    </h3>
+                    <p className="text-xs text-slate-600 italic max-w-md mx-auto leading-relaxed">
+                      "{currentWord.example || "No example available"}"
+                    </p>
+
+                    {/* Show saved personal note inside flipped card */}
+                    {wordHistoryMap[currentWord.id]?.note && (
+                      <div className="mt-3 p-3 bg-white/90 rounded-xl border border-amber-300 text-left text-xs shadow-2xs">
+                        <div className="flex items-center justify-between text-[10px] text-amber-800 font-bold uppercase tracking-wider mb-0.5">
+                          <span>📝 Ghi chú cá nhân của bạn:</span>
+                          {wordHistoryMap[currentWord.id]?.noteUpdatedAt && (
+                            <span className="text-slate-400 font-normal">
+                              {new Date(wordHistoryMap[currentWord.id].noteUpdatedAt).toLocaleDateString("vi-VN")}
+                            </span>
+                          )}
+                        </div>
+                        <p className="whitespace-pre-line text-slate-800 font-medium">
+                          {wordHistoryMap[currentWord.id].note}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="text-[11px] text-slate-400">
+                  {wordStatusMap[currentWord.id] === "mastered" ? (
+                    <span className="text-emerald-600 font-bold">✓ Bạn đã đánh dấu: ĐÃ THUỘC</span>
+                  ) : wordStatusMap[currentWord.id] === "review" ? (
+                    <span className="text-amber-600 font-bold">⚠️ Bạn đã đánh dấu: CẦN ÔN LẠI</span>
+                  ) : (
+                    "Chưa đánh dấu trạng thái"
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons: Prev, Review, Mastered, Next */}
+              <div className="flex items-center justify-between gap-2.5 pt-1">
+                <button
+                  type="button"
+                  onClick={prevWord}
+                  disabled={currentWordIndex === 0}
+                  className="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-slate-50 transition disabled:opacity-40"
+                >
+                  ← Từ Trước
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleMarkWord("review")}
+                    className="px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition active:translate-y-px"
+                  >
+                    Cần Ôn ⚠️
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleMarkWord("mastered")}
+                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm active:translate-y-px"
+                  >
+                    Đã Thuộc ✓
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={nextWord}
+                  disabled={currentWordIndex >= filteredWords.length - 1}
+                  className="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-slate-50 transition disabled:opacity-40"
+                >
+                  Từ Tiếp →
+                </button>
+              </div>
+
+              {/* DEDICATED PERSONAL NOTE WORKSPACE (Không gian ghi chú cá nhân) */}
+              <div className="bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 border border-amber-200/90 rounded-3xl p-5 sm:p-6 shadow-sm space-y-3 relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-xl bg-amber-100 text-[#c27803] flex items-center justify-center text-sm font-bold shadow-2xs">
+                      ✍️
+                    </span>
+                    <div>
+                      <h4 className="font-heading font-black text-xs text-slate-900 uppercase tracking-wider">
+                        Ghi Chú Cá Nhân Của Bạn: <span className="text-[#c27803]">{currentWord.word}</span>
+                      </h4>
+                      <p className="text-[11px] text-slate-500">
+                        Lưu mẹo nhớ, ví dụ tự đặt, collocations hoặc lưu ý bài thi TOEIC cho riêng bạn.
+                      </p>
+                    </div>
+                  </div>
+                  {wordHistoryMap[currentWord.id]?.note && (
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center gap-1">
+                      <span>✓</span>
+                      <span>Đã lưu ghi chú</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <textarea
+                    rows={3}
+                    value={noteText}
+                    onChange={(e) => setNoteText(e.target.value)}
+                    placeholder="Gõ ghi chú cá nhân tại đây... (VD: Hay đi với giới từ 'to', bẫy ngữ pháp TOEIC Part 5, mẹo liên tưởng...)"
+                    className="w-full p-3.5 bg-white border border-amber-200/90 rounded-2xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#c27803]/30 focus:border-[#c27803] transition leading-relaxed shadow-2xs"
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+                  {/* Quick Tag Templates */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto text-[10px]">
+                    <span className="text-slate-400 font-semibold">Chèn nhanh:</span>
+                    {["💡 Mẹo nhớ:", "⚠️ Bẫy TOEIC:", "🔗 Đi kèm:", "↔️ Đồng nghĩa:"].map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setNoteText((prev) => (prev ? `${prev} ${tag} ` : `${tag} `))}
+                        className="px-2 py-0.5 rounded-lg bg-white hover:bg-amber-100 text-amber-900 border border-amber-200/80 font-medium transition active:scale-95"
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {wordHistoryMap[currentWord.id]?.note && (
+                      <button
+                        type="button"
+                        disabled={savingNote}
+                        onClick={() => handleDeleteNote(currentWord)}
+                        className="px-3 py-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-semibold transition"
+                      >
+                        🗑️ Xóa ghi chú
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={savingNote || !noteText.trim()}
+                      onClick={() => handleSaveNote(currentWord)}
+                      className={`px-5 py-2 rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 active:translate-y-px disabled:opacity-50 ${
+                        noteSavedToast
+                          ? "bg-emerald-600 text-white"
+                          : "bg-[#c27803] hover:bg-[#b45309] text-white"
+                      }`}
+                    >
+                      {savingNote ? (
+                        "Đang lưu..."
+                      ) : noteSavedToast ? (
+                        <>
+                          <span>✓</span>
+                          <span>Đã Lưu!</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>💾</span>
+                          <span>Lưu Ghi Chú</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
+          )}
 
-            <button
-              type="button"
-              onClick={nextWord}
-              disabled={currentWordIndex >= filteredWords.length - 1}
-              className="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-slate-50 transition disabled:opacity-40"
-            >
-              Từ Tiếp →
-            </button>
-          </div>
+          {/* VIEW B: SỔ TAY TỪ VỰNG & TỔNG HỢP GHI CHÚ CÁ NHÂN (NOTEBOOK VIEW) */}
+          {learnViewMode === "notebook" && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs text-slate-500 font-medium px-1">
+                <span>Tìm thấy {filteredWords.length} từ vựng</span>
+                <span>{notedCount} từ có ghi chú riêng</span>
+              </div>
+
+              {filteredWords.length === 0 ? (
+                <div className="p-8 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 text-xs">
+                  Không tìm thấy từ vựng nào khớp với bộ lọc hoặc từ khóa tìm kiếm.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredWords.map((item) => {
+                    const itemHistory = wordHistoryMap[item.id];
+                    const hasNote = Boolean(itemHistory?.note && itemHistory.note.trim());
+                    const isEditing = editingInlineWordId === item.id;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs hover:border-amber-300 transition space-y-3"
+                      >
+                        {/* Word Main Row */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                          <div className="flex items-center gap-2.5">
+                            <h3 className="font-heading font-black text-slate-900 text-base">
+                              {item.word}
+                            </h3>
+                            {item.ipa && (
+                              <span className="font-mono text-xs text-[#c27803] font-bold">
+                                {item.ipa}
+                              </span>
+                            )}
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">
+                              {item.pos || "n."}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => speak(item.word)}
+                              className="w-7 h-7 rounded-lg bg-amber-50 hover:bg-[#c27803] text-amber-900 hover:text-white flex items-center justify-center text-xs transition"
+                              title="Nghe phát âm"
+                            >
+                              🔊
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-[10px] font-mono text-slate-400">
+                              {item.topic || "General"}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const nextStatus =
+                                  itemHistory?.status === "mastered" ? "review" : "mastered";
+                                await saveStudentVocabWordStatus({
+                                  studentId,
+                                  wordId: item.id,
+                                  word: item.word,
+                                  status: nextStatus,
+                                });
+                                await loadUserData();
+                              }}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-heading font-bold uppercase transition ${
+                                itemHistory?.status === "mastered"
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : itemHistory?.status === "review"
+                                  ? "bg-amber-100 text-amber-900"
+                                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                              }`}
+                            >
+                              {itemHistory?.status === "mastered"
+                                ? "✓ Đã thuộc"
+                                : itemHistory?.status === "review"
+                                ? "⚠️ Cần ôn"
+                                : "+ Đánh dấu"}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Meaning & Example */}
+                        <div className="text-xs space-y-1">
+                          <p className="font-semibold text-slate-800">
+                            {item.meaning}
+                          </p>
+                          {item.example && (
+                            <p className="text-[11px] text-slate-500 italic">
+                              "{item.example}"
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Personal Note Section */}
+                        <div className="pt-1">
+                          {isEditing ? (
+                            <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-300 space-y-2 text-xs">
+                              <div className="flex items-center justify-between text-[11px] font-bold text-amber-950">
+                                <span>✍️ Chỉnh sửa ghi chú cá nhân:</span>
+                              </div>
+                              <textarea
+                                rows={2}
+                                value={inlineNoteDraft}
+                                onChange={(e) => setInlineNoteDraft(e.target.value)}
+                                placeholder="Gõ ghi chú cá nhân của bạn..."
+                                className="w-full p-2 bg-white border border-amber-200 rounded-lg text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-[#c27803]"
+                              />
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingInlineWordId(null)}
+                                  className="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg text-[11px] font-medium hover:bg-slate-50"
+                                >
+                                  Hủy
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={savingNote}
+                                  onClick={() => handleSaveNote(item, inlineNoteDraft)}
+                                  className="px-4 py-1 bg-[#c27803] hover:bg-[#b45309] text-white rounded-lg text-[11px] font-bold uppercase shadow-2xs"
+                                >
+                                  {savingNote ? "Đang lưu..." : "Lưu Ghi Chú"}
+                                </button>
+                              </div>
+                            </div>
+                          ) : hasNote ? (
+                            <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-amber-800">
+                                  <span>📝</span>
+                                  <span>Ghi chú của bạn:</span>
+                                </div>
+                                <p className="whitespace-pre-line text-slate-800 font-medium text-xs">
+                                  {itemHistory.note}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingInlineWordId(item.id);
+                                    setInlineNoteDraft(itemHistory.note || "");
+                                  }}
+                                  className="px-2.5 py-1 bg-white hover:bg-amber-100 text-[#c27803] border border-amber-200 rounded-lg text-[10px] font-bold uppercase transition"
+                                >
+                                  ✏️ Sửa
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteNote(item)}
+                                  className="px-2.5 py-1 bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 rounded-lg text-[10px] font-bold uppercase transition"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingInlineWordId(item.id);
+                                setInlineNoteDraft("");
+                              }}
+                              className="w-full py-2 px-3 border border-dashed border-amber-300 hover:border-[#c27803] rounded-xl text-[11px] text-[#c27803] font-semibold hover:bg-amber-50/40 transition flex items-center justify-center gap-1.5"
+                            >
+                              <span>+</span>
+                              <span>Viết ghi chú cá nhân cho từ "{item.word}"</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
