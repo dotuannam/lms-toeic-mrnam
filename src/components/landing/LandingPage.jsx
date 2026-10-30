@@ -331,30 +331,30 @@ export const LandingPage = ({ onGoToPortal }) => {
               <span className="font-heading font-black text-base sm:text-lg tracking-tight block text-neutral-900">
                 {teacher.name}
               </span>
-              <span className="text-[10px] sm:text-[11px] font-mono text-neutral-500 uppercase tracking-wider block">
+              <span className="text-[10px] sm:text-[11px] font-mono text-neutral-700 font-bold uppercase tracking-wider block">
                 English Teacher & TOEIC Specialist
               </span>
             </div>
           </div>
 
           {/* Nav Links (Desktop) */}
-          <div className="hidden lg:flex items-center gap-6 text-xs font-semibold text-neutral-600 uppercase tracking-wider">
-            <a href="#about" className="hover:text-neutral-950 transition">
+          <div className="hidden lg:flex items-center gap-6 text-xs font-bold text-neutral-700 uppercase tracking-wider">
+            <a href="#about" className="hover:text-amber-800 transition">
               Giới thiệu
             </a>
-            <a href="#courses" className="hover:text-neutral-950 transition">
+            <a href="#courses" className="hover:text-amber-800 transition">
               Khóa học
             </a>
-            <a href="#experience" className="hover:text-neutral-950 transition">
+            <a href="#experience" className="hover:text-amber-800 transition">
               Kinh nghiệm
             </a>
-            <a href="#testimonials" className="hover:text-neutral-950 transition">
+            <a href="#testimonials" className="hover:text-amber-800 transition">
               Học viên
             </a>
             {toggles.showPlacementTest !== false && (
               <button
                 onClick={() => scrollToSection(placementTestRef)}
-                className="text-amber-700 hover:text-amber-900 font-bold transition cursor-pointer"
+                className="text-amber-800 hover:text-amber-950 font-extrabold transition cursor-pointer"
               >
                 Mini Placement Test
               </button>
@@ -362,7 +362,7 @@ export const LandingPage = ({ onGoToPortal }) => {
             {toggles.showBookingForm !== false && (
               <button
                 onClick={() => scrollToSection(bookingRef)}
-                className="hover:text-neutral-950 transition cursor-pointer"
+                className="hover:text-amber-800 transition cursor-pointer font-bold"
               >
                 Hẹn lịch tư vấn
               </button>
@@ -374,7 +374,7 @@ export const LandingPage = ({ onGoToPortal }) => {
             {toggles.showCvPrint !== false && (
               <button
                 onClick={() => setShowCvModal(true)}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-300 text-neutral-700 text-xs font-semibold hover:bg-neutral-100 transition cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-300 text-neutral-800 text-xs font-bold hover:bg-neutral-100 transition cursor-pointer"
                 title="Xem và in sơ yếu lý lịch chuẩn"
               >
                 <span>📄</span>
@@ -411,7 +411,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-300 text-amber-900 text-xs font-semibold tracking-wide">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-xs font-bold tracking-wide">
                 <span>⭐</span>
                 <span>{hero.badge}</span>
               </div>
@@ -420,7 +420,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                 {hero.headline}
               </h1>
 
-              <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-xl">
+              <p className="text-base sm:text-lg text-neutral-800 font-medium leading-relaxed max-w-xl">
                 {hero.subHeadline || teacher.bioShort}
               </p>
 
@@ -453,14 +453,14 @@ export const LandingPage = ({ onGoToPortal }) => {
               </div>
 
               {/* Verified Tag / Commitments */}
-              <div className="pt-4 flex flex-wrap items-center gap-4 text-xs text-neutral-500 border-t border-neutral-200/80">
+              <div className="pt-4 flex flex-wrap items-center gap-4 text-xs text-neutral-700 border-t border-neutral-200/80">
                 {(hero.commitments || [
                   "Cam kết chuẩn đầu ra văn bản",
                   "Mock-test hàng tuần trên LMS",
                   "Video record bài giảng trọn đời",
                 ]).map((com, cIdx) => (
-                  <div key={cIdx} className="flex items-center gap-1.5 font-medium">
-                    <span className="text-emerald-600 font-bold">✓</span>
+                  <div key={cIdx} className="flex items-center gap-1.5 font-bold text-neutral-800">
+                    <span className="text-emerald-700 font-extrabold">✓</span>
                     <span>{com}</span>
                   </div>
                 ))}
@@ -483,10 +483,10 @@ export const LandingPage = ({ onGoToPortal }) => {
                       <h3 className="font-serif font-bold text-xl text-neutral-950">
                         {teacher.name}
                       </h3>
-                      <p className="text-xs text-amber-800 font-semibold mt-0.5">
+                      <p className="text-xs text-amber-900 font-bold mt-0.5">
                         Thạc sĩ Ngôn ngữ Anh (Saigon University)
                       </p>
-                      <p className="text-[11px] text-neutral-500">
+                      <p className="text-[11px] text-neutral-700 font-semibold">
                         TOEIC 980/990 • TESOL Certified
                       </p>
                     </div>
@@ -494,40 +494,40 @@ export const LandingPage = ({ onGoToPortal }) => {
 
                   {/* Highlights Grid */}
                   <div className="grid grid-cols-2 gap-3 pt-2 border-t border-neutral-100">
-                    <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-100 text-center">
-                      <span className="text-[10px] uppercase font-bold text-neutral-400 block tracking-wider">
+                    <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-200 text-center">
+                      <span className="text-[10px] uppercase font-extrabold text-neutral-700 block tracking-wider">
                         TOEIC Score
                       </span>
                       <span className="text-2xl font-heading font-black text-amber-600">
                         {toeicStat.includes("/") ? toeicStat : `${toeicStat} / 990`}
                       </span>
                     </div>
-                    <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-100 text-center">
-                      <span className="text-[10px] uppercase font-bold text-neutral-400 block tracking-wider">
+                    <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-200 text-center">
+                      <span className="text-[10px] uppercase font-extrabold text-neutral-700 block tracking-wider">
                         Học Viên Đã Dạy
                       </span>
-                      <span className="text-2xl font-heading font-black text-neutral-900">
+                      <span className="text-2xl font-heading font-black text-neutral-950">
                         {studentsStat}
                       </span>
                     </div>
                   </div>
 
                   {/* Quote */}
-                  <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200/60 text-xs text-neutral-700 italic leading-relaxed">
+                  <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-950 font-medium italic leading-relaxed">
                     "{teacher.academicQuote}"
                   </div>
 
                   {/* Direct Contact info */}
-                  <div className="pt-2 text-xs text-neutral-600 space-y-1.5 border-t border-neutral-100 font-mono">
+                  <div className="pt-2 text-xs text-neutral-800 space-y-1.5 border-t border-neutral-200 font-mono">
                     <div className="flex items-center gap-2">
-                      <span className="text-neutral-400">📞 SĐT/Zalo:</span>
-                      <a href={`tel:${teacher.phone}`} className="font-bold text-neutral-900 hover:underline">
+                      <span className="text-neutral-700 font-bold">📞 SĐT/Zalo:</span>
+                      <a href={`tel:${teacher.phone}`} className="font-black text-neutral-950 hover:underline">
                         {teacher.phone}
                       </a>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-neutral-400">✉️ Email:</span>
-                      <span className="font-bold text-neutral-900 truncate">
+                      <span className="text-neutral-700 font-bold">✉️ Email:</span>
+                      <span className="font-black text-neutral-950 truncate">
                         {teacher.email}
                       </span>
                     </div>
@@ -548,20 +548,20 @@ export const LandingPage = ({ onGoToPortal }) => {
             {stats.map((stat, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-2xl bg-[#FAF9F6] border border-neutral-200/70 hover:border-amber-400 transition-colors space-y-1.5"
+                className="p-5 rounded-2xl bg-[#FAF9F6] border border-neutral-200 hover:border-amber-400 transition-colors space-y-2"
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wider font-bold text-neutral-400 font-mono">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[10px] uppercase tracking-wider font-extrabold text-neutral-700 font-mono">
                     {stat.label}
                   </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-extrabold border border-amber-300 shrink-0">
                     {stat.badge}
                   </span>
                 </div>
                 <div className="text-3xl font-heading font-black text-neutral-950">
                   {stat.value}
                 </div>
-                <p className="text-xs text-neutral-500 leading-snug">
+                <p className="text-xs text-neutral-700 font-medium leading-snug">
                   {stat.subtext}
                 </p>
               </div>
@@ -577,13 +577,13 @@ export const LandingPage = ({ onGoToPortal }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
           {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
+            <span className="text-xs font-mono uppercase tracking-widest text-amber-900 font-extrabold">
               Trình Độ Học Thuật & Cam Kết Chất Lượng
             </span>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
               Nền Tảng Ngôn Ngữ Học Chuyên Sâu
             </h2>
-            <p className="text-sm text-neutral-600 leading-relaxed">
+            <p className="text-sm text-neutral-800 font-medium leading-relaxed">
               Sự kết hợp hoàn hảo giữa lý thuyết ngôn ngữ học ứng dụng hiện đại và phương pháp sư phạm tương tác thực tiễn.
             </p>
           </div>
@@ -591,7 +591,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Education Left Column */}
             <div className="lg:col-span-6 space-y-6">
-              <h3 className="font-serif font-bold text-xl text-neutral-900 flex items-center gap-2">
+              <h3 className="font-serif font-bold text-xl text-neutral-950 flex items-center gap-2">
                 <span>🎓</span>
                 <span>Học Vấn Sư Phạm (Education)</span>
               </h3>
@@ -606,14 +606,14 @@ export const LandingPage = ({ onGoToPortal }) => {
                       <h4 className="font-serif font-bold text-base text-neutral-950">
                         {edu.degree}
                       </h4>
-                      <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-700 shrink-0">
+                      <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-neutral-200 text-neutral-900 font-bold shrink-0">
                         {edu.period}
                       </span>
                     </div>
-                    <p className="text-xs font-semibold text-amber-800">
+                    <p className="text-xs font-bold text-amber-950">
                       {edu.institution}
                     </p>
-                    <p className="text-xs text-neutral-600 leading-relaxed">
+                    <p className="text-xs text-neutral-800 font-medium leading-relaxed">
                       {edu.details}
                     </p>
                   </div>
@@ -623,7 +623,7 @@ export const LandingPage = ({ onGoToPortal }) => {
 
             {/* Certifications Right Column */}
             <div className="lg:col-span-6 space-y-6">
-              <h3 className="font-serif font-bold text-xl text-neutral-900 flex items-center gap-2">
+              <h3 className="font-serif font-bold text-xl text-neutral-950 flex items-center gap-2">
                 <span>🏆</span>
                 <span>Chứng Chỉ Chuyên Môn Quốc Tế</span>
               </h3>
@@ -635,18 +635,18 @@ export const LandingPage = ({ onGoToPortal }) => {
                     className="p-6 bg-white rounded-2xl border border-neutral-200 shadow-xs space-y-2 hover:border-amber-400 transition"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-700 font-extrabold">
                         {cert.year}
                       </span>
-                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-950 font-extrabold border border-emerald-300">
                         {cert.highlight}
                       </span>
                     </div>
                     <h4 className="font-serif font-bold text-base text-neutral-950">
                       {cert.title}
                     </h4>
-                    <p className="text-xs text-neutral-500">
-                      Đơn vị cấp: <span className="font-medium text-neutral-800">{cert.issuer}</span>
+                    <p className="text-xs text-neutral-700 font-medium">
+                      Đơn vị cấp: <span className="font-bold text-neutral-950">{cert.issuer}</span>
                     </p>
                   </div>
                 ))}
@@ -662,13 +662,13 @@ export const LandingPage = ({ onGoToPortal }) => {
       <section id="experience" className="py-16 md:py-24 bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
+            <span className="text-xs font-mono uppercase tracking-widest text-amber-900 font-extrabold">
               Kinh Nghiệm Thực Chiến
             </span>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
               Hành Trình Giảng Dạy & Điều Phối Học Thuật
             </h2>
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-neutral-800 font-medium">
               Từng tích lũy chuyên môn giảng dạy tiếng Anh phong phú từ nhiều tổ chức giáo dục chất lượng.
             </p>
           </div>
@@ -681,31 +681,31 @@ export const LandingPage = ({ onGoToPortal }) => {
                 className="p-6 rounded-2xl bg-[#FAF9F6] border border-neutral-200 flex flex-col justify-between space-y-4 hover:shadow-lg transition-all"
               >
                 <div className="space-y-2">
-                  <span className="text-[11px] font-mono text-amber-800 font-bold block">
+                  <span className="text-[11px] font-mono text-amber-950 font-extrabold block">
                     {exp.period}
                   </span>
                   <h4 className="font-serif font-bold text-lg text-neutral-950 leading-snug">
                     {exp.role}
                   </h4>
-                  <p className="text-xs font-semibold text-neutral-700">
+                  <p className="text-xs font-bold text-neutral-900">
                     {exp.company}
                   </p>
 
-                  <ul className="space-y-2 pt-2 text-xs text-neutral-600 leading-relaxed">
+                  <ul className="space-y-2 pt-2 text-xs text-neutral-800 font-medium leading-relaxed">
                     {exp.description.map((desc, dIdx) => (
                       <li key={dIdx} className="flex items-start gap-2">
-                        <span className="text-amber-500 shrink-0 mt-0.5">•</span>
+                        <span className="text-amber-600 font-bold shrink-0 mt-0.5">•</span>
                         <span>{desc}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="pt-3 border-t border-neutral-200/60 flex flex-wrap gap-1.5">
+                <div className="pt-3 border-t border-neutral-200/80 flex flex-wrap gap-1.5">
                   {exp.skills.map((skill, sIdx) => (
                     <span
                       key={sIdx}
-                      className="text-[10px] px-2 py-0.5 rounded bg-white border border-neutral-200 text-neutral-600 font-mono"
+                      className="text-[10px] px-2 py-0.5 rounded bg-neutral-100 border border-neutral-300 text-neutral-800 font-mono font-bold"
                     >
                       {skill}
                     </span>
@@ -723,13 +723,13 @@ export const LandingPage = ({ onGoToPortal }) => {
       <section id="courses" ref={coursesRef} className="py-16 md:py-24 border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
+            <span className="text-xs font-mono uppercase tracking-widest text-amber-900 font-extrabold">
               Chương Trình Đào Tạo
             </span>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
               Các Khóa Luyện Thi TOEIC Nổi Bật
             </h2>
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-neutral-800 font-medium">
               Lộ trình được may đo chuẩn xác theo từng mốc điểm mục tiêu, bảo đảm đạt và vượt chuẩn đầu ra.
             </p>
           </div>
@@ -748,7 +748,7 @@ export const LandingPage = ({ onGoToPortal }) => {
 
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <span className="text-[11px] font-mono text-neutral-400 uppercase font-bold block">
+                    <span className="text-[11px] font-mono text-neutral-700 uppercase font-extrabold block">
                       {course.badge}
                     </span>
                     <h3 className="font-serif font-bold text-xl text-neutral-950 leading-tight">
@@ -756,23 +756,23 @@ export const LandingPage = ({ onGoToPortal }) => {
                     </h3>
                   </div>
 
-                  <div className="p-3 bg-neutral-50 rounded-xl space-y-1">
-                    <p className="text-xs font-bold text-amber-700">{course.target}</p>
-                    <p className="text-[11px] text-neutral-500">{course.duration}</p>
+                  <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200/80 space-y-1">
+                    <p className="text-xs font-black text-amber-900">{course.target}</p>
+                    <p className="text-[11px] text-neutral-700 font-bold">{course.duration}</p>
                   </div>
 
-                  <p className="text-xs text-neutral-600 leading-relaxed">
+                  <p className="text-xs text-neutral-800 font-medium leading-relaxed">
                     {course.description}
                   </p>
 
-                  <div className="space-y-2 pt-2 border-t border-neutral-100">
-                    <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider block">
+                  <div className="space-y-2 pt-2 border-t border-neutral-200">
+                    <span className="text-[10px] uppercase font-extrabold text-neutral-700 tracking-wider block">
                       Nội dung nổi bật:
                     </span>
-                    <ul className="space-y-1.5 text-xs text-neutral-700">
+                    <ul className="space-y-1.5 text-xs text-neutral-900 font-medium">
                       {course.features.map((feat, fIdx) => (
                         <li key={fIdx} className="flex items-start gap-2">
-                          <span className="text-emerald-500 font-bold shrink-0">✓</span>
+                          <span className="text-emerald-700 font-bold shrink-0">✓</span>
                           <span>{feat}</span>
                         </li>
                       ))}
@@ -780,7 +780,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-neutral-100">
+                <div className="pt-4 border-t border-neutral-200">
                   <button
                     onClick={() => {
                       setBookingData((prev) => ({
@@ -811,13 +811,13 @@ export const LandingPage = ({ onGoToPortal }) => {
         >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="text-center space-y-3">
-              <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
+              <span className="text-xs font-mono uppercase tracking-widest text-amber-900 font-extrabold">
                 Kiểm Tra Năng Lực Trực Tuyến
               </span>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
                 Mini Placement Test (5 Câu Rút Gọn)
               </h2>
-              <p className="text-sm text-neutral-600 max-w-lg mx-auto">
+              <p className="text-sm text-neutral-800 font-medium max-w-lg mx-auto">
                 Được thiết kế dựa trên các bẫy ngữ pháp và từ vựng cốt lõi nhất của đề thi thật ETS, giúp bạn định vị năng lực chỉ trong 3 phút.
               </p>
             </div>
@@ -843,42 +843,42 @@ export const LandingPage = ({ onGoToPortal }) => {
         <section id="booking" ref={bookingRef} className="py-16 md:py-24 bg-white border-b border-neutral-200">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="text-center space-y-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
+            <span className="text-xs font-mono uppercase tracking-widest text-amber-900 font-extrabold">
               Định Hình Lộ Trình 1-1
             </span>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
               Đăng Ký Tư Vấn Cùng Thầy Đỗ Tuấn Nam
             </h2>
-            <p className="text-sm text-neutral-600 max-w-lg mx-auto">
+            <p className="text-sm text-neutral-800 font-medium max-w-lg mx-auto">
               15 phút trao đổi trực tiếp để giải đáp hiện trạng mất gốc, đánh giá điểm yếu và xác định lộ trình tăng điểm tối ưu nhất cho riêng bạn.
             </p>
           </div>
 
           {/* Attached Quiz Result Banner if completed */}
           {quizResult && (
-            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between text-xs text-amber-900">
+            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-300 flex items-center justify-between text-xs text-amber-950">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🎯</span>
                 <div>
-                  <span className="font-bold">Đã đính kèm kết quả Mini Test: </span>
-                  <span>{quizResult.quizScore} / {quizResult.quizMaxScore} câu đúng • Trình độ ước tính: {quizResult.quizLevel}</span>
+                  <span className="font-extrabold">Đã đính kèm kết quả Mini Test: </span>
+                  <span className="font-semibold">{quizResult.quizScore} / {quizResult.quizMaxScore} câu đúng • Trình độ ước tính: {quizResult.quizLevel}</span>
                 </div>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white text-amber-800 font-bold border border-amber-200">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white text-amber-950 font-black border border-amber-300">
                 Auto Attached
               </span>
             </div>
           )}
 
           {bookingSuccess ? (
-            <div className="p-8 bg-emerald-50 rounded-3xl border border-emerald-200 text-center space-y-4 animate-scaleUp">
-              <div className="w-16 h-16 mx-auto bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-3xl">
+            <div className="p-8 bg-emerald-50 rounded-3xl border border-emerald-300 text-center space-y-4 animate-scaleUp">
+              <div className="w-16 h-16 mx-auto bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center text-3xl font-bold">
                 ✓
               </div>
               <h3 className="font-serif font-bold text-2xl text-emerald-950">
                 Đăng Ký Tư Vấn Thành Công!
               </h3>
-              <p className="text-sm text-emerald-800 max-w-md mx-auto leading-relaxed">
+              <p className="text-sm text-emerald-950 font-medium max-w-md mx-auto leading-relaxed">
                 Cảm ơn bạn, <strong>{bookingData.name}</strong>. Yêu cầu tư vấn khóa học <strong>{bookingData.program}</strong> đã được ghi nhận. Thầy Nam sẽ trực tiếp nhắn tin qua <strong>Zalo</strong> theo số điện thoại <strong>{bookingData.phone}</strong> trong thời gian sớm nhất!
               </p>
               <button
@@ -889,10 +889,10 @@ export const LandingPage = ({ onGoToPortal }) => {
               </button>
             </div>
           ) : (
-            <form onSubmit={handleBookingSubmit} className="bg-[#FAF9F6] p-6 sm:p-10 rounded-3xl border border-neutral-200 space-y-5 shadow-xs">
+            <form onSubmit={handleBookingSubmit} className="bg-[#FAF9F6] p-6 sm:p-10 rounded-3xl border border-neutral-300 space-y-5 shadow-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                  <label className="text-[11px] font-extrabold uppercase tracking-wider text-neutral-800 block">
                     Họ và Tên *
                   </label>
                   <input
@@ -901,12 +901,12 @@ export const LandingPage = ({ onGoToPortal }) => {
                     value={bookingData.name}
                     onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
                     placeholder="Ví dụ: Nguyễn Văn A"
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                  <label className="text-[11px] font-extrabold uppercase tracking-wider text-neutral-800 block">
                     Số Điện Thoại / Zalo Nhận Tin Nhắn *
                   </label>
                   <input
@@ -915,14 +915,14 @@ export const LandingPage = ({ onGoToPortal }) => {
                     value={bookingData.phone}
                     onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
                     placeholder="Ví dụ: 0912 345 678"
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900 font-mono font-semibold"
+                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-950 placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900 font-mono font-bold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                  <label className="text-[11px] font-extrabold uppercase tracking-wider text-neutral-800 block">
                     Địa Chỉ Email *
                   </label>
                   <input
@@ -931,18 +931,18 @@ export const LandingPage = ({ onGoToPortal }) => {
                     value={bookingData.email}
                     onChange={(e) => setBookingData({ ...bookingData, email: e.target.value })}
                     placeholder="email@example.com"
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                  <label className="text-[11px] font-extrabold uppercase tracking-wider text-neutral-800 block">
                     Khóa Học Quan Tâm *
                   </label>
                   <select
                     value={bookingData.program}
                     onChange={(e) => setBookingData({ ...bookingData, program: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                    className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-950 font-bold focus:outline-none focus:border-neutral-900"
                   >
                     {courses.map((c) => (
                       <option key={c.id} value={c.programName}>
@@ -954,18 +954,18 @@ export const LandingPage = ({ onGoToPortal }) => {
               </div>
 
               {/* Thông báo hình thức tư vấn qua Zalo */}
-              <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200/90 flex items-start gap-3 text-xs text-amber-950">
-                <span className="text-lg shrink-0 mt-0.5">💬</span>
-                <div className="space-y-0.5 leading-relaxed">
-                  <span className="font-bold text-amber-900 block">Hình thức tư vấn:</span>
-                  <p className="text-amber-800 text-[11px]">
+              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-300 flex items-start gap-3 text-xs text-amber-950">
+                <span className="text-xl shrink-0 mt-0.5">💬</span>
+                <div className="space-y-1 leading-relaxed">
+                  <span className="font-extrabold text-amber-950 block text-xs">Hình thức tư vấn trực tiếp:</span>
+                  <p className="text-amber-900 text-xs font-medium">
                     Mặc định Thầy Đỗ Tuấn Nam sẽ chủ động nhắn tin trực tiếp qua <strong>Zalo</strong> theo số điện thoại bạn đăng ký ở trên để giải đáp thắc mắc và tư vấn lộ trình học phù hợp nhất.
                   </p>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-neutral-800 block">
                   Ghi chú hiện trạng điểm số & mong muốn (Nếu có)
                 </label>
                 <textarea
@@ -973,7 +973,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   value={bookingData.notes}
                   onChange={(e) => setBookingData({ ...bookingData, notes: e.target.value })}
                   placeholder="Ví dụ: Đã thi thử đạt 480 điểm Nghe tốt hơn Đọc, cần mục tiêu 650+ để ra trường trong 3 tháng tới..."
-                  className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900 leading-relaxed"
+                  className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900 leading-relaxed"
                 />
               </div>
 
@@ -999,13 +999,13 @@ export const LandingPage = ({ onGoToPortal }) => {
       <section id="testimonials" className="py-16 md:py-24 bg-[#FAF9F6] border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
+            <span className="text-xs font-mono uppercase tracking-widest text-amber-900 font-extrabold">
               Đánh Giá Từ Thực Tế
             </span>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
               Học Viên Thành Tựu
             </h2>
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-neutral-800 font-medium">
               Những trải nghiệm thực tế từ các bạn học viên đã cùng Thầy Nam bứt phá ngoạn mục điểm số TOEIC.
             </p>
           </div>
@@ -1014,26 +1014,26 @@ export const LandingPage = ({ onGoToPortal }) => {
             {testimonials.map((testm, idx) => (
               <div
                 key={idx}
-                className="bg-white p-7 rounded-3xl border border-neutral-200/80 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition"
+                className="bg-white p-7 rounded-3xl border border-neutral-200 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition"
               >
                 <div className="space-y-3">
                   <div className="flex items-center gap-1 text-amber-500 text-sm">
                     {"★".repeat(5)}
                   </div>
-                  <p className="text-xs sm:text-sm text-neutral-700 leading-relaxed italic">
+                  <p className="text-xs sm:text-sm text-neutral-900 font-medium leading-relaxed italic">
                     "{testm.review}"
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
+                <div className="pt-4 border-t border-neutral-200 flex items-center justify-between">
                   <div>
                     <h4 className="font-serif font-bold text-sm text-neutral-950">
                       {testm.name}
                     </h4>
-                    <p className="text-[11px] text-neutral-500">{testm.school}</p>
+                    <p className="text-[11px] text-neutral-700 font-bold">{testm.school}</p>
                   </div>
                   <div className="text-right">
-                    <span className="px-2.5 py-1 bg-amber-100 text-amber-900 font-heading font-black text-xs rounded-lg">
+                    <span className="px-2.5 py-1 bg-amber-100 text-amber-950 font-heading font-black text-xs rounded-lg border border-amber-300">
                       {testm.score}
                     </span>
                   </div>
@@ -1053,40 +1053,40 @@ export const LandingPage = ({ onGoToPortal }) => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
               {/* Contact Info Left */}
               <div className="lg:col-span-5 space-y-6">
-                <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold">
+                <span className="text-xs font-mono uppercase tracking-widest text-amber-900 font-extrabold">
                   Kết Nối Học Tập
                 </span>
                 <h2 className="text-3xl font-serif font-bold text-neutral-950">
                   Gửi Lời Nhắn Cho Thầy Nam
                 </h2>
-                <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+                <p className="text-xs sm:text-sm text-neutral-800 font-medium leading-relaxed">
                   {teacher.contactQuote}
                 </p>
 
                 <div className="space-y-3 text-xs">
                   <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
-                    <span className="text-neutral-400 font-bold uppercase text-[10px] block">
+                    <span className="text-neutral-700 font-extrabold uppercase text-[11px] block">
                       Điện Thoại / Zalo
                     </span>
-                    <a href={`tel:${content.contactInfo?.hotline || teacher.phone}`} className="font-bold text-neutral-900 text-sm hover:underline">
+                    <a href={`tel:${content.contactInfo?.hotline || teacher.phone}`} className="font-black text-neutral-950 text-sm hover:underline">
                       {content.contactInfo?.hotline || teacher.phone}
                     </a>
                   </div>
 
                   <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
-                    <span className="text-neutral-400 font-bold uppercase text-[10px] block">
+                    <span className="text-neutral-700 font-extrabold uppercase text-[11px] block">
                       Email Trực Tiếp
                     </span>
-                    <a href={`mailto:${content.contactInfo?.email || teacher.email}`} className="font-bold text-neutral-900 text-sm hover:underline">
+                    <a href={`mailto:${content.contactInfo?.email || teacher.email}`} className="font-black text-neutral-950 text-sm hover:underline">
                       {content.contactInfo?.email || teacher.email}
                     </a>
                   </div>
 
                   <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
-                    <span className="text-neutral-400 font-bold uppercase text-[10px] block">
-                      Địa Điểm
+                    <span className="text-neutral-700 font-extrabold uppercase text-[11px] block">
+                      Địa Điểm Giảng Dạy
                     </span>
-                    <p className="font-semibold text-neutral-900">
+                    <p className="font-bold text-neutral-950">
                       {content.contactInfo?.address || teacher.location} ({teacher.teachingMode})
                     </p>
                   </div>
@@ -1095,9 +1095,9 @@ export const LandingPage = ({ onGoToPortal }) => {
 
               {/* Message Form Right */}
               <div className="lg:col-span-7">
-                <form onSubmit={handleContactSubmit} className="bg-[#FAF9F6] p-6 sm:p-8 rounded-3xl border border-neutral-200 space-y-4">
+                <form onSubmit={handleContactSubmit} className="bg-[#FAF9F6] p-6 sm:p-8 rounded-3xl border border-neutral-300 space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                    <label className="text-[11px] font-extrabold uppercase tracking-wider text-neutral-800 block">
                       Họ và Tên
                     </label>
                     <input
@@ -1106,12 +1106,12 @@ export const LandingPage = ({ onGoToPortal }) => {
                       value={contactData.name}
                       onChange={(e) => setContactData({ ...contactData, name: e.target.value })}
                       placeholder="Nhập tên của bạn..."
-                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                    <label className="text-[11px] font-extrabold uppercase tracking-wider text-neutral-800 block">
                       Địa Chỉ Email
                     </label>
                     <input
@@ -1120,12 +1120,12 @@ export const LandingPage = ({ onGoToPortal }) => {
                       value={contactData.email}
                       onChange={(e) => setContactData({ ...contactData, email: e.target.value })}
                       placeholder="Nhập email liên hệ..."
-                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-neutral-600 block">
+                    <label className="text-[11px] font-extrabold uppercase tracking-wider text-neutral-800 block">
                       Nội dung Lời Nhắn
                     </label>
                     <textarea
@@ -1134,12 +1134,12 @@ export const LandingPage = ({ onGoToPortal }) => {
                       value={contactData.message}
                       onChange={(e) => setContactData({ ...contactData, message: e.target.value })}
                       placeholder="Bạn đang quan tâm lộ trình TOEIC 500+, 600+ hay 700+? Hãy gửi câu hỏi tại đây..."
-                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900 leading-relaxed"
+                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900 leading-relaxed"
                     />
                   </div>
 
                   {contactSuccess && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl font-medium">
+                    <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs rounded-xl font-bold">
                       ✓ Gửi tin nhắn thành công! Thầy Nam sẽ sớm phản hồi qua email bạn đã cung cấp.
                     </div>
                   )}
@@ -1147,7 +1147,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   <button
                     type="submit"
                     disabled={contactLoading}
-                    className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
+                    className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer shadow-md"
                   >
                     {contactLoading ? "Đang gửi..." : "Gửi Tin Nhắn Đi →"}
                   </button>
@@ -1161,7 +1161,7 @@ export const LandingPage = ({ onGoToPortal }) => {
       {/* =========================================================================
           11. FOOTER
       ========================================================================= */}
-      <footer className="py-12 bg-[#1A1A1A] text-neutral-400 text-xs">
+      <footer className="py-12 bg-[#141414] text-neutral-300 text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-neutral-800">
             <div className="flex items-center gap-3">
@@ -1172,31 +1172,31 @@ export const LandingPage = ({ onGoToPortal }) => {
                 <span className="font-heading font-black text-base text-white block">
                   {teacher.name}
                 </span>
-                <span className="text-[11px] text-neutral-500">
+                <span className="text-[11px] text-neutral-300 font-medium">
                   English Teacher & Senior TOEIC Trainer
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-6 text-xs text-neutral-400">
+            <div className="flex items-center gap-6 text-xs text-neutral-300 font-semibold">
               {toggles.showCvPrint !== false && (
                 <button
                   onClick={() => setShowCvModal(true)}
-                  className="hover:text-white transition cursor-pointer"
+                  className="hover:text-amber-300 text-neutral-300 transition cursor-pointer"
                 >
                   In Sơ Yếu Lý Lịch (Print)
                 </button>
               )}
               <button
                 onClick={() => setShowLoginModal(true)}
-                className="hover:text-amber-400 transition cursor-pointer font-bold text-neutral-300"
+                className="text-amber-400 hover:text-amber-300 transition cursor-pointer font-bold"
               >
                 Đăng Nhập Portal (Student / Admin)
               </button>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-500">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-medium">
             <p>© 2026 {teacher.name}. Thiết kế tinh tế theo phong cách Portfolio & Learning Management System.</p>
             <p>{content.contactInfo?.address || "Thành phố Hồ Chí Minh, Việt Nam"}</p>
           </div>
@@ -1220,26 +1220,26 @@ export const LandingPage = ({ onGoToPortal }) => {
 
             {/* Modal Title */}
             <div className="text-center space-y-1 mb-6">
-              <span className="text-xs font-mono uppercase tracking-wider text-amber-700 font-bold">
+              <span className="text-xs font-mono uppercase tracking-wider text-amber-800 font-extrabold">
                 Cổng Đăng Nhập
               </span>
               <h3 className="text-2xl font-serif font-bold text-neutral-950">
                 Đăng Nhập Hệ Thống
               </h3>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-neutral-700 font-medium">
                 Dành cho Học Viên và Ban Quản Trị Trung Tâm
               </p>
             </div>
 
             {/* Tab: Học viên vs Admin */}
-            <div className="flex bg-neutral-100 p-1 rounded-xl mb-5">
+            <div className="flex bg-neutral-200/80 p-1 rounded-xl mb-5">
               <button
                 type="button"
                 onClick={() => setLoginTab("student")}
-                className={`flex-1 py-2 text-xs font-heading font-bold uppercase tracking-wider rounded-lg transition ${
+                className={`flex-1 py-2 text-xs font-heading font-black uppercase tracking-wider rounded-lg transition ${
                   loginTab === "student"
-                    ? "bg-white text-neutral-900 shadow-xs"
-                    : "text-neutral-500 hover:text-neutral-900"
+                    ? "bg-white text-neutral-950 shadow-xs"
+                    : "text-neutral-700 hover:text-neutral-950"
                 }`}
               >
                 👨‍🎓 Học Viên
@@ -1247,19 +1247,19 @@ export const LandingPage = ({ onGoToPortal }) => {
               <button
                 type="button"
                 onClick={() => setLoginTab("admin")}
-                className={`flex-1 py-2 text-xs font-heading font-bold uppercase tracking-wider rounded-lg transition ${
+                className={`flex-1 py-2 text-xs font-heading font-black uppercase tracking-wider rounded-lg transition ${
                   loginTab === "admin"
-                    ? "bg-white text-neutral-900 shadow-xs"
-                    : "text-neutral-500 hover:text-neutral-900"
+                    ? "bg-white text-neutral-950 shadow-xs"
+                    : "text-neutral-700 hover:text-neutral-950"
                 }`}
               >
-                🛡️ Ban Quản Trị / Giảng Viên
+                🛡️ Quản Trị / Giảng Viên
               </button>
             </div>
 
             {/* Error Message */}
             {loginError && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl mb-4 font-medium">
+              <div className="p-3 bg-rose-50 border border-rose-300 text-rose-950 text-xs rounded-xl mb-4 font-bold">
                 {loginError}
               </div>
             )}
@@ -1269,7 +1269,7 @@ export const LandingPage = ({ onGoToPortal }) => {
               type="button"
               disabled={loginLoading}
               onClick={handleGoogleLogin}
-              className="w-full py-2.5 px-4 bg-white hover:bg-neutral-50 text-neutral-700 border border-neutral-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-3 transition shadow-xs cursor-pointer mb-4"
+              className="w-full py-2.5 px-4 bg-white hover:bg-neutral-50 text-neutral-900 border border-neutral-300 rounded-xl text-xs font-bold flex items-center justify-center gap-3 transition shadow-xs cursor-pointer mb-4"
             >
               <svg className="w-4 h-4" viewBox="0 0 48 48">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
@@ -1281,17 +1281,17 @@ export const LandingPage = ({ onGoToPortal }) => {
             </button>
 
             <div className="relative flex py-2 items-center mb-4">
-              <div className="flex-grow border-t border-neutral-200"></div>
-              <span className="flex-shrink mx-3 text-neutral-400 text-[10px] font-mono uppercase">
+              <div className="flex-grow border-t border-neutral-300"></div>
+              <span className="flex-shrink mx-3 text-neutral-600 text-[11px] font-mono font-bold uppercase">
                 Hoặc đăng nhập bằng Email
               </span>
-              <div className="flex-grow border-t border-neutral-200"></div>
+              <div className="flex-grow border-t border-neutral-300"></div>
             </div>
 
             {/* Email Form */}
             <form onSubmit={handleEmailLogin} className="space-y-3.5">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-neutral-600 block">
+                <label className="text-[11px] font-extrabold text-neutral-800 block">
                   Địa Chỉ Email
                 </label>
                 <input
@@ -1300,19 +1300,19 @@ export const LandingPage = ({ onGoToPortal }) => {
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   placeholder="your.email@example.com"
-                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:bg-white focus:outline-none focus:border-neutral-900"
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:bg-white focus:outline-none focus:border-neutral-900"
                 />
               </div>
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-bold text-neutral-600 block">
+                  <label className="text-[11px] font-extrabold text-neutral-800 block">
                     Mật Khẩu
                   </label>
                   <button
                     type="button"
                     onClick={() => setShowResetPassword(true)}
-                    className="text-[10px] text-amber-700 hover:underline cursor-pointer"
+                    className="text-[11px] text-amber-800 font-bold hover:underline cursor-pointer"
                   >
                     Quên mật khẩu?
                   </button>
@@ -1323,14 +1323,14 @@ export const LandingPage = ({ onGoToPortal }) => {
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:bg-white focus:outline-none focus:border-neutral-900 font-mono"
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-300 rounded-xl text-xs text-neutral-950 font-bold placeholder:text-neutral-500 focus:bg-white focus:outline-none focus:border-neutral-900 font-mono"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer disabled:opacity-60 mt-2"
+                className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer disabled:opacity-60 mt-2 shadow-md"
               >
                 {loginLoading ? "Đang xử lý..." : `Đăng Nhập Vào ${loginTab === "student" ? "Portal Học Viên" : "Admin Dashboard"}`}
               </button>
@@ -1345,16 +1345,16 @@ export const LandingPage = ({ onGoToPortal }) => {
       {showResetPassword && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-neutral-200 animate-scaleUp">
-            <h3 className="text-lg font-serif font-bold text-neutral-900 mb-2">
+            <h3 className="text-lg font-serif font-bold text-neutral-950 mb-2">
               Khôi Phục Mật Khẩu
             </h3>
-            <p className="text-xs text-neutral-500 mb-4 leading-relaxed">
+            <p className="text-xs text-neutral-700 font-medium mb-4 leading-relaxed">
               Nhập email tài khoản bạn đã đăng ký để hệ thống gửi liên kết đặt lại mật khẩu an toàn.
             </p>
 
             {resetSent ? (
               <div className="space-y-3">
-                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl">
+                <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs rounded-xl font-bold">
                   ✓ Đã gửi email khôi phục mật khẩu! Vui lòng kiểm tra hộp thư hoặc thư mục Spam.
                 </div>
                 <button
@@ -1363,7 +1363,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                     setShowResetPassword(false);
                     setResetSent(false);
                   }}
-                  className="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-semibold rounded-xl"
+                  className="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold rounded-xl"
                 >
                   Đóng
                 </button>
@@ -1376,20 +1376,20 @@ export const LandingPage = ({ onGoToPortal }) => {
                   value={resetEmail}
                   onChange={(e) => setResetEmail(e.target.value)}
                   placeholder="your.email@example.com"
-                  className="w-full px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                  className="w-full px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:outline-none focus:border-neutral-900"
                 />
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setShowResetPassword(false)}
-                    className="flex-1 py-2 border border-neutral-200 text-neutral-600 rounded-xl text-xs font-semibold hover:bg-neutral-50"
+                    className="flex-1 py-2 border border-neutral-300 text-neutral-700 rounded-xl text-xs font-bold hover:bg-neutral-100"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
                     disabled={resetLoading}
-                    className="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-xs font-bold uppercase tracking-wider"
+                    className="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm"
                   >
                     {resetLoading ? "Đang gửi..." : "Gửi Liên Kết"}
                   </button>
@@ -1410,7 +1410,7 @@ export const LandingPage = ({ onGoToPortal }) => {
             <div className="flex items-center justify-between pb-6 mb-6 border-b border-neutral-200">
               <div className="flex items-center gap-2">
                 <span className="text-lg">📄</span>
-                <span className="font-heading font-black text-sm uppercase tracking-wider text-neutral-800">
+                <span className="font-heading font-black text-sm uppercase tracking-wider text-neutral-900">
                   Sơ Yếu Lý Lịch Chuẩn (Curriculum Vitae)
                 </span>
               </div>
@@ -1424,7 +1424,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                 </button>
                 <button
                   onClick={() => setShowCvModal(false)}
-                  className="px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl text-xs font-semibold cursor-pointer"
+                  className="px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-xl text-xs font-bold cursor-pointer"
                 >
                   Đóng
                 </button>
@@ -1438,10 +1438,10 @@ export const LandingPage = ({ onGoToPortal }) => {
                 <h1 className="text-3xl font-serif font-black tracking-tight text-neutral-950">
                   {teacher.name}
                 </h1>
-                <p className="text-amber-800 font-bold mt-1 text-base">
+                <p className="text-amber-900 font-bold mt-1 text-base">
                   {teacher.titles[0]}
                 </p>
-                <div className="flex flex-wrap gap-4 text-xs text-neutral-500 mt-3 font-mono">
+                <div className="flex flex-wrap gap-4 text-xs text-neutral-700 mt-3 font-mono font-bold">
                   <span>📞 {teacher.phone}</span>
                   <span>✉️ {teacher.email}</span>
                   <span>📍 {teacher.location}</span>
@@ -1453,7 +1453,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                 <h2 className="font-serif font-bold text-base text-neutral-900 uppercase tracking-wider border-b border-neutral-100 pb-1">
                   Giới Thiệu Bản Thân
                 </h2>
-                <p className="text-neutral-700 leading-relaxed text-justify">
+                <p className="text-neutral-900 leading-relaxed text-justify font-medium">
                   {teacher.bioDetailed}
                 </p>
               </div>
@@ -1466,12 +1466,12 @@ export const LandingPage = ({ onGoToPortal }) => {
                 <div className="space-y-3">
                   {education.map((edu, idx) => (
                     <div key={idx} className="space-y-1">
-                      <div className="flex justify-between font-bold text-neutral-900">
+                      <div className="flex justify-between font-bold text-neutral-950">
                         <span>{edu.degree}</span>
-                        <span className="font-mono text-neutral-500">{edu.period}</span>
+                        <span className="font-mono text-neutral-700 font-bold">{edu.period}</span>
                       </div>
-                      <p className="text-amber-800 font-medium">{edu.institution}</p>
-                      <p className="text-neutral-600 text-xs">{edu.details}</p>
+                      <p className="text-amber-950 font-bold">{edu.institution}</p>
+                      <p className="text-neutral-800 text-xs font-medium">{edu.details}</p>
                     </div>
                   ))}
                 </div>
@@ -1485,11 +1485,11 @@ export const LandingPage = ({ onGoToPortal }) => {
                 <div className="space-y-4">
                   {career.map((exp, idx) => (
                     <div key={idx} className="space-y-1.5">
-                      <div className="flex justify-between font-bold text-neutral-900">
+                      <div className="flex justify-between font-bold text-neutral-950">
                         <span>{exp.role} — {exp.company}</span>
-                        <span className="font-mono text-neutral-500">{exp.period}</span>
+                        <span className="font-mono text-neutral-700 font-bold">{exp.period}</span>
                       </div>
-                      <ul className="list-disc list-inside space-y-1 text-neutral-700 text-xs">
+                      <ul className="list-disc list-inside space-y-1 text-neutral-800 text-xs font-medium">
                         {exp.description.map((d, dIdx) => (
                           <li key={dIdx}>{d}</li>
                         ))}
@@ -1507,9 +1507,9 @@ export const LandingPage = ({ onGoToPortal }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {certifications.map((c, idx) => (
                     <div key={idx} className="p-3 bg-neutral-50 rounded-xl border border-neutral-200 space-y-1">
-                      <span className="font-bold text-neutral-900 block">{c.title}</span>
-                      <span className="text-[11px] text-neutral-500 block">{c.issuer}</span>
-                      <span className="text-[11px] font-bold text-emerald-700 block">{c.highlight}</span>
+                      <span className="font-bold text-neutral-950 block">{c.title}</span>
+                      <span className="text-[11px] text-neutral-700 font-medium block">{c.issuer}</span>
+                      <span className="text-[11px] font-bold text-emerald-800 block">{c.highlight}</span>
                     </div>
                   ))}
                 </div>
