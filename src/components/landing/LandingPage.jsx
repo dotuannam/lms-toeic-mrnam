@@ -16,6 +16,198 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { sendEmailNotification } from "../../services/api";
 
+// =========================================================================
+// CLEAN VECTOR SVG ICONS (PURE SVGs - NO EMOJIS FOR BESPOKE AESTHETIC)
+// =========================================================================
+const IconStar = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+  </svg>
+);
+
+const IconFileText = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+    <polyline points="10 9 9 9 8 9" />
+  </svg>
+);
+
+const IconRocket = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+    <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+  </svg>
+);
+
+const IconLock = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
+const IconClipboardCheck = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+    <path d="m9 14 2 2 4-4" />
+  </svg>
+);
+
+const IconCalendar = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
+const IconBookOpen = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </svg>
+);
+
+const IconGraduationCap = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+    <path d="M6 12v5c3 3 9 3 12 0v-5" />
+  </svg>
+);
+
+const IconAward = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="7" />
+    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+  </svg>
+);
+
+const IconBriefcase = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </svg>
+);
+
+const IconBarChart = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="20" x2="12" y2="10" />
+    <line x1="18" y1="20" x2="18" y2="4" />
+    <line x1="6" y1="20" x2="6" y2="16" />
+  </svg>
+);
+
+const IconMessageSquare = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const IconMail = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+);
+
+const IconPhone = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+);
+
+const IconMapPin = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+const IconPrinter = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 6 2 18 2 18 9" />
+    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+    <rect x="6" y="14" width="12" height="8" />
+  </svg>
+);
+
+const IconUser = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const IconShield = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
+const IconChevronDown = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+const IconChevronUp = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="18 15 12 9 6 15" />
+  </svg>
+);
+
+const IconTarget = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);
+
+const IconSend = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13" />
+    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const IconUsers = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+const IconCheck = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const IconX = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+const IconInfo = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
 export const LandingPage = ({ onGoToPortal }) => {
   const { currentUser, role, isStaff, loginWithEmail, loginWithGoogle, resetPassword } = useAuth();
   const { centerConfig, landingPageContent } = useSettings();
@@ -30,7 +222,7 @@ export const LandingPage = ({ onGoToPortal }) => {
 
   const teacher = { ...TEACHER_PROFILE, ...(content.profile || {}) };
   const hero = {
-    badge: "⭐ Thạc sĩ Ngôn ngữ Anh • TOEIC 980 / 990 IIG Vietnam",
+    badge: "Thạc sĩ Ngôn ngữ Anh • TOEIC 980 / 990 IIG Vietnam",
     headline: "Chinh Phục TOEIC Bằng Phương Pháp Khoa Học & Trải Nghiệm Thực Chiến.",
     subHeadline: teacher.bioShort,
     primaryCta: "Làm Mini Test 3 Phút →",
@@ -136,32 +328,6 @@ export const LandingPage = ({ onGoToPortal }) => {
     }));
   };
 
-  const expandAllSections = () => {
-    setExpandedSections({
-      stats: true,
-      about: true,
-      experience: true,
-      courses: true,
-      placementTest: true,
-      booking: true,
-      testimonials: true,
-      contact: true,
-    });
-  };
-
-  const collapseAllSections = () => {
-    setExpandedSections({
-      stats: false,
-      about: false,
-      experience: false,
-      courses: false,
-      placementTest: false,
-      booking: false,
-      testimonials: false,
-      contact: false,
-    });
-  };
-
   const openAndScrollTo = (sectionKey, targetRefOrId) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -187,26 +353,6 @@ export const LandingPage = ({ onGoToPortal }) => {
       }
     }, 50);
   };
-
-  // Section Directory Metadata
-  const visibleSections = [
-    { key: "stats", label: "Thống kê", icon: "📊", ref: statsRef, id: "stats" },
-    { key: "about", label: "Học vấn", icon: "🎓", ref: aboutRef, id: "about" },
-    { key: "experience", label: "Kinh nghiệm", icon: "💼", ref: experienceRef, id: "experience" },
-    { key: "courses", label: "Khóa học", icon: "📚", ref: coursesRef, id: "courses" },
-    ...(toggles.showPlacementTest !== false
-      ? [{ key: "placementTest", label: "Mini Test", icon: "📝", ref: placementTestRef, id: "placement-test" }]
-      : []),
-    ...(toggles.showBookingForm !== false
-      ? [{ key: "booking", label: "Tư vấn 1-1", icon: "💬", ref: bookingRef, id: "booking" }]
-      : []),
-    { key: "testimonials", label: "Học viên", icon: "⭐", ref: testimonialsRef, id: "testimonials" },
-    ...(toggles.showContactForm !== false
-      ? [{ key: "contact", label: "Liên hệ", icon: "📬", ref: contactRef, id: "contact" }]
-      : []),
-  ];
-
-  const totalOpenCount = visibleSections.filter((s) => expandedSections[s.key]).length;
 
   // Listen to hash on mount
   useEffect(() => {
@@ -331,7 +477,7 @@ export const LandingPage = ({ onGoToPortal }) => {
         <div style="font-family: Arial, Helvetica, sans-serif; max-width: 620px; margin: 0 auto; background: #faf9f6; border: 1px solid #e7e5e4; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
           <div style="background: #1c1610; padding: 26px 28px; text-align: center; border-bottom: 3px solid #c27803;">
             <h2 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">TOEIC MR.NAM — HỆ THỐNG LMS</h2>
-            <p style="color: #f59e0b; margin: 6px 0 0; font-size: 13px; font-weight: bold; text-transform: uppercase;">⚡ Yêu Cầu Tư Vấn Khóa Học Mới Qua Zalo</p>
+            <p style="color: #f59e0b; margin: 6px 0 0; font-size: 13px; font-weight: bold; text-transform: uppercase;">Yêu Cầu Tư Vấn Khóa Học Mới Qua Zalo</p>
           </div>
           
           <div style="padding: 28px 32px; background: #ffffff;">
@@ -372,7 +518,7 @@ export const LandingPage = ({ onGoToPortal }) => {
             </table>
 
             <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 14px; padding: 14px 18px; margin-top: 18px; font-size: 12px; color: #92400e; line-height: 1.5;">
-              <strong>💬 Hướng dẫn xử lý:</strong> Thầy chỉ cần mở ứng dụng <strong>Zalo</strong>, tìm kiếm số điện thoại <strong>${payload.phone}</strong> và gửi lời chào để bắt đầu tư vấn lộ trình học cho học viên.
+              <strong>Hướng dẫn xử lý:</strong> Thầy chỉ cần mở ứng dụng <strong>Zalo</strong>, tìm kiếm số điện thoại <strong>${payload.phone}</strong> và gửi lời chào để bắt đầu tư vấn lộ trình học cho học viên.
             </div>
           </div>
 
@@ -482,10 +628,10 @@ export const LandingPage = ({ onGoToPortal }) => {
         >
           <div className="flex items-start sm:items-center gap-4">
             <div
-              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl sm:text-2xl shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-xs ${
+              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-xs ${
                 isOpen
                   ? "bg-amber-500 text-slate-950 font-bold"
-                  : "bg-amber-50 group-hover:bg-amber-100 text-amber-950 border border-amber-200"
+                  : "bg-amber-50 group-hover:bg-amber-100 text-amber-900 border border-amber-200"
               }`}
             >
               {icon}
@@ -497,7 +643,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   {badge}
                 </span>
                 {isOpen ? (
-                  <span className="text-[10px] sm:text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1">
+                  <span className="text-[10px] sm:text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     Đang hiển thị
                   </span>
@@ -522,12 +668,12 @@ export const LandingPage = ({ onGoToPortal }) => {
             {isOpen ? (
               <span className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-heading font-black text-xs uppercase tracking-wider shadow-sm flex items-center gap-2 transition-transform duration-150">
                 <span>Thu gọn</span>
-                <span className="text-amber-400 text-sm">▲</span>
+                <IconChevronUp className="w-4 h-4 text-amber-400" />
               </span>
             ) : (
               <span className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 group-hover:from-amber-600 group-hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider shadow-md hover:shadow-amber-500/25 flex items-center gap-2 transition-transform duration-150 group-hover:translate-x-0.5">
                 <span>Click to show</span>
-                <span className="text-slate-950 font-black text-sm">▼</span>
+                <IconChevronDown className="w-4 h-4 text-slate-950" />
               </span>
             )}
           </div>
@@ -547,8 +693,8 @@ export const LandingPage = ({ onGoToPortal }) => {
         }}
         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-heading font-bold uppercase tracking-wider border border-neutral-300 transition cursor-pointer shadow-xs hover:border-amber-400"
       >
-        <span>▲</span>
-        <span>Thu gọn phần này (Click to hide)</span>
+        <IconChevronUp className="w-3.5 h-3.5" />
+        <span>Thu gọn phần này</span>
       </button>
     </div>
   );
@@ -632,10 +778,10 @@ export const LandingPage = ({ onGoToPortal }) => {
             {toggles.showCvPrint !== false && (
               <button
                 onClick={() => setShowCvModal(true)}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-300 text-neutral-800 text-xs font-bold hover:bg-neutral-100 transition cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-neutral-300 text-neutral-800 text-xs font-bold hover:bg-neutral-100 transition cursor-pointer"
                 title="Xem và in sơ yếu lý lịch chuẩn"
               >
-                <span>📄</span>
+                <IconFileText className="w-3.5 h-3.5 text-neutral-700" />
                 <span>In CV (Print)</span>
               </button>
             )}
@@ -643,17 +789,17 @@ export const LandingPage = ({ onGoToPortal }) => {
             {currentUser ? (
               <button
                 onClick={onGoToPortal}
-                className="px-4 py-2 bg-[#1A1A1A] hover:bg-neutral-800 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#1A1A1A] hover:bg-neutral-800 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition cursor-pointer flex items-center gap-2"
               >
-                <span>🚀</span>
+                <IconRocket className="w-3.5 h-3.5 text-amber-400" />
                 <span>Vào Portal ({isStaff ? "Admin" : "Học Viên"})</span>
               </button>
             ) : (
               <button
                 onClick={() => setShowLoginModal(true)}
-                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 rounded-xl text-xs font-heading font-black uppercase tracking-wider shadow-md hover:shadow-amber-500/25 transition cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 rounded-xl text-xs font-heading font-black uppercase tracking-wider shadow-md hover:shadow-amber-500/25 transition cursor-pointer flex items-center gap-2"
               >
-                <span>🔐</span>
+                <IconLock className="w-3.5 h-3.5 text-slate-950" />
                 <span>Đăng Nhập</span>
               </button>
             )}
@@ -669,8 +815,8 @@ export const LandingPage = ({ onGoToPortal }) => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-xs font-bold tracking-wide">
-                <span>⭐</span>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/90 border border-amber-300 text-amber-950 text-xs font-bold tracking-wide">
+                <IconStar className="w-3.5 h-3.5 text-amber-600 fill-amber-500 shrink-0" />
                 <span>{hero.badge}</span>
               </div>
 
@@ -687,9 +833,9 @@ export const LandingPage = ({ onGoToPortal }) => {
                 {toggles.showPlacementTest !== false && (
                   <button
                     onClick={() => openAndScrollTo("placementTest", placementTestRef)}
-                    className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-lg hover:shadow-amber-500/30 transition-all transform hover:-translate-y-0.5 cursor-pointer flex items-center gap-2"
+                    className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-lg hover:shadow-amber-500/30 transition-all transform hover:-translate-y-0.5 cursor-pointer flex items-center gap-2.5"
                   >
-                    <span>📝</span>
+                    <IconClipboardCheck className="w-4 h-4 text-slate-950" />
                     <span>{hero.primaryCta || "Làm Mini Test 3 Phút →"}</span>
                   </button>
                 )}
@@ -697,9 +843,10 @@ export const LandingPage = ({ onGoToPortal }) => {
                 {toggles.showBookingForm !== false && (
                   <button
                     onClick={() => openAndScrollTo("booking", bookingRef)}
-                    className="px-6 py-3.5 bg-white hover:bg-neutral-100 text-neutral-900 font-heading font-bold text-xs uppercase tracking-wider rounded-xl border border-neutral-300 shadow-xs transition cursor-pointer"
+                    className="px-6 py-3.5 bg-white hover:bg-neutral-100 text-neutral-900 font-heading font-bold text-xs uppercase tracking-wider rounded-xl border border-neutral-300 shadow-xs transition cursor-pointer flex items-center gap-2"
                   >
-                    {hero.secondaryCta || "Hẹn Lịch Tư Vấn 1-1"}
+                    <IconCalendar className="w-4 h-4 text-neutral-700" />
+                    <span>{hero.secondaryCta || "Hẹn Lịch Tư Vấn 1-1"}</span>
                   </button>
                 )}
 
@@ -707,7 +854,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   onClick={() => openAndScrollTo("courses", coursesRef)}
                   className="px-5 py-3.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-heading font-bold text-xs uppercase tracking-wider rounded-xl border border-neutral-300 shadow-xs transition cursor-pointer flex items-center gap-2"
                 >
-                  <span>📚</span>
+                  <IconBookOpen className="w-4 h-4 text-neutral-700" />
                   <span>Xem Khóa Học</span>
                 </button>
 
@@ -716,7 +863,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                     onClick={() => setShowLoginModal(true)}
                     className="px-5 py-3.5 bg-neutral-900 hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition cursor-pointer flex items-center gap-2"
                   >
-                    <span>🔑</span>
+                    <IconLock className="w-4 h-4 text-amber-400" />
                     <span>Đăng Nhập Portal</span>
                   </button>
                 )}
@@ -730,7 +877,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                   "Video record bài giảng trọn đời",
                 ]).map((com, cIdx) => (
                   <div key={cIdx} className="flex items-center gap-1.5 font-bold text-neutral-800">
-                    <span className="text-emerald-700 font-extrabold">✓</span>
+                    <IconCheck className="w-3.5 h-3.5 text-emerald-700 font-extrabold" />
                     <span>{com}</span>
                   </div>
                 ))}
@@ -790,13 +937,19 @@ export const LandingPage = ({ onGoToPortal }) => {
                   {/* Direct Contact info */}
                   <div className="pt-2 text-xs text-neutral-800 space-y-1.5 border-t border-neutral-200 font-mono">
                     <div className="flex items-center gap-2">
-                      <span className="text-neutral-700 font-bold">📞 SĐT/Zalo:</span>
+                      <span className="text-neutral-700 font-bold flex items-center gap-1">
+                        <IconPhone className="w-3.5 h-3.5 text-neutral-600" />
+                        <span>SĐT/Zalo:</span>
+                      </span>
                       <a href={`tel:${teacher.phone}`} className="font-black text-neutral-950 hover:underline">
                         {teacher.phone}
                       </a>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-neutral-700 font-bold">✉️ Email:</span>
+                      <span className="text-neutral-700 font-bold flex items-center gap-1">
+                        <IconMail className="w-3.5 h-3.5 text-neutral-600" />
+                        <span>Email:</span>
+                      </span>
                       <span className="font-black text-neutral-950 truncate">
                         {teacher.email}
                       </span>
@@ -810,82 +963,6 @@ export const LandingPage = ({ onGoToPortal }) => {
       </section>
 
       {/* =========================================================================
-          CONTROL TOOLBAR: CLICK-TO-SHOW DIRECTORY
-      ========================================================================= */}
-      <section className="bg-[#1C1610] text-white py-4 sm:py-5 border-y border-amber-900/40 sticky top-16 sm:top-20 z-30 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-base shadow-xs shrink-0">
-                📑
-              </span>
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <h2 className="font-heading font-black text-xs sm:text-sm uppercase tracking-wider text-amber-300">
-                    Danh Mục Nội Dung (Click To Show)
-                  </h2>
-                  <span className="text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-full bg-stone-800 text-amber-200 font-mono font-bold border border-amber-500/30">
-                    Đang mở: {totalOpenCount} / {visibleSections.length}
-                  </span>
-                </div>
-                <p className="text-[11px] sm:text-xs text-stone-300 font-medium">
-                  Nhấp vào từng phần bên dưới để mở nội dung chi tiết hoặc dùng nút bên phải.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 self-start sm:self-center">
-              <button
-                type="button"
-                onClick={expandAllSections}
-                className="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition cursor-pointer flex items-center gap-1.5"
-                title="Mở toàn bộ các phần nội dung"
-              >
-                <span>👁️</span>
-                <span>Mở tất cả</span>
-              </button>
-              <button
-                type="button"
-                onClick={collapseAllSections}
-                className="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl border border-stone-700 transition cursor-pointer flex items-center gap-1.5"
-                title="Thu gọn toàn bộ các phần"
-              >
-                <span>✕</span>
-                <span>Thu gọn tất cả</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Topic Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar text-xs">
-            {visibleSections.map((sec) => {
-              const isOpen = expandedSections[sec.key];
-              return (
-                <button
-                  key={sec.key}
-                  type="button"
-                  onClick={() => openAndScrollTo(sec.key, sec.ref || sec.id)}
-                  className={`px-3 py-1.5 rounded-xl font-heading font-bold text-[11px] tracking-wide shrink-0 transition flex items-center gap-1.5 cursor-pointer border ${
-                    isOpen
-                      ? "bg-amber-500 text-slate-950 border-amber-400 shadow-xs"
-                      : "bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white border-stone-700/80"
-                  }`}
-                >
-                  <span>{sec.icon}</span>
-                  <span>{sec.label}</span>
-                  {isOpen ? (
-                    <span className="text-[9px] bg-slate-950/20 px-1 py-0.2 rounded font-mono font-black">▲</span>
-                  ) : (
-                    <span className="text-[9px] text-amber-400 font-mono font-black">▼</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
           3. IMPACT STATS BAR (CLICK TO SHOW)
       ========================================================================= */}
       <div className="border-b border-neutral-200/80">
@@ -893,7 +970,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           sectionKey: "stats",
           id: "stats",
           refObj: statsRef,
-          icon: "📊",
+          icon: <IconBarChart className="w-6 h-6 text-amber-900" />,
           badge: "Hiệu Quả & Số Liệu",
           title: "Thống Kê Đào Tạo & Thành Tựu Nổi Bật",
           summary: `${studentsStat} Học viên đã dạy • Điểm số ${toeicStat} • 95% Cam kết đạt mục tiêu • 8+ Năm kinh nghiệm`,
@@ -939,7 +1016,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           sectionKey: "about",
           id: "about",
           refObj: aboutRef,
-          icon: "🎓",
+          icon: <IconGraduationCap className="w-6 h-6 text-amber-900" />,
           badge: "Trình Độ Học Thuật",
           title: "Học Vấn Sư Phạm & Chứng Chỉ Quốc Tế",
           summary: "Thạc sĩ Ngôn ngữ Anh (ĐH Sài Gòn) • Cử nhân Sư phạm • TOEIC 980 / 990 IIG Vietnam • TESOL Certified",
@@ -964,7 +1041,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                 {/* Education Left Column */}
                 <div className="lg:col-span-6 space-y-6">
                   <h3 className="font-serif font-bold text-xl text-neutral-950 flex items-center gap-2">
-                    <span>🎓</span>
+                    <IconGraduationCap className="w-5 h-5 text-amber-800" />
                     <span>Học Vấn Sư Phạm (Education)</span>
                   </h3>
 
@@ -996,7 +1073,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                 {/* Certifications Right Column */}
                 <div className="lg:col-span-6 space-y-6">
                   <h3 className="font-serif font-bold text-xl text-neutral-950 flex items-center gap-2">
-                    <span>🏆</span>
+                    <IconAward className="w-5 h-5 text-amber-800" />
                     <span>Chứng Chỉ Chuyên Môn Quốc Tế</span>
                   </h3>
 
@@ -1040,7 +1117,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           sectionKey: "experience",
           id: "experience",
           refObj: experienceRef,
-          icon: "💼",
+          icon: <IconBriefcase className="w-6 h-6 text-amber-900" />,
           badge: "Kinh Nghiệm Thực Chiến",
           title: "Hành Trình Giảng Dạy & Điều Phối Chuyên Môn",
           summary: "8+ năm kinh nghiệm giảng dạy & điều phối học thuật tại các trung tâm & tổ chức đào tạo tiếng Anh uy tín",
@@ -1117,7 +1194,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           sectionKey: "courses",
           id: "courses",
           refObj: coursesRef,
-          icon: "📚",
+          icon: <IconBookOpen className="w-6 h-6 text-amber-900" />,
           badge: "Chương Trình Đào Tạo",
           title: "Các Khóa Luyện Thi TOEIC Nổi Bật (Cam Kết Đầu Ra)",
           summary: "4 lộ trình may đo: Khóa TOEIC 500+ (Mất gốc), 650+ (Tiêu chuẩn), 750+ (Bứt phá) & Khóa Kèm 1-1",
@@ -1176,7 +1253,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                         <ul className="space-y-1.5 text-xs text-neutral-900 font-medium">
                           {course.features.map((feat, fIdx) => (
                             <li key={fIdx} className="flex items-start gap-2">
-                              <span className="text-emerald-700 font-bold shrink-0">✓</span>
+                              <IconCheck className="w-3.5 h-3.5 text-emerald-700 font-bold shrink-0 mt-0.5" />
                               <span>{feat}</span>
                             </li>
                           ))}
@@ -1217,7 +1294,7 @@ export const LandingPage = ({ onGoToPortal }) => {
             sectionKey: "placementTest",
             id: "placement-test",
             refObj: placementTestRef,
-            icon: "📝",
+            icon: <IconClipboardCheck className="w-6 h-6 text-amber-900" />,
             badge: "Định Vị Năng Lực Nhanh",
             title: "Mini Placement Test (5 Câu Rút Gọn Chuẩn ETS)",
             summary: "Bài kiểm tra nhanh trắc nghiệm 3 phút giúp định vị trình độ hiện tại và gợi ý khóa học phù hợp",
@@ -1265,7 +1342,7 @@ export const LandingPage = ({ onGoToPortal }) => {
             sectionKey: "booking",
             id: "booking",
             refObj: bookingRef,
-            icon: "💬",
+            icon: <IconMessageSquare className="w-6 h-6 text-amber-900" />,
             badge: "Tư Vấn 1-1 Miễn Phí",
             title: "Đăng Ký Tư Vấn Lộ Trình 1-1 Cùng Thầy Đỗ Tuấn Nam",
             summary: "15 phút trao đổi trực tiếp qua Zalo để đánh giá điểm yếu và xác định lộ trình tăng điểm tối ưu",
@@ -1290,7 +1367,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                 {quizResult && (
                   <div className="p-4 bg-amber-50 rounded-2xl border border-amber-300 flex items-center justify-between text-xs text-amber-950">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">🎯</span>
+                      <IconTarget className="w-5 h-5 text-amber-700 shrink-0" />
                       <div>
                         <span className="font-extrabold">Đã đính kèm kết quả Mini Test: </span>
                         <span className="font-semibold">{quizResult.quizScore} / {quizResult.quizMaxScore} câu đúng • Trình độ ước tính: {quizResult.quizLevel}</span>
@@ -1305,7 +1382,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                 {bookingSuccess ? (
                   <div className="p-8 bg-emerald-50 rounded-3xl border border-emerald-300 text-center space-y-4 animate-scaleUp">
                     <div className="w-16 h-16 mx-auto bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center text-3xl font-bold">
-                      ✓
+                      <IconCheck className="w-8 h-8 text-emerald-700" />
                     </div>
                     <h3 className="font-serif font-bold text-2xl text-emerald-950">
                       Đăng Ký Tư Vấn Thành Công!
@@ -1387,7 +1464,7 @@ export const LandingPage = ({ onGoToPortal }) => {
 
                     {/* Thông báo hình thức tư vấn qua Zalo */}
                     <div className="p-4 bg-amber-50 rounded-2xl border border-amber-300 flex items-start gap-3 text-xs text-amber-950">
-                      <span className="text-xl shrink-0 mt-0.5">💬</span>
+                      <IconMessageSquare className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
                       <div className="space-y-1 leading-relaxed">
                         <span className="font-extrabold text-amber-950 block text-xs">Hình thức tư vấn trực tiếp:</span>
                         <p className="text-amber-900 text-xs font-medium">
@@ -1415,7 +1492,7 @@ export const LandingPage = ({ onGoToPortal }) => {
                         disabled={bookingLoading}
                         className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
                       >
-                        <span>💬</span>
+                        <IconSend className="w-4 h-4 text-slate-950" />
                         <span>{bookingLoading ? "Đang gửi đăng ký..." : "Xác Nhận Đăng Ký Tư Vấn Qua Zalo →"}</span>
                       </button>
                     </div>
@@ -1437,7 +1514,7 @@ export const LandingPage = ({ onGoToPortal }) => {
           sectionKey: "testimonials",
           id: "testimonials",
           refObj: testimonialsRef,
-          icon: "⭐",
+          icon: <IconUsers className="w-6 h-6 text-amber-900" />,
           badge: "Chia Sẻ Học Viên",
           title: "Học Viên Thành Tựu & Đánh Giá Thực Tế",
           summary: "Cảm nhận & câu chuyện bứt phá điểm số TOEIC 650 - 900+ từ các học viên thực tế",
@@ -1466,7 +1543,9 @@ export const LandingPage = ({ onGoToPortal }) => {
                   >
                     <div className="space-y-3">
                       <div className="flex items-center gap-1 text-amber-500 text-sm">
-                        {"★".repeat(5)}
+                        {[1, 2, 3, 4, 5].map((starIdx) => (
+                          <IconStar key={starIdx} className="w-4 h-4 text-amber-500 fill-amber-400" />
+                        ))}
                       </div>
                       <p className="text-xs sm:text-sm text-neutral-900 font-medium leading-relaxed italic">
                         "{testm.review}"
@@ -1505,7 +1584,7 @@ export const LandingPage = ({ onGoToPortal }) => {
             sectionKey: "contact",
             id: "contact",
             refObj: contactRef,
-            icon: "📬",
+            icon: <IconMail className="w-6 h-6 text-amber-900" />,
             badge: "Kết Nối Trực Tiếp",
             title: "Gửi Lời Nhắn & Thông Tin Liên Hệ",
             summary: `Hotline/Zalo: ${content.contactInfo?.hotline || teacher.phone} • Email: ${content.contactInfo?.email || teacher.email} • Địa điểm & Form nhắn`,
@@ -1529,28 +1608,31 @@ export const LandingPage = ({ onGoToPortal }) => {
 
                     <div className="space-y-3 text-xs">
                       <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
-                        <span className="text-neutral-700 font-extrabold uppercase text-[11px] block">
-                          Điện Thoại / Zalo
+                        <span className="text-neutral-700 font-extrabold uppercase text-[11px] flex items-center gap-1.5">
+                          <IconPhone className="w-3.5 h-3.5 text-neutral-600" />
+                          <span>Điện Thoại / Zalo</span>
                         </span>
-                        <a href={`tel:${content.contactInfo?.hotline || teacher.phone}`} className="font-black text-neutral-950 text-sm hover:underline">
+                        <a href={`tel:${content.contactInfo?.hotline || teacher.phone}`} className="font-black text-neutral-950 text-sm hover:underline block pl-5">
                           {content.contactInfo?.hotline || teacher.phone}
                         </a>
                       </div>
 
                       <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
-                        <span className="text-neutral-700 font-extrabold uppercase text-[11px] block">
-                          Email Trực Tiếp
+                        <span className="text-neutral-700 font-extrabold uppercase text-[11px] flex items-center gap-1.5">
+                          <IconMail className="w-3.5 h-3.5 text-neutral-600" />
+                          <span>Email Trực Tiếp</span>
                         </span>
-                        <a href={`mailto:${content.contactInfo?.email || teacher.email}`} className="font-black text-neutral-950 text-sm hover:underline">
+                        <a href={`mailto:${content.contactInfo?.email || teacher.email}`} className="font-black text-neutral-950 text-sm hover:underline block pl-5">
                           {content.contactInfo?.email || teacher.email}
                         </a>
                       </div>
 
                       <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-1">
-                        <span className="text-neutral-700 font-extrabold uppercase text-[11px] block">
-                          Địa Điểm Giảng Dạy
+                        <span className="text-neutral-700 font-extrabold uppercase text-[11px] flex items-center gap-1.5">
+                          <IconMapPin className="w-3.5 h-3.5 text-neutral-600" />
+                          <span>Địa Điểm Giảng Dạy</span>
                         </span>
-                        <p className="font-bold text-neutral-950">
+                        <p className="font-bold text-neutral-950 pl-5">
                           {content.contactInfo?.address || teacher.location} ({teacher.teachingMode})
                         </p>
                       </div>
@@ -1603,17 +1685,19 @@ export const LandingPage = ({ onGoToPortal }) => {
                       </div>
 
                       {contactSuccess && (
-                        <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs rounded-xl font-bold">
-                          ✓ Gửi tin nhắn thành công! Thầy Nam sẽ sớm phản hồi qua email bạn đã cung cấp.
+                        <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs rounded-xl font-bold flex items-center gap-2">
+                          <IconCheck className="w-4 h-4 text-emerald-700" />
+                          <span>Gửi tin nhắn thành công! Thầy Nam sẽ sớm phản hồi qua email bạn đã cung cấp.</span>
                         </div>
                       )}
 
                       <button
                         type="submit"
                         disabled={contactLoading}
-                        className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer shadow-md"
+                        className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer shadow-md flex items-center justify-center gap-2"
                       >
-                        {contactLoading ? "Đang gửi..." : "Gửi Tin Nhắn Đi →"}
+                        <IconSend className="w-4 h-4" />
+                        <span>{contactLoading ? "Đang gửi..." : "Gửi Tin Nhắn Đi →"}</span>
                       </button>
                     </form>
                   </div>
@@ -1707,7 +1791,7 @@ export const LandingPage = ({ onGoToPortal }) => {
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center transition cursor-pointer"
               aria-label="Đóng"
             >
-              ✕
+              <IconX className="w-4 h-4" />
             </button>
 
             {/* Modal Title */}
@@ -1728,24 +1812,26 @@ export const LandingPage = ({ onGoToPortal }) => {
               <button
                 type="button"
                 onClick={() => setLoginTab("student")}
-                className={`flex-1 py-2 text-xs font-heading font-black uppercase tracking-wider rounded-lg transition ${
+                className={`flex-1 py-2 text-xs font-heading font-black uppercase tracking-wider rounded-lg transition flex items-center justify-center gap-1.5 ${
                   loginTab === "student"
                     ? "bg-white text-neutral-950 shadow-xs"
                     : "text-neutral-700 hover:text-neutral-950"
                 }`}
               >
-                👨‍🎓 Học Viên
+                <IconUser className="w-3.5 h-3.5" />
+                <span>Học Viên</span>
               </button>
               <button
                 type="button"
                 onClick={() => setLoginTab("admin")}
-                className={`flex-1 py-2 text-xs font-heading font-black uppercase tracking-wider rounded-lg transition ${
+                className={`flex-1 py-2 text-xs font-heading font-black uppercase tracking-wider rounded-lg transition flex items-center justify-center gap-1.5 ${
                   loginTab === "admin"
                     ? "bg-white text-neutral-950 shadow-xs"
                     : "text-neutral-700 hover:text-neutral-950"
                 }`}
               >
-                🛡️ Quản Trị / Giảng Viên
+                <IconShield className="w-3.5 h-3.5" />
+                <span>Quản Trị / Giảng Viên</span>
               </button>
             </div>
 
@@ -1794,8 +1880,9 @@ export const LandingPage = ({ onGoToPortal }) => {
                   placeholder="Ví dụ: 0912345678 hoặc email@example.com"
                   className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:bg-white focus:outline-none focus:border-neutral-900"
                 />
-                <span className="text-[10px] text-neutral-500 block">
-                  💡 Nhập Số điện thoại (hoặc Email) đã được cấp để đăng nhập nhanh
+                <span className="text-[10px] text-neutral-500 flex items-center gap-1">
+                  <IconInfo className="w-3 h-3 text-neutral-500 shrink-0" />
+                  <span>Nhập Số điện thoại (hoặc Email) đã được cấp để đăng nhập nhanh</span>
                 </span>
               </div>
 
@@ -1825,9 +1912,10 @@ export const LandingPage = ({ onGoToPortal }) => {
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer disabled:opacity-60 mt-2 shadow-md"
+                className="w-full py-3 bg-[#1A1A1A] hover:bg-neutral-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer disabled:opacity-60 mt-2 shadow-md flex items-center justify-center gap-2"
               >
-                {loginLoading ? "Đang xử lý..." : `Đăng Nhập Vào ${loginTab === "student" ? "Portal Học Viên" : "Admin Dashboard"}`}
+                <IconLock className="w-4 h-4 text-amber-400" />
+                <span>{loginLoading ? "Đang xử lý..." : `Đăng Nhập Vào ${loginTab === "student" ? "Portal Học Viên" : "Admin Dashboard"}`}</span>
               </button>
             </form>
           </div>
@@ -1849,8 +1937,9 @@ export const LandingPage = ({ onGoToPortal }) => {
 
             {resetSent ? (
               <div className="space-y-3">
-                <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs rounded-xl font-bold">
-                  ✓ Đã gửi email khôi phục mật khẩu! Vui lòng kiểm tra hộp thư hoặc thư mục Spam.
+                <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs rounded-xl font-bold flex items-center gap-2">
+                  <IconCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <span>Đã gửi email khôi phục mật khẩu! Vui lòng kiểm tra hộp thư hoặc Spam.</span>
                 </div>
                 <button
                   type="button"
@@ -1904,7 +1993,7 @@ export const LandingPage = ({ onGoToPortal }) => {
             {/* Action Bar */}
             <div className="flex items-center justify-between pb-6 mb-6 border-b border-neutral-200">
               <div className="flex items-center gap-2">
-                <span className="text-lg">📄</span>
+                <IconFileText className="w-5 h-5 text-neutral-800" />
                 <span className="font-heading font-black text-sm uppercase tracking-wider text-neutral-900">
                   Sơ Yếu Lý Lịch Chuẩn (Curriculum Vitae)
                 </span>
@@ -1912,9 +2001,9 @@ export const LandingPage = ({ onGoToPortal }) => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="px-4 py-2 bg-neutral-950 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-neutral-800 transition cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 bg-neutral-950 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-neutral-800 transition cursor-pointer flex items-center gap-2"
                 >
-                  <span>🖨️</span>
+                  <IconPrinter className="w-4 h-4 text-white" />
                   <span>In Hồ Sơ (Print)</span>
                 </button>
                 <button
@@ -1937,9 +2026,18 @@ export const LandingPage = ({ onGoToPortal }) => {
                   {teacher.titles[0]}
                 </p>
                 <div className="flex flex-wrap gap-4 text-xs text-neutral-700 mt-3 font-mono font-bold">
-                  <span>📞 {teacher.phone}</span>
-                  <span>✉️ {teacher.email}</span>
-                  <span>📍 {teacher.location}</span>
+                  <span className="flex items-center gap-1">
+                    <IconPhone className="w-3.5 h-3.5" />
+                    <span>{teacher.phone}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <IconMail className="w-3.5 h-3.5" />
+                    <span>{teacher.email}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <IconMapPin className="w-3.5 h-3.5" />
+                    <span>{teacher.location}</span>
+                  </span>
                 </div>
               </div>
 

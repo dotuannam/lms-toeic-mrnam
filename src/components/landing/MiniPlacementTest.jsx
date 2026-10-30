@@ -68,8 +68,12 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
       {/* 1. INITIAL STATE */}
       {!hasStarted && !isCompleted && (
         <div className="text-center space-y-6 py-4">
-          <div className="w-16 h-16 mx-auto bg-amber-100 border border-amber-300 rounded-2xl flex items-center justify-center text-3xl shadow-xs">
-            📝
+          <div className="w-16 h-16 mx-auto bg-amber-100 border border-amber-300 rounded-2xl flex items-center justify-center shadow-xs">
+            <svg className="w-8 h-8 text-amber-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+              <path d="m9 14 2 2 4-4" />
+            </svg>
           </div>
 
           <div className="space-y-2 max-w-lg mx-auto">
@@ -218,8 +222,13 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           {/* Explanation Box */}
           {isAnswerChecked && (
             <div className="p-4 rounded-xl bg-amber-50 border-l-4 border-amber-500 text-xs text-neutral-900 space-y-1.5 animate-fadeIn">
-              <span className="font-bold text-amber-900 uppercase tracking-wider block">
-                💡 Giải thích chi tiết từ Thầy Đỗ Tuấn Nam:
+              <span className="font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-amber-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <span>Giải thích chi tiết từ Thầy Đỗ Tuấn Nam:</span>
               </span>
               <p className="leading-relaxed font-medium text-neutral-800">{currentQ.explanation}</p>
             </div>
@@ -294,7 +303,11 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           {/* Teacher Recommendation Analysis */}
           <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs space-y-2">
             <div className="flex items-center gap-2 text-amber-950 font-bold font-heading">
-              <span>🎯</span>
+              <svg className="w-4 h-4 text-amber-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" />
+                <circle cx="12" cy="12" r="2" />
+              </svg>
               <span className="uppercase tracking-wider">Phân tích lộ trình từ Thầy Đỗ Tuấn Nam:</span>
             </div>
             <p className="text-neutral-800 font-medium leading-relaxed">
