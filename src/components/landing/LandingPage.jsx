@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useSettings } from "../../context/SettingsContext";
 import {
@@ -315,8 +315,27 @@ export const LandingPage = ({ onGoToPortal }) => {
     }
   };
 
+  // Ensure document root maintains clean light theme for public landing page
+  useEffect(() => {
+    const root = document.documentElement;
+    const wasDark = root.classList.contains("dark");
+    if (wasDark) {
+      root.classList.remove("dark");
+    }
+    return () => {
+      try {
+        const savedTheme = localStorage.getItem("lms_theme");
+        if (savedTheme === "dark") {
+          root.classList.add("dark");
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-[#1A1A1A] font-sans antialiased selection:bg-amber-200 selection:text-neutral-900">
+    <div className="landing-page-root min-h-screen bg-[#FAF9F6] text-[#1A1A1A] font-sans antialiased selection:bg-amber-200 selection:text-neutral-900">
       {/* =========================================================================
           1. NAVIGATION BAR
       ========================================================================= */}

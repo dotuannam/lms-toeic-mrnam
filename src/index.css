@@ -155,6 +155,129 @@
   border-color: #3d3125 !important;
 }
 
+/* ========================================================================= */
+/* LANDING PAGE ISOLATION - PRESERVE HIGH-CONTRAST EDITORIAL LIGHT THEME     */
+/* ========================================================================= */
+.landing-page-root,
+.dark .landing-page-root {
+  background-color: #FAF9F6 !important;
+  color: #171717 !important;
+}
+
+/* White cards on Landing Page must ALWAYS stay pure crisp white */
+.landing-page-root .bg-white,
+.dark .landing-page-root .bg-white,
+.landing-page-root .bg-white.rounded-3xl,
+.dark .landing-page-root .bg-white.rounded-3xl,
+.landing-page-root .bg-white.rounded-2xl,
+.dark .landing-page-root .bg-white.rounded-2xl {
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #171717 !important;
+}
+
+.landing-page-root .bg-\[\#FAF9F6\],
+.dark .landing-page-root .bg-\[\#FAF9F6\] {
+  background-color: #FAF9F6 !important;
+}
+
+.landing-page-root .bg-neutral-50,
+.dark .landing-page-root .bg-neutral-50 {
+  background-color: #f9fafb !important;
+  border-color: #e5e7eb !important;
+}
+
+.landing-page-root .bg-neutral-100,
+.dark .landing-page-root .bg-neutral-100 {
+  background-color: #f3f4f6 !important;
+}
+
+.landing-page-root .bg-amber-50,
+.dark .landing-page-root .bg-amber-50 {
+  background-color: #fffbeb !important;
+}
+
+.landing-page-root .bg-amber-100,
+.dark .landing-page-root .bg-amber-100 {
+  background-color: #fef3c7 !important;
+}
+
+.landing-page-root .bg-emerald-50,
+.dark .landing-page-root .bg-emerald-50 {
+  background-color: #ecfdf5 !important;
+}
+
+.landing-page-root .bg-emerald-100,
+.dark .landing-page-root .bg-emerald-100 {
+  background-color: #d1fae5 !important;
+}
+
+.landing-page-root .bg-\[\#1A1A1A\],
+.dark .landing-page-root .bg-\[\#1A1A1A\] {
+  background-color: #1A1A1A !important;
+}
+
+.landing-page-root .bg-\[\#141414\],
+.dark .landing-page-root .bg-\[\#141414\] {
+  background-color: #141414 !important;
+}
+
+/* Text colors protection */
+.landing-page-root .text-neutral-950,
+.dark .landing-page-root .text-neutral-950 {
+  color: #0a0a0a !important;
+}
+
+.landing-page-root .text-neutral-900,
+.dark .landing-page-root .text-neutral-900 {
+  color: #171717 !important;
+}
+
+.landing-page-root .text-neutral-800,
+.dark .landing-page-root .text-neutral-800 {
+  color: #262626 !important;
+}
+
+.landing-page-root .text-neutral-700,
+.dark .landing-page-root .text-neutral-700 {
+  color: #374151 !important;
+}
+
+.landing-page-root .text-neutral-600,
+.dark .landing-page-root .text-neutral-600 {
+  color: #4b5563 !important;
+}
+
+.landing-page-root .text-neutral-500,
+.dark .landing-page-root .text-neutral-500 {
+  color: #6b7280 !important;
+}
+
+/* Forms and inputs inside landing page */
+.landing-page-root input:not([type="checkbox"]):not([type="radio"]),
+.dark .landing-page-root input:not([type="checkbox"]):not([type="radio"]),
+.landing-page-root select,
+.dark .landing-page-root select,
+.landing-page-root textarea,
+.dark .landing-page-root textarea {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #0a0a0a !important;
+}
+
+.landing-page-root input::placeholder,
+.dark .landing-page-root input::placeholder,
+.landing-page-root textarea::placeholder,
+.dark .landing-page-root textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+.landing-page-root select option,
+.dark .landing-page-root select option {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
 /* Clean Dark Mode Scrollbars */
 .dark ::-webkit-scrollbar {
   width: 8px;
