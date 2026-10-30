@@ -9,6 +9,11 @@ import {
 } from "../../services/studentService";
 import { subscribeClasses } from "../../services/classService";
 import { generateStudentId, formatPhoneNumber } from "../../utils/idGenerator";
+import {
+  registerStudentAuthAccount,
+  generateLoginShareText,
+  normalizeLoginIdentifier,
+} from "../../services/studentAuthService";
 
 export const StudentsPage = () => {
   const { t, lang } = useLanguage();
@@ -35,7 +40,16 @@ export const StudentsPage = () => {
     tuitionFee: 0,
     paidAmount: 0,
     installmentNote: "",
+    createLoginAccount: true,
+    accountPassword: "123456",
   });
+
+  // Account creation info modal
+  const [createdAccountInfo, setCreatedAccountInfo] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [passwordModalStudent, setPasswordModalStudent] = useState(null);
+  const [modalPassword, setModalPassword] = useState("123456");
+  const [passwordModalSubmitting, setPasswordModalSubmitting] = useState(false);
 
   // Referral Program at Student Creation
   const [hasReferral, setHasReferral] = useState(false);
@@ -109,6 +123,8 @@ export const StudentsPage = () => {
       tuitionFee: defaultFee,
       paidAmount: defaultFee,
       installmentNote: "",
+      createLoginAccount: true,
+      accountPassword: "123456",
     });
 
     setHasReferral(false);
@@ -125,6 +141,37 @@ export const StudentsPage = () => {
       notes: "",
     });
 
+    setShowModal(true);
+  };
+
+  const openTrialModal = () => {
+    setEditingStudent(null);
+    const defaultClass = classes[0];
+    const allStudentIds = students.map((s) => s.studentId);
+    const initialId = defaultClass
+      ? generateStudentId(defaultClass.code, allStudentIds)
+      : generateStudentId("TRIAL", allStudentIds);
+
+    const defaultFee = defaultClass?.tuitionFee || 0;
+
+    setFormData({
+      studentId: initialId,
+      fullName: "Học Viên Dùng Thử",
+      email: "",
+      phone: "",
+      dob: "",
+      classId: defaultClass ? defaultClass.classId : "",
+      status: "active",
+      sendClassroomInvite: false,
+      tuitionStatus: "completed",
+      tuitionFee: defaultFee,
+      paidAmount: defaultFee,
+      installmentNote: "Tài khoản học viên trải nghiệm",
+      createLoginAccount: true,
+      accountPassword: "123456",
+    });
+
+    setHasReferral(false);
     setShowModal(true);
   };
 
@@ -195,12 +242,20 @@ export const StudentsPage = () => {
           };
         }
 
+        const effectivePhone = formData.phone ? formData.phone.trim() : "";
+        const rawEmail = (formData.email || "").trim();
+        const effectiveEmail =
+          rawEmail ||
+          (effectivePhone
+            ? `${effectivePhone.replace(/[\s\.\-\(\)\+]/g, "").toLowerCase()}@hocvien.local`
+            : `${formData.studentId.toLowerCase()}@hocvien.local`);
+
         await createStudent(
           {
             studentId: formData.studentId,
             fullName: formData.fullName,
-            email: formData.email,
-            phone: formData.phone,
+            email: effectiveEmail,
+            phone: effectivePhone,
             dob: formData.dob,
             status: formData.status,
             tuitionStatus: formData.tuitionStatus,
@@ -215,12 +270,51 @@ export const StudentsPage = () => {
           formData.sendClassroomInvite,
           effectiveReferral
         );
+
+        // Auto create auth account if enabled
+        if (formData.createLoginAccount) {
+          const loginIdentifier = effectivePhone || effectiveEmail || formData.studentId;
+          const loginPass = formData.accountPassword || "123456";
+          try {
+            await registerStudentAuthAccount(loginIdentifier, loginPass);
+            setCreatedAccountInfo({
+              name: formData.fullName,
+              identifier: loginIdentifier,
+              password: loginPass,
+              email: effectiveEmail,
+            });
+          } catch (authErr) {
+            console.warn("Auth registration note:", authErr);
+            alert("Đã lưu học viên thành công! Lưu ý tạo mật khẩu: " + authErr.message);
+          }
+        }
       }
       setShowModal(false);
     } catch (err) {
       alert("Error saving student: " + err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleSetPasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!passwordModalStudent) return;
+    setPasswordModalSubmitting(true);
+    try {
+      const identifier = passwordModalStudent.phone || passwordModalStudent.email || passwordModalStudent.studentId;
+      await registerStudentAuthAccount(identifier, modalPassword);
+      setCreatedAccountInfo({
+        name: passwordModalStudent.fullName,
+        identifier,
+        password: modalPassword,
+        email: passwordModalStudent.email || "",
+      });
+      setPasswordModalStudent(null);
+    } catch (err) {
+      alert("Lỗi cấp mật khẩu: " + err.message);
+    } finally {
+      setPasswordModalSubmitting(false);
     }
   };
 
@@ -286,15 +380,28 @@ export const StudentsPage = () => {
           </select>
         </div>
 
-        <button
-          onClick={openCreateModal}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:translate-y-px"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-          </svg>
-          <span>{t("enrollStudent")}</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={openTrialModal}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-300 rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-xs transition cursor-pointer"
+            title="Tạo tài khoản học viên trải nghiệm nhanh không cần email thật (dùng SĐT)"
+          >
+            <span>✨</span>
+            <span>+ Tạo Học Viên Dùng Thử</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider shadow-sm transition active:translate-y-px cursor-pointer"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            <span>{t("enrollStudent")}</span>
+          </button>
+        </div>
       </div>
 
       {/* Students Data Table */}
@@ -449,6 +556,19 @@ export const StudentsPage = () => {
                             </>
                           )}
                           <button
+                            type="button"
+                            onClick={() => {
+                              setPasswordModalStudent(std);
+                              setModalPassword("123456");
+                            }}
+                            className="text-xs font-semibold text-amber-700 hover:text-amber-900 transition flex items-center gap-1 cursor-pointer"
+                            title="Cấp hoặc đặt lại mật khẩu đăng nhập portal cho học viên này"
+                          >
+                            <span>🔑</span>
+                            <span>Cấp MK</span>
+                          </button>
+                          <span className="text-slate-300">&bull;</span>
+                          <button
                             onClick={() => openEditModal(std)}
                             className="text-xs font-semibold text-slate-600 hover:text-[#c27803] transition"
                           >
@@ -551,31 +671,85 @@ export const StudentsPage = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-                    Email *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-slate-700 uppercase">
+                      Email
+                    </label>
+                    <span className="text-[10px] text-slate-400">Không bắt buộc</span>
+                  </div>
                   <input
-                    type="email"
-                    required
+                    type="text"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="student@gmail.com"
+                    placeholder="Để trống nếu dùng SĐT"
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   />
+                  <span className="text-[10px] text-slate-400 mt-0.5 block">
+                    Tự sinh email ảo theo SĐT nếu để trống
+                  </span>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-                    Phone
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-slate-700 uppercase">
+                      Số Điện Thoại *
+                    </label>
+                    <span className="text-[10px] text-emerald-600 font-bold">Dùng đăng nhập</span>
+                  </div>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="0912345678"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   />
+                  <span className="text-[10px] text-amber-700 font-medium mt-0.5 block">
+                    Học viên dùng SĐT này làm Tên đăng nhập
+                  </span>
                 </div>
               </div>
+
+              {!editingStudent && (
+                <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.createLoginAccount}
+                        onChange={(e) =>
+                          setFormData({ ...formData, createLoginAccount: e.target.checked })
+                        }
+                        className="w-4 h-4 text-[#c27803] rounded border-slate-300 focus:ring-[#c27803]"
+                      />
+                      <span className="text-xs font-bold text-amber-950">
+                        Cấp tài khoản đăng nhập Portal ngay
+                      </span>
+                    </label>
+                    <span className="text-[10px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full">
+                      Đăng nhập bằng SĐT
+                    </span>
+                  </div>
+
+                  {formData.createLoginAccount && (
+                    <div className="space-y-1.5 pt-1">
+                      <label className="block text-[11px] font-semibold text-amber-900">
+                        Mật khẩu khởi tạo:
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.accountPassword}
+                        onChange={(e) =>
+                          setFormData({ ...formData, accountPassword: e.target.value })
+                        }
+                        placeholder="123456"
+                        className="w-full px-3.5 py-2 bg-white border border-amber-300 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                      />
+                      <p className="text-[10px] text-amber-800 leading-snug">
+                        💡 Học viên tiềm năng chỉ cần vào trang chủ, gõ <strong>Số Điện Thoại</strong> và mật khẩu trên để vào trải nghiệm ngay mà không cần email!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -1002,6 +1176,126 @@ export const StudentsPage = () => {
                   className="flex-1 py-2.5 px-4 bg-[#c27803] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider hover:bg-[#92400e] disabled:opacity-60 shadow-sm transition active:translate-y-px"
                 >
                   {submitting ? "Saving..." : editingStudent ? "Save Changes" : "Confirm Enrollment"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Success Created Account Modal with 1-Click Copy */}
+      {createdAccountInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative space-y-5 animate-scaleUp">
+            <div className="w-12 h-12 mx-auto bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center text-2xl">
+              🎉
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="text-xl font-heading font-black text-slate-900">
+                Tài Khoản Đã Sẵn Sàng!
+              </h3>
+              <p className="text-xs text-slate-500">
+                Học viên có thể dùng Số điện thoại và Mật khẩu dưới đây để đăng nhập trực tiếp.
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
+              <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                <span className="text-slate-500 font-semibold">Học viên:</span>
+                <span className="font-bold text-slate-900">{createdAccountInfo.name}</span>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                <span className="text-slate-500 font-semibold">Tên đăng nhập:</span>
+                <span className="font-mono font-black text-emerald-700 text-sm">{createdAccountInfo.identifier}</span>
+              </div>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-slate-500 font-semibold">Mật khẩu:</span>
+                <span className="font-mono font-black text-amber-600 text-sm">{createdAccountInfo.password}</span>
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  const shareText = generateLoginShareText(
+                    createdAccountInfo.identifier,
+                    createdAccountInfo.password,
+                    createdAccountInfo.name
+                  );
+                  navigator.clipboard.writeText(shareText);
+                  setCopySuccess(true);
+                  setTimeout(() => setCopySuccess(false), 3000);
+                }}
+                className="w-full py-3 bg-[#c27803] hover:bg-[#92400e] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>📋</span>
+                <span>{copySuccess ? "✓ Đã Sao Chép Tin Nhắn!" : "Sao Chép Tin Nhắn Gửi Học Viên (Zalo)"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedAccountInfo(null);
+                  setCopySuccess(false);
+                }}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition cursor-pointer"
+              >
+                Hoàn tất & Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Password Reset/Set Modal for Existing Student */}
+      {passwordModalStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-scaleUp">
+            <div className="text-center space-y-1">
+              <div className="w-10 h-10 mx-auto bg-amber-100 text-amber-800 rounded-xl flex items-center justify-center text-xl mb-2">
+                🔑
+              </div>
+              <h3 className="text-lg font-heading font-black text-slate-900">
+                Cấp Mật Khẩu Đăng Nhập
+              </h3>
+              <p className="text-xs text-slate-500">
+                Học viên: <strong className="text-slate-800">{passwordModalStudent.fullName}</strong>
+                <br />
+                Tên đăng nhập: <strong className="text-emerald-700">{passwordModalStudent.phone || passwordModalStudent.email || passwordModalStudent.studentId}</strong>
+              </p>
+            </div>
+
+            <form onSubmit={handleSetPasswordSubmit} className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Mật khẩu mới (Tối thiểu 6 ký tự)
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={modalPassword}
+                  onChange={(e) => setModalPassword(e.target.value)}
+                  placeholder="123456"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setPasswordModalStudent(null)}
+                  className="flex-1 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={passwordModalSubmitting}
+                  className="flex-1 py-2.5 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider disabled:opacity-60 cursor-pointer"
+                >
+                  {passwordModalSubmitting ? "Đang xử lý..." : "Cấp Mật Khẩu"}
                 </button>
               </div>
             </form>

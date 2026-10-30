@@ -93,11 +93,19 @@ export const createStudent = async (
       ? "partial"
       : "unpaid";
 
+  const rawEmail = (studentData.email || "").trim().toLowerCase();
+  const rawPhone = studentData.phone ? studentData.phone.trim() : "";
+  const effectiveEmail =
+    rawEmail ||
+    (rawPhone
+      ? `${rawPhone.replace(/[\s\.\-\(\)\+]/g, "").toLowerCase()}@hocvien.local`
+      : `${studentId.toLowerCase()}@hocvien.local`);
+
   const newStudent = {
     studentId,
     fullName: studentData.fullName.trim(),
-    email: studentData.email.trim().toLowerCase(),
-    phone: studentData.phone ? studentData.phone.trim() : "",
+    email: effectiveEmail,
+    phone: rawPhone,
     dob: studentData.dob || "",
     status: studentData.status || "active",
     currentClassIds: selectedClass ? [selectedClass.classId] : [],

@@ -20,6 +20,7 @@ import {
 import { auth, googleProvider, db } from "../config/firebase";
 import { CENTER_CONFIG } from "../config/appConfig";
 import { isSuperAdmin, getStaffByEmail, SUPER_ADMIN_EMAIL } from "../services/staffService";
+import { normalizeLoginIdentifier } from "../services/studentAuthService";
 
 const AuthContext = createContext(null);
 
@@ -90,6 +91,31 @@ export const AuthProvider = ({ children }) => {
           });
         }
 
+        // If student role but studentId not linked yet, attempt resolution
+        if (!data.studentId && effectiveRole === "student") {
+          let resolvedStudentId = null;
+          const studentsQuery = query(collection(db, "students"), where("email", "==", userEmail));
+          let querySnapshot = await getDocs(studentsQuery);
+          if (!querySnapshot.empty) {
+            resolvedStudentId = querySnapshot.docs[0].id;
+          } else if (userEmail.endsWith("@hocvien.local")) {
+            const rawId = userEmail.replace("@hocvien.local", "");
+            const phoneSnap = await getDocs(query(collection(db, "students"), where("phone", "==", rawId)));
+            if (!phoneSnap.empty) {
+              resolvedStudentId = phoneSnap.docs[0].id;
+            } else {
+              const idSnap = await getDocs(query(collection(db, "students"), where("studentId", "==", rawId.toUpperCase())));
+              if (!idSnap.empty) {
+                resolvedStudentId = idSnap.docs[0].id;
+              }
+            }
+          }
+          if (resolvedStudentId) {
+            data.studentId = resolvedStudentId;
+            await updateDoc(userDocRef, { studentId: resolvedStudentId, updatedAt: serverTimestamp() });
+          }
+        }
+
         setUserProfile(data);
         setRole(effectiveRole);
       } else {
@@ -103,15 +129,34 @@ export const AuthProvider = ({ children }) => {
         let linkedStudentId = null;
 
         if (!isAdminEmail && !isSuper && !staffRecord) {
-          // First-time sign-in by student: search for matching student profile by email
+          // First-time sign-in by student: search for matching student profile by email, phone, or studentId
           const studentsQuery = query(
             collection(db, "students"),
             where("email", "==", userEmail)
           );
-          const querySnapshot = await getDocs(studentsQuery);
+          let querySnapshot = await getDocs(studentsQuery);
+          let studentDoc = !querySnapshot.empty ? querySnapshot.docs[0] : null;
 
-          if (!querySnapshot.empty) {
-            const studentDoc = querySnapshot.docs[0];
+          if (!studentDoc && userEmail.endsWith("@hocvien.local")) {
+            const rawId = userEmail.replace("@hocvien.local", "");
+            // Match by phone number
+            const phoneSnap = await getDocs(
+              query(collection(db, "students"), where("phone", "==", rawId))
+            );
+            if (!phoneSnap.empty) {
+              studentDoc = phoneSnap.docs[0];
+            } else {
+              // Match by studentId
+              const idSnap = await getDocs(
+                query(collection(db, "students"), where("studentId", "==", rawId.toUpperCase()))
+              );
+              if (!idSnap.empty) {
+                studentDoc = idSnap.docs[0];
+              }
+            }
+          }
+
+          if (studentDoc) {
             linkedStudentId = studentDoc.id;
 
             await updateDoc(doc(db, "students", studentDoc.id), {
@@ -121,10 +166,14 @@ export const AuthProvider = ({ children }) => {
           }
         }
 
+        const fallbackName = userEmail.endsWith("@hocvien.local")
+          ? `Học Viên (${userEmail.replace("@hocvien.local", "")})`
+          : userEmail.split("@")[0];
+
         const newProfile = {
           uid: firebaseUser.uid,
           email: userEmail,
-          displayName: firebaseUser.displayName || userEmail.split("@")[0],
+          displayName: firebaseUser.displayName || fallbackName,
           photoURL: firebaseUser.photoURL || null,
           role: detectedRole,
           studentId: linkedStudentId,
@@ -170,11 +219,12 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // Email & Password Login
-  const loginWithEmail = async (email, password) => {
+  // Email, Phone Number or Student ID & Password Login
+  const loginWithEmail = async (identifier, password) => {
     setAuthError(null);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const normalizedEmail = normalizeLoginIdentifier(identifier);
+      const userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
       await syncUserProfile(userCredential.user);
       return userCredential.user;
     } catch (err) {

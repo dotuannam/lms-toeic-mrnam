@@ -1302,25 +1302,28 @@ export const LandingPage = ({ onGoToPortal }) => {
             <div className="relative flex py-2 items-center mb-4">
               <div className="flex-grow border-t border-neutral-300"></div>
               <span className="flex-shrink mx-3 text-neutral-600 text-[11px] font-mono font-bold uppercase">
-                Hoặc đăng nhập bằng Email
+                Hoặc đăng nhập bằng SĐT / Email
               </span>
               <div className="flex-grow border-t border-neutral-300"></div>
             </div>
 
-            {/* Email Form */}
+            {/* Email / Phone Form */}
             <form onSubmit={handleEmailLogin} className="space-y-3.5">
               <div className="space-y-1">
                 <label className="text-[11px] font-extrabold text-neutral-800 block">
-                  Địa Chỉ Email
+                  Số Điện Thoại hoặc Email / Mã Học Viên
                 </label>
                 <input
-                  type="email"
+                  type="text"
                   required
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="your.email@example.com"
+                  placeholder="Ví dụ: 0912345678 hoặc email@example.com"
                   className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-300 rounded-xl text-xs text-neutral-950 font-medium placeholder:text-neutral-500 focus:bg-white focus:outline-none focus:border-neutral-900"
                 />
+                <span className="text-[10px] text-neutral-500 block">
+                  💡 Nhập Số điện thoại (hoặc Email) đã được cấp để đăng nhập nhanh
+                </span>
               </div>
 
               <div className="space-y-1">

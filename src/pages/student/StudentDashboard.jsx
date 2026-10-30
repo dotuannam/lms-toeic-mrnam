@@ -52,14 +52,28 @@ export const StudentDashboard = () => {
           const sSnap = await getDoc(doc(db, "students", studentId));
           if (sSnap.exists()) studentData = { studentId, ...sSnap.data() };
         } else if (currentUser?.email) {
+          const emailLower = currentUser.email.toLowerCase().trim();
           const q = query(
             collection(db, "students"),
-            where("email", "==", currentUser.email.toLowerCase().trim())
+            where("email", "==", emailLower)
           );
           const snap = await getDocs(q);
           if (!snap.empty) {
             studentData = { studentId: snap.docs[0].id, ...snap.docs[0].data() };
             studentId = studentData.studentId;
+          } else if (emailLower.endsWith("@hocvien.local")) {
+            const rawId = emailLower.replace("@hocvien.local", "");
+            const phoneSnap = await getDocs(query(collection(db, "students"), where("phone", "==", rawId)));
+            if (!phoneSnap.empty) {
+              studentData = { studentId: phoneSnap.docs[0].id, ...phoneSnap.docs[0].data() };
+              studentId = studentData.studentId;
+            } else {
+              const idSnap = await getDoc(doc(db, "students", rawId.toUpperCase()));
+              if (idSnap.exists()) {
+                studentData = { studentId: idSnap.id, ...idSnap.data() };
+                studentId = studentData.studentId;
+              }
+            }
           }
         }
 

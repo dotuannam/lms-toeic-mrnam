@@ -223,7 +223,7 @@ export const Login = ({ onLoginSuccess }) => {
           <div className="relative my-6 flex items-center justify-center">
             <div className="border-t border-slate-200 w-full"></div>
             <span className="bg-white px-3 text-xs uppercase font-medium text-slate-400 absolute">
-              or with email
+              or with phone / email
             </span>
           </div>
 
@@ -231,16 +231,16 @@ export const Login = ({ onLoginSuccess }) => {
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                {activeTab === "student" ? "Student Email" : "Admin Email"}
+                {activeTab === "student" ? "Phone Number or Email / Student ID" : "Admin Email"}
               </label>
               <div className="relative">
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={
                     activeTab === "student"
-                      ? "student@gmail.com"
+                      ? "e.g. 0912345678 or student@gmail.com"
                       : "admin@center.edu.vn"
                   }
                   required
