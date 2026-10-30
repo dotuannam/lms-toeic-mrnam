@@ -8,6 +8,7 @@ export const ClassroomScoresSyncModal = ({
   selectedClass,
   classStudents = [],
   testType = "TOEIC",
+  skillsConfig = [],
   onApplyScores,
 }) => {
   const { t, lang } = useLanguage();
@@ -32,8 +33,10 @@ export const ClassroomScoresSyncModal = ({
       setClassroomData(null);
       setSelectedCourseWorkId("");
 
-      // Default target skills based on testType
-      if (testType === "TOEIC") setTargetSkill("listening");
+      // Default target skills based on skillsConfig or testType
+      if (skillsConfig && skillsConfig.length > 0) {
+        setTargetSkill(skillsConfig[0].id);
+      } else if (testType === "TOEIC") setTargetSkill("listening");
       else if (testType === "IELTS") setTargetSkill("listening");
       else if (testType === "APTIS") setTargetSkill("grammar_vocab");
 
@@ -42,7 +45,7 @@ export const ClassroomScoresSyncModal = ({
         handleFetchGrades(existingId);
       }
     }
-  }, [isOpen, selectedClass, testType]);
+  }, [isOpen, selectedClass, testType, skillsConfig]);
 
   if (!isOpen) return null;
 
@@ -98,6 +101,32 @@ export const ClassroomScoresSyncModal = ({
     const maxNum = Number(maxPoints) || 100;
 
     if (!autoScale) return gradeNum;
+
+    // Check custom skillsConfig first
+    if (skillsConfig && skillsConfig.length > 0) {
+      if (targetSkill === "split_both" && skillsConfig.length >= 2) {
+        const totalTarget = (skillsConfig[0].maxScore || 10) + (skillsConfig[1].maxScore || 10);
+        const fullScore = Math.round(((gradeNum / maxNum) * totalTarget) * 10) / 10;
+        const half1 = Math.round((fullScore / 2) * 10) / 10;
+        const half2 = Math.round((fullScore - half1) * 10) / 10;
+        return {
+          skills: {
+            [skillsConfig[0].id]: half1,
+            [skillsConfig[1].id]: half2,
+          },
+          listening: half1,
+          reading: half2,
+          total: fullScore,
+        };
+      }
+
+      const foundSk = skillsConfig.find((s) => s.id === targetSkill);
+      if (foundSk) {
+        const maxScore = Number(foundSk.maxScore) || 10;
+        const scaled = Math.round(((gradeNum / maxNum) * maxScore) * 10) / 10;
+        return Math.min(maxScore, Math.max(0, scaled));
+      }
+    }
 
     if (testType === "TOEIC") {
       // Max per skill is 495, rounded to nearest 5
@@ -156,9 +185,9 @@ export const ClassroomScoresSyncModal = ({
     const scoresToUpdate = {};
     studentMatches.forEach((m) => {
       if (m.hasGrade && m.computedScore !== null) {
-        if (testType === "TOEIC" && targetSkill === "split_both") {
+        if (targetSkill === "split_both" && typeof m.computedScore === "object") {
           scoresToUpdate[m.student.studentId] = {
-            skills: {
+            skills: m.computedScore.skills || {
               listening: m.computedScore.listening,
               reading: m.computedScore.reading,
             },
@@ -320,31 +349,48 @@ export const ClassroomScoresSyncModal = ({
                     onChange={(e) => setTargetSkill(e.target.value)}
                     className="w-full py-2.5 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#c27803]/20 focus:border-[#c27803]"
                   >
-                    {testType === "TOEIC" && (
+                    {skillsConfig && skillsConfig.length > 0 ? (
                       <>
-                        <option value="listening">Listening (Nghe - Max 495)</option>
-                        <option value="reading">Reading (Đọc - Max 495)</option>
-                        <option value="split_both">Chia 50/50 sang Listening & Reading (Max 990)</option>
+                        {skillsConfig.map((sk) => (
+                          <option key={sk.id} value={sk.id}>
+                            {sk.name} (Max {sk.maxScore}đ - {sk.questions || 0} câu)
+                          </option>
+                        ))}
+                        {skillsConfig.length >= 2 && (
+                          <option value="split_both">
+                            Chia 50/50 sang cả 2 phần thi ({skillsConfig[0].name} & {skillsConfig[1].name})
+                          </option>
+                        )}
                       </>
-                    )}
-
-                    {testType === "IELTS" && (
+                    ) : (
                       <>
-                        <option value="listening">Listening (Nghe - Max 9.0)</option>
-                        <option value="reading">Reading (Đọc - Max 9.0)</option>
-                        <option value="writing">Writing (Viết - Max 9.0)</option>
-                        <option value="speaking">Speaking (Nói - Max 9.0)</option>
-                        <option value="all_four">Áp dụng cho cả 4 kỹ năng</option>
-                      </>
-                    )}
+                        {testType === "TOEIC" && (
+                          <>
+                            <option value="listening">Listening (Nghe - Max 495)</option>
+                            <option value="reading">Reading (Đọc - Max 495)</option>
+                            <option value="split_both">Chia 50/50 sang Listening & Reading (Max 990)</option>
+                          </>
+                        )}
 
-                    {testType === "APTIS" && (
-                      <>
-                        <option value="grammar_vocab">Grammar & Vocab (Max 50)</option>
-                        <option value="listening">Listening (Max 50)</option>
-                        <option value="reading">Reading (Max 50)</option>
-                        <option value="speaking">Speaking (Max 50)</option>
-                        <option value="writing">Writing (Max 50)</option>
+                        {testType === "IELTS" && (
+                          <>
+                            <option value="listening">Listening (Nghe - Max 9.0)</option>
+                            <option value="reading">Reading (Đọc - Max 9.0)</option>
+                            <option value="writing">Writing (Viết - Max 9.0)</option>
+                            <option value="speaking">Speaking (Nói - Max 9.0)</option>
+                            <option value="all_four">Áp dụng cho cả 4 kỹ năng</option>
+                          </>
+                        )}
+
+                        {testType === "APTIS" && (
+                          <>
+                            <option value="grammar_vocab">Grammar & Vocab (Max 50)</option>
+                            <option value="listening">Listening (Max 50)</option>
+                            <option value="reading">Reading (Max 50)</option>
+                            <option value="speaking">Speaking (Max 50)</option>
+                            <option value="writing">Writing (Max 50)</option>
+                          </>
+                        )}
                       </>
                     )}
                   </select>

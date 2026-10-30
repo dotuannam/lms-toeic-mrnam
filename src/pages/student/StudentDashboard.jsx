@@ -4,7 +4,7 @@ import { useLanguage } from "../../context/LanguageContext";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { RadarChart } from "../../components/charts/RadarChart";
-import { getStudentScores, getStudentClassroomGrades, syncStudentClassroomGrades } from "../../services/scoreService";
+import { getStudentScores, getStudentClassroomGrades, syncStudentClassroomGrades, calculateRadarScale } from "../../services/scoreService";
 import { VIETQR_CONFIG, buildVietQrUrl } from "../../config/vietqr";
 import { useSettings } from "../../context/SettingsContext";
 import { DEFAULT_CENTER_CONFIG } from "../../services/settingsService";
@@ -302,7 +302,12 @@ export const StudentDashboard = () => {
 
   // Latest score computation for Radar Chart
   const latestScore = scores[0] || student.latestScoreSummary || null;
-  const radarData = latestScore?.normalizedRadarScales || {};
+  const radarData =
+    latestScore?.normalizedRadarScales && Object.keys(latestScore.normalizedRadarScales).length > 0
+      ? latestScore.normalizedRadarScales
+      : latestScore
+      ? calculateRadarScale(latestScore.testType, latestScore.skills, latestScore.gradingMode, latestScore.config)
+      : {};
   const rawSkills = latestScore?.skills || {};
 
   // VietQR parameters
@@ -879,8 +884,14 @@ export const StudentDashboard = () => {
                     </p>
                   </div>
                   {latestScore && (
-                    <span className="px-2.5 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold rounded-lg font-mono">
+                    <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 text-[#c27803] text-xs font-bold rounded-lg font-mono">
                       {t("scoreBadge")}: {latestScore.totalScore}
+                      {latestScore.config?.totalScore ? ` / ${latestScore.config.totalScore}` : ""}
+                      {radarData["Tổng kết (Overall)"] !== undefined
+                        ? ` (${radarData["Tổng kết (Overall)"]}%)`
+                        : latestScore.config?.totalScore
+                        ? ` (${Math.round((latestScore.totalScore / latestScore.config.totalScore) * 100)}%)`
+                        : ""}
                     </span>
                   )}
                 </div>
@@ -1046,8 +1057,13 @@ export const StudentDashboard = () => {
                               {sc.testType}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-right font-bold text-indigo-600">
-                            {sc.totalScore}
+                          <td className="py-3 px-4 text-right font-bold text-[#c27803]">
+                            {sc.totalScore}{sc.config?.totalScore ? ` / ${sc.config.totalScore}` : ""}
+                            {sc.normalizedRadarScales?.["Tổng kết (Overall)"] !== undefined
+                              ? ` (${sc.normalizedRadarScales["Tổng kết (Overall)"]}%)`
+                              : sc.config?.totalScore
+                              ? ` (${Math.round((sc.totalScore / sc.config.totalScore) * 100)}%)`
+                              : ""}
                           </td>
                         </tr>
                       ))}
