@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   getVocabWords,
   subscribeVocabWords,
@@ -6,6 +6,8 @@ import {
   updateVocabWord,
   deleteVocabWord,
   batchAddVocabWords,
+  checkVocabDuplicates,
+  restoreDefaultVocabBank,
   getGameSettings,
   saveGameSettings,
   getAllGameLeaderboard,
@@ -54,6 +56,153 @@ export const VocabGamesAdminPage = () => {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState("");
   const [importing, setImporting] = useState(false);
+  const [duplicateAction, setDuplicateAction] = useState("skip"); // "skip" | "update"
+  const [previewFilterTab, setPreviewFilterTab] = useState("all"); // "all" | "new" | "duplicates"
+  const [importFeedback, setImportFeedback] = useState(null);
+  const [restoringDefaults, setRestoringDefaults] = useState(false);
+
+  // Real-time duplicate check for Single Word modal
+  const duplicateSingleMatch = useMemo(() => {
+    if (!wordFormData.word || editingWord) return null;
+    const clean = wordFormData.word.trim().toLowerCase();
+    if (!clean) return null;
+    return words.find((w) => (w.word || "").trim().toLowerCase() === clean);
+  }, [wordFormData.word, editingWord, words]);
+
+  // Smart multi-format parser for vocabulary lines (Supports hyphens, colons, pipes, and Excel/Sheets tabs)
+  const parseImportLines = (text) => {
+    if (!text || !text.trim()) return [];
+    const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+    const parsed = [];
+
+    lines.forEach((line, idx) => {
+      // 1. Tab-separated (e.g. copied directly from Excel or Google Sheets)
+      if (line.includes("\t")) {
+        const parts = line.split("\t").map((p) => p.trim());
+        const word = parts[0] || "";
+        if (word) {
+          let ipa = "";
+          let pos = "n.";
+          let meaning = "";
+          let example = "";
+          let topic = "General Business";
+          let level = "B1";
+
+          if (parts[1]?.startsWith("/") && parts[1]?.endsWith("/")) {
+            ipa = parts[1];
+            if (["v.", "n.", "adj.", "adv.", "prep.", "conj."].some((p) => parts[2]?.startsWith(p))) {
+              pos = parts[2];
+              meaning = parts[3] || "";
+              example = parts[4] || "";
+            } else {
+              meaning = parts[2] || "";
+              example = parts[3] || "";
+            }
+          } else {
+            meaning = parts[1] || "";
+            example = parts[2] || "";
+          }
+
+          parsed.push({
+            rawLine: line,
+            word,
+            ipa,
+            pos,
+            meaning: meaning || word,
+            example,
+            topic,
+            level,
+            lineNumber: idx + 1,
+          });
+        }
+        return;
+      }
+
+      // 2. Delimiter separated: " - ", " – ", " — ", " | ", " : ", or standard "-", ":", "|"
+      let delimiter = null;
+      if (line.includes(" - ")) delimiter = " - ";
+      else if (line.includes(" – ")) delimiter = " – ";
+      else if (line.includes(" — ")) delimiter = " — ";
+      else if (line.includes(" | ")) delimiter = " | ";
+      else if (line.includes(" : ")) delimiter = " : ";
+      else if (line.includes(":")) delimiter = ":";
+      else if (line.includes("-")) delimiter = "-";
+      else if (line.includes("|")) delimiter = "|";
+
+      let parts = [];
+      if (delimiter) {
+        parts = line.split(delimiter).map((p) => p.trim()).filter(Boolean);
+      } else {
+        parts = [line];
+      }
+
+      if (parts.length >= 2) {
+        const word = parts[0];
+        let ipa = "";
+        let pos = "n.";
+        let meaning = "";
+        let example = "";
+
+        const secondPart = parts[1];
+        const hasIpa = secondPart.startsWith("/") && secondPart.endsWith("/");
+
+        if (hasIpa) {
+          ipa = secondPart;
+          meaning = parts[2] || "";
+          example = parts[3] || "";
+        } else {
+          meaning = secondPart;
+          example = parts[2] || "";
+        }
+
+        parsed.push({
+          rawLine: line,
+          word,
+          ipa,
+          pos,
+          meaning: meaning || word,
+          example,
+          topic: "General Business",
+          level: "B1",
+          lineNumber: idx + 1,
+        });
+      } else if (parts.length === 1 && parts[0]) {
+        parsed.push({
+          rawLine: line,
+          word: parts[0],
+          ipa: "",
+          pos: "n.",
+          meaning: parts[0],
+          example: "",
+          topic: "General Business",
+          level: "B1",
+          lineNumber: idx + 1,
+        });
+      }
+    });
+
+    return parsed;
+  };
+
+  // Real-time reactive analysis of parsed words against database words
+  const parsedWords = useMemo(() => {
+    return parseImportLines(importText);
+  }, [importText]);
+
+  const duplicateAnalysis = useMemo(() => {
+    if (!parsedWords || parsedWords.length === 0) return null;
+    return checkVocabDuplicates(parsedWords, words);
+  }, [parsedWords, words]);
+
+  // Insert sample text for testing with 1 duplicate and 4 new words
+  const insertSampleText = () => {
+    const sample = `Accommodate - /əˈkɒm.ə.deɪt/ - Cung cấp chỗ ở, đáp ứng (Từ này đã có trong CSDL để thử nghiệm đối chiếu trùng lặp)
+Benchmark - /ˈbentʃ.mɑːk/ - Tiêu chuẩn đánh giá hiệu suất - Our service sets the quality benchmark.
+Consolidate - /kənˈsɒl.ɪ.deɪt/ - Củng cố, hợp nhất các bộ phận - The firm will consolidate branches.
+Downsize - /ˈdaʊn.saɪz/ - Thu hẹp quy mô, tinh giản biên chế - The factory decided to downsize.
+Optimize - /ˈɒp.tɪ.maɪz/ - Tối ưu hóa hiệu năng - We need to optimize the operational workflow.`;
+    setImportText(sample);
+  };
 
   // Text-To-Speech audio pronunciation test
   const speakWord = (text) => {
@@ -123,6 +272,20 @@ export const VocabGamesAdminPage = () => {
       if (editingWord) {
         await updateVocabWord(editingWord.id, wordFormData);
       } else {
+        // If it's a new word but duplicates an existing word in DB
+        if (duplicateSingleMatch) {
+          const confirmUpdate = window.confirm(
+            `Từ "${duplicateSingleMatch.word}" đã tồn tại trong CSDL (Nghĩa: "${duplicateSingleMatch.meaning}").\n\nBạn có muốn CẬP NHẬT thông tin cho từ hiện tại không?\n- Chọn [OK] để Cập nhật nghĩa/thông tin mới\n- Chọn [Cancel] để Hủy và chỉnh sửa lại tên từ`
+          );
+          if (confirmUpdate) {
+            await updateVocabWord(duplicateSingleMatch.id, wordFormData);
+            setShowWordModal(false);
+            return;
+          } else {
+            setWordSubmitting(false);
+            return;
+          }
+        }
         await createVocabWord(wordFormData);
       }
       setShowWordModal(false);
@@ -130,6 +293,21 @@ export const VocabGamesAdminPage = () => {
       alert("Lỗi khi lưu từ vựng: " + err.message);
     } finally {
       setWordSubmitting(false);
+    }
+  };
+
+  const handleRestoreDefaults = async () => {
+    if (!window.confirm("Bạn có muốn nạp bổ sung 20 từ vựng TOEIC mẫu mặc định vào kho không? (Các từ vựng đã có trong CSDL sẽ được giữ nguyên, không bị ghi đè)")) {
+      return;
+    }
+    setRestoringDefaults(true);
+    try {
+      const res = await restoreDefaultVocabBank();
+      alert(`Đã nạp bổ sung ${res.seededCount} từ mặc định còn thiếu vào kho từ vựng!`);
+    } catch (err) {
+      alert("Lỗi khi khôi phục từ mặc định: " + err.message);
+    } finally {
+      setRestoringDefaults(false);
     }
   };
 
@@ -157,41 +335,38 @@ export const VocabGamesAdminPage = () => {
     }
   };
 
-  // Quick import parser (accepts lines like "Accommodate - /əˈkɒm.ə.deɪt/ - Đáp ứng, chứa được")
+  // Cumulative Batch Import with Duplicate Management
   const handleBatchImport = async () => {
-    if (!importText.trim()) return;
+    if (!parsedWords || parsedWords.length === 0) {
+      alert("Không nhận diện được từ vựng nào. Vui lòng kiểm tra lại từng dòng theo mẫu: Từ vựng - /IPA/ - Nghĩa tiếng Việt");
+      return;
+    }
     setImporting(true);
     try {
-      const lines = importText.split("\n").filter((l) => l.trim().length > 0);
-      const parsedWords = [];
-      lines.forEach((line) => {
-        const parts = line.split(/[-–—|:]/).map((p) => p.trim());
-        if (parts.length >= 2) {
-          const word = parts[0];
-          const hasIpa = parts[1].startsWith("/") && parts[1].endsWith("/");
-          const ipa = hasIpa ? parts[1] : "";
-          const meaning = hasIpa && parts[2] ? parts[2] : parts[1];
-          const example = parts[3] || "";
-          parsedWords.push({
-            word,
-            ipa,
-            pos: "n.",
-            meaning,
-            example,
-            topic: "Imported Vocab",
-            level: "B1",
-          });
-        }
+      const res = await batchAddVocabWords(parsedWords, {
+        overwriteDuplicates: duplicateAction === "update",
+        existingWords: words,
       });
 
-      if (parsedWords.length > 0) {
-        await batchAddVocabWords(parsedWords);
-        alert(`Đã nạp thành công ${parsedWords.length} từ vựng mới vào kho!`);
+      const summaryText =
+        `🎉 Đã cộng dồn thành công ${res.addedCount} từ mới vào kho từ vựng!` +
+        (res.updatedCount > 0 ? `\n🔄 Đã cập nhật ${res.updatedCount} từ đã có trong CSDL.` : "") +
+        (res.skippedCount > 0 ? `\n⏭️ Đã bỏ qua ${res.skippedCount} từ trùng lặp tiếng Anh.` : "") +
+        `\n📊 Tổng số từ vựng trong kho hiện tại: ${words.length + res.addedCount} từ.`;
+
+      setImportFeedback({
+        type: "success",
+        title: "Cộng Dồn Từ Vựng Thành Công!",
+        message: summaryText,
+        details: res,
+      });
+
+      setImportText("");
+
+      setTimeout(() => {
         setShowImportModal(false);
-        setImportText("");
-      } else {
-        alert("Không nhận diện được định dạng từ vựng. Vui lòng kiểm tra lại từng dòng theo mẫu: Từ vựng - /IPA/ - Nghĩa tiếng Việt");
-      }
+        setImportFeedback(null);
+      }, 2500);
     } catch (err) {
       alert("Lỗi khi import: " + err.message);
     } finally {
@@ -235,11 +410,24 @@ export const VocabGamesAdminPage = () => {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               type="button"
-              onClick={() => setShowImportModal(true)}
+              disabled={restoringDefaults}
+              onClick={handleRestoreDefaults}
+              className="inline-flex items-center gap-2 px-3.5 py-2 bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white rounded-xl text-[11px] font-heading font-bold uppercase tracking-wider transition border border-white/10 disabled:opacity-50"
+              title="Khôi phục hoặc nạp bổ sung 20 từ vựng TOEIC mẫu mặc định nếu bị thiếu"
+            >
+              <span>🔄</span>
+              <span>{restoringDefaults ? "Đang nạp..." : (isVi ? "Nạp 20 Từ Mặc Định" : "Restore Defaults")}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowImportModal(true);
+                setImportFeedback(null);
+              }}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition border border-white/20"
             >
               <span>📥</span>
-              <span>{isVi ? "Import Nhanh" : "Batch Import"}</span>
+              <span>{isVi ? "Thêm Nhanh & Đối Chiếu" : "Batch Import"}</span>
             </button>
             <button
               type="button"
@@ -714,6 +902,26 @@ export const VocabGamesAdminPage = () => {
                     onChange={(e) => setWordFormData({ ...wordFormData, word: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
                   />
+                  {duplicateSingleMatch && (
+                    <div className="mt-1.5 p-2 bg-amber-50 border border-amber-300 rounded-xl text-[11px] text-amber-900 flex items-start justify-between gap-2 shadow-2xs">
+                      <div className="space-y-0.5">
+                        <div className="font-bold flex items-center gap-1 text-amber-800">
+                          <span>⚠️</span>
+                          <span>Từ này đã có trong CSDL!</span>
+                        </div>
+                        <p className="text-[10px] text-amber-700">
+                          Nghĩa: <strong>{duplicateSingleMatch.meaning}</strong> ({duplicateSingleMatch.topic || "Chung"})
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openEditWordModal(duplicateSingleMatch)}
+                        className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider whitespace-nowrap shadow-2xs"
+                      >
+                        ✏️ Sửa từ này
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
@@ -823,63 +1031,324 @@ export const VocabGamesAdminPage = () => {
         </div>
       )}
 
-      {/* 6. MODAL BATCH IMPORT TỪ VỰNG */}
+      {/* 6. MODAL THÊM NHANH & ĐỐI CHIẾU TRÙNG LẶP CSDL */}
       {showImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto space-y-4">
+            {/* Header */}
             <div className="flex items-start justify-between pb-3 border-b border-slate-100">
-              <div>
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-heading font-extrabold uppercase tracking-wider">
+                  <span>⚡</span>
+                  <span>Cộng dồn thông minh & Đối chiếu CSDL</span>
+                </div>
                 <h3 className="text-lg font-heading font-black text-slate-900 uppercase">
-                  Import Nhanh Danh Sách Từ Vựng
+                  Thêm Nhanh Danh Sách Từ Vựng
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Dán danh sách từ vựng theo dòng để nạp hàng loạt vào kho Mini Game.
+                  Tự động cộng dồn vào kho từ vựng hiện có, kiểm tra và đối chiếu xem từ vựng tiếng Anh đã tồn tại trong CSDL chưa.
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setShowImportModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-lg font-bold p-1"
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportFeedback(null);
+                }}
+                className="text-slate-400 hover:text-slate-600 text-lg font-bold p-1 rounded-lg hover:bg-slate-100"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
-              <strong>Định dạng mỗi dòng hỗ trợ:</strong>
-              <div className="font-mono text-[11px] text-amber-800">
-                Từ vựng - /Phiên âm IPA/ - Nghĩa tiếng Việt - Câu ví dụ
-              </div>
-              <div className="text-[10px] text-amber-700">
-                Ví dụ: Expand - /ɪkˈspænd/ - Mở rộng, phát triển - The company plans to expand abroad.
+            {/* Quick Helper Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                Nhập hoặc dán danh sách từ:
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={insertSampleText}
+                  className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-[#c27803] border border-amber-200 rounded-lg text-[11px] font-semibold transition"
+                >
+                  📋 Dán mẫu 5 từ (kèm từ test trùng)
+                </button>
+                {importText && (
+                  <button
+                    type="button"
+                    onClick={() => setImportText("")}
+                    className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[11px] font-semibold transition"
+                  >
+                    🧹 Xóa trắng
+                  </button>
+                )}
               </div>
             </div>
 
+            {/* Format Instructions Banner */}
+            <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/80 text-xs text-amber-900 space-y-1">
+              <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                <span>💡</span>
+                <span>Hỗ trợ đa định dạng (Dấu gạch ngang, hai chấm, hoặc copy từ Excel / Google Sheets):</span>
+              </div>
+              <div className="font-mono text-[11px] text-amber-800 bg-white/70 px-2 py-1 rounded-md border border-amber-200/50">
+                Từ vựng - /Phiên âm IPA/ - Nghĩa tiếng Việt - Câu ví dụ
+              </div>
+            </div>
+
+            {/* Textarea */}
             <div>
               <textarea
-                rows={8}
-                placeholder={`Candidate - /ˈkæn.dɪ.dət/ - Ứng viên xin việc\nSupervisor - /ˈsuː.pə.vaɪ.zər/ - Người giám sát\nRevenue - /ˈrev.ən.juː/ - Doanh thu`}
+                rows={6}
+                placeholder={`Accommodate - /əˈkɒm.ə.deɪt/ - Cung cấp chỗ ở, đáp ứng\nBenchmark - /ˈbentʃ.mɑːk/ - Tiêu chuẩn đánh giá hiệu suất\nConsolidate - /kənˈsɒl.ɪ.deɪt/ - Củng cố, hợp nhất các bộ phận`}
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
-                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono leading-relaxed"
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono leading-relaxed focus:bg-white focus:border-[#c27803] focus:ring-1 focus:ring-[#c27803] transition"
               />
             </div>
 
-            <div className="flex gap-2 pt-2 border-t border-slate-100">
+            {/* Live Duplicate Analysis & Cross-Reference Card */}
+            {duplicateAnalysis && (
+              <div className="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                {/* 3 Metric Badges */}
+                <div className="grid grid-cols-3 gap-2.5 text-center">
+                  <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200">
+                    <div className="text-[10px] font-bold uppercase text-emerald-800 tracking-wider">
+                      🟢 Từ Mới Hợp Lệ
+                    </div>
+                    <div className="text-xl font-heading font-black text-emerald-700 mt-0.5">
+                      {duplicateAnalysis.newWords.length}
+                    </div>
+                    <div className="text-[9px] text-emerald-600">Sẵn sàng cộng dồn</div>
+                  </div>
+
+                  <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200">
+                    <div className="text-[10px] font-bold uppercase text-amber-800 tracking-wider">
+                      🟡 Trùng Trong CSDL
+                    </div>
+                    <div className="text-xl font-heading font-black text-amber-700 mt-0.5">
+                      {duplicateAnalysis.duplicateWords.length}
+                    </div>
+                    <div className="text-[9px] text-amber-600">Đã tồn tại trong kho</div>
+                  </div>
+
+                  <div className="p-2.5 bg-slate-100 rounded-xl border border-slate-200">
+                    <div className="text-[10px] font-bold uppercase text-slate-700 tracking-wider">
+                      📊 Tổng Dòng Nhận Diện
+                    </div>
+                    <div className="text-xl font-heading font-black text-slate-800 mt-0.5">
+                      {parsedWords.length}
+                    </div>
+                    <div className="text-[9px] text-slate-500">
+                      {duplicateAnalysis.batchDuplicates.length > 0
+                        ? `(${duplicateAnalysis.batchDuplicates.length} lặp trong list)`
+                        : "Hợp lệ theo mẫu"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Duplicate Handling Options (Radio Cards) */}
+                {duplicateAnalysis.duplicateWords.length > 0 && (
+                  <div className="p-3 bg-white rounded-xl border border-amber-200 space-y-2">
+                    <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wider block">
+                      ⚙️ Tùy chọn xử lý cho {duplicateAnalysis.duplicateWords.length} từ đã có trong CSDL:
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      <label
+                        className={`flex items-start gap-2.5 p-2.5 rounded-lg border cursor-pointer transition ${
+                          duplicateAction === "skip"
+                            ? "bg-emerald-50/60 border-emerald-400 text-emerald-950 font-medium"
+                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="duplicateAction"
+                          value="skip"
+                          checked={duplicateAction === "skip"}
+                          onChange={() => setDuplicateAction("skip")}
+                          className="mt-0.5 text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <div>
+                          <div className="text-[11px] font-bold">
+                            🟢 Bỏ qua từ trùng (Khuyên dùng)
+                          </div>
+                          <div className="text-[10px] text-slate-500 leading-snug">
+                            Giữ nguyên dữ liệu cũ, chỉ cộng dồn {duplicateAnalysis.newWords.length} từ mới vào CSDL.
+                          </div>
+                        </div>
+                      </label>
+
+                      <label
+                        className={`flex items-start gap-2.5 p-2.5 rounded-lg border cursor-pointer transition ${
+                          duplicateAction === "update"
+                            ? "bg-amber-50/70 border-amber-400 text-amber-950 font-medium"
+                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="duplicateAction"
+                          value="update"
+                          checked={duplicateAction === "update"}
+                          onChange={() => setDuplicateAction("update")}
+                          className="mt-0.5 text-amber-600 focus:ring-amber-500"
+                        />
+                        <div>
+                          <div className="text-[11px] font-bold">
+                            🔄 Cập nhật thông tin mới
+                          </div>
+                          <div className="text-[10px] text-slate-500 leading-snug">
+                            Ghi đè nghĩa và ví dụ mới cho {duplicateAnalysis.duplicateWords.length} từ đã có trong CSDL.
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Filter Tabs for Preview List */}
+                <div className="flex items-center justify-between border-b border-slate-200 pb-1 text-xs">
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewFilterTab("all")}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+                        previewFilterTab === "all"
+                          ? "bg-slate-800 text-white"
+                          : "text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      Tất cả ({parsedWords.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewFilterTab("new")}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+                        previewFilterTab === "new"
+                          ? "bg-emerald-600 text-white"
+                          : "text-emerald-700 hover:bg-emerald-100"
+                      }`}
+                    >
+                      🟢 Từ mới ({duplicateAnalysis.newWords.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewFilterTab("duplicates")}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+                        previewFilterTab === "duplicates"
+                          ? "bg-amber-600 text-white"
+                          : "text-amber-800 hover:bg-amber-100"
+                      }`}
+                    >
+                      🟡 Trùng CSDL ({duplicateAnalysis.duplicateWords.length})
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preview List Rows */}
+                <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1 text-xs">
+                  {/* Duplicates Tab or All Tab displaying duplicate cross-reference */}
+                  {(previewFilterTab === "all" || previewFilterTab === "duplicates") &&
+                    duplicateAnalysis.duplicateWords.map((dup, i) => (
+                      <div
+                        key={`dup_${i}`}
+                        className="p-2.5 bg-amber-50/80 rounded-xl border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                      >
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="px-1.5 py-0.5 bg-amber-200 text-amber-900 rounded font-bold text-[9px] uppercase">
+                              🟡 Trùng CSDL
+                            </span>
+                            <span className="font-heading font-extrabold text-slate-900 text-xs">
+                              {dup.word}
+                            </span>
+                            {dup.ipa && <span className="text-[11px] font-mono text-[#c27803]">{dup.ipa}</span>}
+                          </div>
+                          <div className="text-[11px] text-slate-600 space-y-0.5">
+                            <div>
+                              <span className="font-semibold text-slate-500">Đang có trong CSDL:</span>{" "}
+                              <span className="text-slate-800 font-medium">"{dup.existingWord?.meaning}"</span>
+                            </div>
+                            {dup.meaning !== dup.existingWord?.meaning && (
+                              <div>
+                                <span className="font-semibold text-amber-700">Nghĩa mới nạp:</span>{" "}
+                                <span className="text-amber-900 font-medium">"{dup.meaning}"</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                  {/* New Words Tab or All Tab displaying new valid words */}
+                  {(previewFilterTab === "all" || previewFilterTab === "new") &&
+                    duplicateAnalysis.newWords.map((item, i) => (
+                      <div
+                        key={`new_${i}`}
+                        className="p-2.5 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[9px] uppercase">
+                            🟢 Mới
+                          </span>
+                          <span className="font-heading font-extrabold text-slate-900 text-xs">
+                            {item.word}
+                          </span>
+                          {item.ipa && <span className="text-[11px] font-mono text-[#c27803]">{item.ipa}</span>}
+                          <span className="text-slate-600 text-xs">- {item.meaning}</span>
+                        </div>
+                        <span className="text-[10px] font-semibold text-slate-400 whitespace-nowrap">
+                          {item.pos || "n."}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* Success Feedback Notification */}
+            {importFeedback && (
+              <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-2xl text-xs text-emerald-900 space-y-1">
+                <div className="font-heading font-extrabold text-emerald-800 flex items-center gap-1.5 text-sm">
+                  <span>✅</span>
+                  <span>{importFeedback.title}</span>
+                </div>
+                <div className="whitespace-pre-line text-emerald-700 font-medium">
+                  {importFeedback.message}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-2.5 pt-3 border-t border-slate-100">
               <button
                 type="button"
-                onClick={() => setShowImportModal(false)}
-                className="flex-1 py-2.5 px-4 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50"
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportFeedback(null);
+                }}
+                className="flex-1 py-2.5 px-4 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50 transition"
               >
-                Hủy
+                Đóng
               </button>
               <button
                 type="button"
-                disabled={importing || !importText.trim()}
+                disabled={
+                  importing ||
+                  !parsedWords ||
+                  parsedWords.length === 0 ||
+                  (duplicateAction === "skip" && duplicateAnalysis?.newWords.length === 0)
+                }
                 onClick={handleBatchImport}
-                className="flex-1 py-2.5 px-4 bg-[#c27803] text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider hover:bg-[#b45309] shadow-sm disabled:opacity-50"
+                className="flex-2 py-2.5 px-5 bg-[#c27803] text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider hover:bg-[#b45309] shadow-md transition disabled:opacity-50 active:translate-y-px"
               >
-                {importing ? "Đang xử lý..." : "Bắt Đầu Import"}
+                {importing
+                  ? "Đang ghi vào CSDL..."
+                  : duplicateAction === "update"
+                  ? `📥 Nạp ${duplicateAnalysis?.newWords.length || 0} Từ Mới & Cập Nhật ${duplicateAnalysis?.duplicateWords.length || 0} Từ`
+                  : `📥 Xác Nhận Cộng Dồn ${duplicateAnalysis?.newWords.length || 0} Từ Mới Vào Kho`}
               </button>
             </div>
           </div>

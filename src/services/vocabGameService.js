@@ -6,6 +6,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  writeBatch,
   onSnapshot,
   query,
   where,
@@ -235,6 +236,150 @@ export const DEFAULT_VOCAB_BANK = [
 ];
 
 /**
+ * Generate unique safe ID for vocabulary word
+ */
+export const generateVocabId = (prefix = "vocab") => {
+  const timestamp = Date.now();
+  const randomStr = Math.random().toString(36).substring(2, 9);
+  return `${prefix}_${timestamp}_${randomStr}`;
+};
+
+/**
+ * Ensure default vocab bank is permanently seeded to Firestore if collection is empty
+ */
+export const ensureDefaultBankSeeded = async () => {
+  try {
+    const snap = await getDocs(collection(db, VOCAB_WORDS_COLLECTION));
+    if (snap.empty) {
+      const batch = writeBatch(db);
+      const now = new Date().toISOString();
+      for (const item of DEFAULT_VOCAB_BANK) {
+        const docRef = doc(db, VOCAB_WORDS_COLLECTION, item.id);
+        batch.set(docRef, {
+          ...item,
+          createdAt: now,
+          updatedAt: now,
+          isDefault: true,
+        });
+      }
+      await batch.commit();
+      console.log("Seeded 20 default vocab words to Firestore.");
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.warn("Could not seed default vocab bank:", err);
+    return false;
+  }
+};
+
+/**
+ * Seed or restore default vocab bank (can be called manually by admin)
+ * Will add any default words that are missing from the DB
+ */
+export const restoreDefaultVocabBank = async () => {
+  try {
+    const snap = await getDocs(collection(db, VOCAB_WORDS_COLLECTION));
+    const existingWords = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const existingMap = new Map();
+    existingWords.forEach((w) => {
+      if (w.word) existingMap.set(w.word.trim().toLowerCase(), w);
+    });
+
+    const batch = writeBatch(db);
+    const now = new Date().toISOString();
+    let seededCount = 0;
+
+    for (const item of DEFAULT_VOCAB_BANK) {
+      const key = item.word.trim().toLowerCase();
+      if (!existingMap.has(key)) {
+        const docRef = doc(db, VOCAB_WORDS_COLLECTION, item.id);
+        batch.set(docRef, {
+          ...item,
+          createdAt: now,
+          updatedAt: now,
+          isDefault: true,
+        });
+        seededCount++;
+      }
+    }
+
+    if (seededCount > 0) {
+      await batch.commit();
+    }
+    return { success: true, seededCount, totalDefault: DEFAULT_VOCAB_BANK.length };
+  } catch (err) {
+    console.error("Error restoring default vocab bank:", err);
+    throw err;
+  }
+};
+
+/**
+ * Check incoming words against existing database words for duplicates
+ */
+export const checkVocabDuplicates = (incomingWords, existingWords = []) => {
+  const existingMap = new Map();
+  (existingWords || []).forEach((item) => {
+    if (item && item.word) {
+      const key = item.word.trim().toLowerCase();
+      if (!existingMap.has(key)) {
+        existingMap.set(key, item);
+      }
+    }
+  });
+
+  const newWords = [];
+  const duplicateWords = [];
+  const batchDuplicates = [];
+  const seenInBatch = new Set();
+
+  (incomingWords || []).forEach((incoming, index) => {
+    if (!incoming || !incoming.word || !incoming.word.trim()) return;
+    const cleanWord = incoming.word.trim();
+    const key = cleanWord.toLowerCase();
+
+    // Check duplicate within incoming batch
+    if (seenInBatch.has(key)) {
+      batchDuplicates.push({
+        ...incoming,
+        word: cleanWord,
+        index,
+        duplicateReason: "Từ này bị lặp lại trong chính danh sách bạn đang nạp",
+      });
+      return;
+    }
+    seenInBatch.add(key);
+
+    // Check against existing database
+    if (existingMap.has(key)) {
+      const existingMatch = existingMap.get(key);
+      duplicateWords.push({
+        ...incoming,
+        word: cleanWord,
+        index,
+        existingWord: existingMatch,
+        duplicateReason: `Đã có trong CSDL: "${existingMatch.word}" (${existingMatch.meaning})`,
+      });
+    } else {
+      newWords.push({
+        ...incoming,
+        word: cleanWord,
+        index,
+      });
+    }
+  });
+
+  return {
+    totalIncoming: incomingWords.length,
+    newWords,
+    duplicateWords,
+    batchDuplicates,
+    hasDuplicates: duplicateWords.length > 0 || batchDuplicates.length > 0,
+    canAccumulateCount: newWords.length,
+  };
+};
+
+/**
  * Fetch all vocabulary words
  */
 export const getVocabWords = async () => {
@@ -242,6 +387,7 @@ export const getVocabWords = async () => {
     const q = query(collection(db, VOCAB_WORDS_COLLECTION), orderBy("word", "asc"));
     const snapshot = await getDocs(q);
     if (snapshot.empty) {
+      await ensureDefaultBankSeeded();
       return DEFAULT_VOCAB_BANK;
     }
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -261,6 +407,8 @@ export const subscribeVocabWords = (callback) => {
       q,
       (snapshot) => {
         if (snapshot.empty) {
+          // Asynchronously seed default bank into Firestore so they become permanent docs
+          ensureDefaultBankSeeded().catch((e) => console.warn("Auto-seed error:", e));
           callback(DEFAULT_VOCAB_BANK);
         } else {
           callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
@@ -282,7 +430,10 @@ export const subscribeVocabWords = (callback) => {
  * Create a new vocab word
  */
 export const createVocabWord = async (vocabData) => {
-  const id = `vocab_${Date.now()}`;
+  // Ensure default bank seeded if empty before writing
+  await ensureDefaultBankSeeded();
+
+  const id = vocabData.id || generateVocabId("vocab");
   const docRef = doc(db, VOCAB_WORDS_COLLECTION, id);
   const newWord = {
     id,
@@ -293,7 +444,7 @@ export const createVocabWord = async (vocabData) => {
     example: (vocabData.example || "").trim(),
     topic: vocabData.topic || "General Business",
     level: vocabData.level || "B1",
-    createdAt: new Date().toISOString(),
+    createdAt: vocabData.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
   await setDoc(docRef, newWord);
@@ -320,17 +471,103 @@ export const deleteVocabWord = async (id) => {
 };
 
 /**
- * Batch seed or import words
+ * Batch add vocabulary words with accumulation and duplicate management
+ * @param {Array} wordsArray - Array of word objects to import
+ * @param {Object} options - { overwriteDuplicates: boolean, existingWords: Array }
  */
-export const batchAddVocabWords = async (wordsArray) => {
-  const results = [];
-  for (const item of wordsArray) {
-    if (item.word && item.meaning) {
-      const created = await createVocabWord(item);
-      results.push(created);
+export const batchAddVocabWords = async (wordsArray, options = {}) => {
+  const { overwriteDuplicates = false, existingWords = [] } = options;
+
+  // 1. Ensure default bank is seeded if Firestore collection is completely empty
+  await ensureDefaultBankSeeded();
+
+  // 2. Fetch fresh existing words if not passed or empty
+  let currentWords = existingWords;
+  if (!currentWords || currentWords.length === 0) {
+    currentWords = await getVocabWords();
+  }
+
+  // 3. Analyze duplicates
+  const analysis = checkVocabDuplicates(wordsArray, currentWords);
+  const { newWords, duplicateWords } = analysis;
+
+  const addedWords = [];
+  const updatedWords = [];
+  const skippedWords = [];
+
+  // 4. Batch commit to Firestore (chunked in groups of 400 for safety)
+  const CHUNK_SIZE = 400;
+  const operations = [];
+
+  // A. Accumulate ALL new words into database
+  for (let i = 0; i < newWords.length; i++) {
+    const item = newWords[i];
+    const uniqueId = item.id || generateVocabId("vocab");
+    const docRef = doc(db, VOCAB_WORDS_COLLECTION, uniqueId);
+    const newWordDoc = {
+      id: uniqueId,
+      word: item.word.trim(),
+      ipa: (item.ipa || "").trim(),
+      pos: (item.pos || "n.").trim(),
+      meaning: (item.meaning || "").trim(),
+      example: (item.example || "").trim(),
+      topic: item.topic || "Imported Vocab",
+      level: item.level || "B1",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    operations.push({ type: "set", ref: docRef, data: newWordDoc });
+    addedWords.push(newWordDoc);
+  }
+
+  // B. Handle duplicates based on admin option
+  for (const item of duplicateWords) {
+    if (overwriteDuplicates && item.existingWord && item.existingWord.id) {
+      const docRef = doc(db, VOCAB_WORDS_COLLECTION, item.existingWord.id);
+      const updateData = {
+        meaning: item.meaning?.trim() || item.existingWord.meaning,
+        ipa: item.ipa?.trim() || item.existingWord.ipa || "",
+        pos: item.pos?.trim() || item.existingWord.pos || "n.",
+        example: item.example?.trim() || item.existingWord.example || "",
+        topic: item.topic || item.existingWord.topic || "General",
+        level: item.level || item.existingWord.level || "B1",
+        updatedAt: new Date().toISOString(),
+      };
+      operations.push({ type: "update", ref: docRef, data: updateData });
+      updatedWords.push({ ...item.existingWord, ...updateData });
+    } else {
+      skippedWords.push(item);
     }
   }
-  return results;
+
+  // Execute batch operations
+  if (operations.length > 0) {
+    for (let c = 0; c < operations.length; c += CHUNK_SIZE) {
+      const chunk = operations.slice(c, c + CHUNK_SIZE);
+      const batch = writeBatch(db);
+      chunk.forEach((op) => {
+        if (op.type === "set") {
+          batch.set(op.ref, op.data);
+        } else if (op.type === "update") {
+          batch.update(op.ref, op.data);
+        }
+      });
+      await batch.commit();
+    }
+  }
+
+  return {
+    success: true,
+    totalProcessed: wordsArray.length,
+    addedCount: addedWords.length,
+    updatedCount: updatedWords.length,
+    skippedCount: skippedWords.length,
+    addedWords,
+    updatedWords,
+    skippedWords,
+    duplicateWords,
+    batchDuplicates: analysis.batchDuplicates,
+  };
 };
 
 /**
