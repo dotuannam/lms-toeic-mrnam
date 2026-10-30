@@ -176,7 +176,7 @@ export const StudentResourcesTab = ({ student, activeClass }) => {
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold uppercase tracking-wider bg-[#c27803] text-white shadow-2xs">
-                  Bộ Giáo Trình Độc Quyền
+                  Bộ Giáo Trình Trọng Tâm
                 </span>
                 <span className="text-xs font-semibold text-amber-900">
                   Mr. Nam & Ban Học thuật

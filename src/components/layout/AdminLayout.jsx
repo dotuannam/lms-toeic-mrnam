@@ -68,6 +68,7 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
         </svg>
       ),
     },
+    /* Tạm thời ẩn Kho học liệu mô phỏng theo yêu cầu của GV cho đến khi biên soạn xong tài liệu chính thức
     {
       id: "resources",
       label: isVi ? "Kho Học Liệu (3 Nhóm)" : "Courseware (3-Tier)",
@@ -78,6 +79,7 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
       ),
       badge: "Mới",
     },
+    */
     {
       id: "vocab-games",
       label: isVi ? "Mini Game Từ Vựng" : "Vocab Mini Games",
@@ -201,7 +203,7 @@ export const AdminLayout = ({ activeTab, onTabChange, onSwitchToStudentView, onV
                 <span className={isActive ? "text-white" : "text-slate-400"}>{item.icon}</span>
                 <span className="flex-1 text-left">{item.label}</span>
                 {item.badge && (
-                  <span className="text-xs" title="Super Admin exclusive">
+                  <span className="text-xs" title="Super Admin">
                     {item.badge}
                   </span>
                 )}

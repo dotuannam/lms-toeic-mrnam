@@ -403,6 +403,7 @@ export const StudentDashboard = () => {
             <span>{t("tabMaterials")}</span>
           </button>
 
+          {/* Tạm thời ẩn Kho học liệu mô phỏng theo yêu cầu GV cho đến khi biên soạn xong tài liệu chính thức
           <button
             type="button"
             onClick={() => setActiveTab("resources")}
@@ -415,6 +416,7 @@ export const StudentDashboard = () => {
             <span>📚</span>
             <span>{isVi ? "Kho Học Liệu" : "Resources"}</span>
           </button>
+          */}
 
           <button
             type="button"
@@ -570,6 +572,7 @@ export const StudentDashboard = () => {
                   </a>
                 )}
 
+                {/* Tạm thời ẩn nút Kho học liệu mô phỏng
                 <button
                   type="button"
                   onClick={() => setActiveTab("resources")}
@@ -578,6 +581,7 @@ export const StudentDashboard = () => {
                   <span>📚</span>
                   <span>{isVi ? "Kho Học Liệu" : "Resources"}</span>
                 </button>
+                */}
 
                 <button
                   type="button"

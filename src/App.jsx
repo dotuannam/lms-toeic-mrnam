@@ -92,7 +92,8 @@ const AppContent = () => {
           {adminTab === "scores" && <ScoresPage />}
           {adminTab === "finance" && <FinancePage />}
           {adminTab === "reports" && <ReportsPage />}
-          {adminTab === "resources" && <LearningResourcesPage />}
+          {/* Tạm ẩn Kho học liệu mô phỏng cho đến khi hoàn thiện tài liệu chính thức */}
+          {/* adminTab === "resources" && <LearningResourcesPage /> */}
           {adminTab === "vocab-games" && <VocabGamesAdminPage />}
           {adminTab === "staff" && <StaffManagementPage />}
           {(adminTab === "website-admin" || adminTab === "email-templates") && (
