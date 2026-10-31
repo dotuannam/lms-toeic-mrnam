@@ -9,6 +9,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { logActivity, ACTION_TYPES } from "./auditLogService";
 
 const COLLECTION_NAME = "attendance_sessions";
 
@@ -61,6 +62,15 @@ export const saveAttendanceSession = async ({
   };
 
   await setDoc(docRef, payload, { merge: true });
+
+  logActivity({
+    action: ACTION_TYPES.ATTENDANCE_SAVE,
+    resource: "attendance",
+    targetId: sessionId,
+    details: `Điểm danh lớp ${classId} ngày ${dateStr}: ${summary.present}/${summary.total} có mặt, ${summary.unexcused} vắng`,
+    metadata: { classId, dateStr, summary },
+  });
+
   return payload;
 };
 

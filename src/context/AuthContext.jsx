@@ -21,6 +21,7 @@ import { auth, googleProvider, db } from "../config/firebase";
 import { CENTER_CONFIG } from "../config/appConfig";
 import { isSuperAdmin, getStaffByEmail, SUPER_ADMIN_EMAIL } from "../services/staffService";
 import { normalizeLoginIdentifier } from "../services/studentAuthService";
+import { logActivity, ACTION_TYPES } from "../services/auditLogService";
 
 const AuthContext = createContext(null);
 
@@ -226,6 +227,16 @@ export const AuthProvider = ({ children }) => {
       const normalizedEmail = normalizeLoginIdentifier(identifier);
       const userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
       await syncUserProfile(userCredential.user);
+      logActivity({
+        action: ACTION_TYPES.LOGIN,
+        resource: "auth",
+        details: `Đăng nhập thành công với tài khoản: ${identifier}`,
+        actor: {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          displayName: userCredential.user.displayName || identifier,
+        },
+      });
       return userCredential.user;
     } catch (err) {
       setAuthError(err.message);
@@ -239,6 +250,16 @@ export const AuthProvider = ({ children }) => {
     try {
       const userCredential = await signInWithPopup(auth, googleProvider);
       await syncUserProfile(userCredential.user);
+      logActivity({
+        action: ACTION_TYPES.LOGIN,
+        resource: "auth",
+        details: "Đăng nhập thành công qua Google OAuth",
+        actor: {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          displayName: userCredential.user.displayName,
+        },
+      });
       return userCredential.user;
     } catch (err) {
       setAuthError(err.message);
@@ -250,6 +271,18 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     setAuthError(null);
     try {
+      if (currentUser) {
+        await logActivity({
+          action: ACTION_TYPES.LOGOUT,
+          resource: "auth",
+          details: "Đăng xuất khỏi hệ thống",
+          actor: {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName,
+          },
+        });
+      }
       await signOut(auth);
       setCurrentUser(null);
       setUserProfile(null);

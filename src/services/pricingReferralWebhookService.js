@@ -25,16 +25,130 @@ const WEBHOOK_CONFIG_DOC = "system_settings/bank_webhook_config";
 // =========================================================================
 // 1. BIỂU PHÍ CHUẨN (TUITION PRICING TIERS)
 // =========================================================================
+/**
+ * Tự động tính toán và tạo danh sách các gói học phí (Tiêu chuẩn, Đóng Sớm, Combo)
+ * Đảm bảo 100% học phí tiêu chuẩn luôn khớp với Học phí niêm yết (originalPrice)
+ * và các gói ưu đãi được chiết khấu chính xác theo tỉ lệ admin cấu hình.
+ */
+export const buildTierPackages = ({
+  originalPrice = 0,
+  earlyBirdRate = 10,
+  comboRate = 15,
+  earlyBirdDescription,
+  comboDescription,
+  stdDescription,
+} = {}) => {
+  const basePrice = Math.max(0, Number(originalPrice) || 0);
+  const ebRate = Math.max(0, Math.min(100, Number(earlyBirdRate) || 0));
+  const cbRate = Math.max(0, Math.min(100, Number(comboRate) || 0));
+
+  // Làm tròn tiền giảm giá tới hàng nghìn đồng
+  const earlyBirdDiscount = Math.round((basePrice * (ebRate / 100)) / 1000) * 1000;
+  const earlyBirdPrice = Math.max(0, basePrice - earlyBirdDiscount);
+
+  const comboDiscount = Math.round((basePrice * (cbRate / 100)) / 1000) * 1000;
+  const comboPrice = Math.max(0, basePrice - comboDiscount);
+
+  return [
+    {
+      id: "std",
+      name: "Học phí Tiêu chuẩn",
+      price: basePrice,
+      discount: 0,
+      rate: 0,
+      description: stdDescription || "Học phí niêm yết chuẩn của khóa học",
+    },
+    {
+      id: "early_bird",
+      name: `Ưu đãi Đóng Sớm (Early Bird -${ebRate}%)`,
+      price: earlyBirdPrice,
+      discount: earlyBirdDiscount,
+      rate: ebRate,
+      description:
+        earlyBirdDescription || "Áp dụng hoàn tất học phí trước ngày khai giảng tối thiểu 5 ngày",
+    },
+    {
+      id: "combo",
+      name: `Ưu đãi Đóng Theo Combo (-${cbRate}%)`,
+      price: comboPrice,
+      discount: comboDiscount,
+      rate: cbRate,
+      description:
+        comboDescription || "Áp dụng đăng ký combo từ 2 khóa trở lên hoặc đăng ký theo nhóm",
+    },
+  ];
+};
+
+/**
+ * Chuẩn hóa dữ liệu Biểu Phí:
+ * - Tự động đồng bộ các gói học phí với originalPrice hiện hành (khắc phục hoàn toàn lệch giá)
+ * - Tự động bổ sung gói Combo nếu trước đó chưa có
+ */
+export const normalizeTier = (tier) => {
+  if (!tier) return null;
+  const originalPrice = Math.max(0, Number(tier.originalPrice) || 0);
+
+  let earlyBirdRate = tier.earlyBirdRate !== undefined ? Number(tier.earlyBirdRate) : 10;
+  let comboRate = tier.comboRate !== undefined ? Number(tier.comboRate) : 15;
+
+  let stdDesc = "Học phí niêm yết chuẩn của khóa học";
+  let ebDesc = "Áp dụng hoàn tất học phí trước ngày khai giảng tối thiểu 5 ngày";
+  let comboDesc = "Áp dụng đăng ký combo từ 2 khóa trở lên hoặc đăng ký theo nhóm";
+
+  if (Array.isArray(tier.packages)) {
+    const stdPkg = tier.packages.find((p) => p.id === "std");
+    if (stdPkg?.description) stdDesc = stdPkg.description;
+
+    const ebPkg = tier.packages.find((p) => p.id === "early_bird" || p.id?.includes("early"));
+    if (ebPkg) {
+      if (ebPkg.description) ebDesc = ebPkg.description;
+      if (tier.earlyBirdRate === undefined && ebPkg.rate !== undefined) {
+        earlyBirdRate = Number(ebPkg.rate);
+      }
+    }
+
+    const comboPkg = tier.packages.find((p) => p.id === "combo" || p.id?.includes("combo") || p.id === "group");
+    if (comboPkg) {
+      if (comboPkg.description) comboDesc = comboPkg.description;
+      if (tier.comboRate === undefined && comboPkg.rate !== undefined) {
+        comboRate = Number(comboPkg.rate);
+      }
+    }
+  }
+
+  earlyBirdRate = isNaN(earlyBirdRate) || earlyBirdRate < 0 ? 10 : Math.min(100, earlyBirdRate);
+  comboRate = isNaN(comboRate) || comboRate < 0 ? 15 : Math.min(100, comboRate);
+
+  const packages = buildTierPackages({
+    originalPrice,
+    earlyBirdRate,
+    comboRate,
+    stdDescription: stdDesc,
+    earlyBirdDescription: ebDesc,
+    comboDescription: comboDesc,
+  });
+
+  return {
+    ...tier,
+    originalPrice,
+    earlyBirdRate,
+    comboRate,
+    packages,
+  };
+};
+
 export const DEFAULT_PRICING_TIERS = [
   {
     id: "tier_toeic_550",
     name: "TOEIC Target 550+ (Mục tiêu Chuẩn Đầu Ra)",
     courseType: "TOEIC",
     originalPrice: 4500000,
+    earlyBirdRate: 10,
+    comboRate: 15,
     packages: [
-      { id: "std", name: "Học phí Tiêu chuẩn", price: 4500000, discount: 0, description: "Áp dụng đóng từng kỳ hoặc tiêu chuẩn" },
-      { id: "early_bird", name: "Ưu đãi Đóng Sớm (Early Bird)", price: 3990000, discount: 510000, description: "Đóng trước ngày khai giảng tối thiểu 5 ngày" },
-      { id: "combo", name: "Combo Trọn Gói 2 Cấp Độ (550 + 750)", price: 7500000, discount: 2500000, description: "Cam kết đầu ra 750+, tiết kiệm 2.500.000₫" },
+      { id: "std", name: "Học phí Tiêu chuẩn", price: 4500000, discount: 0, rate: 0, description: "Áp dụng đóng từng kỳ hoặc tiêu chuẩn" },
+      { id: "early_bird", name: "Ưu đãi Đóng Sớm (Early Bird -10%)", price: 4050000, discount: 450000, rate: 10, description: "Đóng trước ngày khai giảng tối thiểu 5 ngày" },
+      { id: "combo", name: "Ưu đãi Đóng Theo Combo (-15%)", price: 3825000, discount: 675000, rate: 15, description: "Áp dụng khi đăng ký từ 2 khóa trở lên hoặc combo trọn gói" },
     ],
     durationSessions: 24,
     materialsIncluded: true,
@@ -46,10 +160,12 @@ export const DEFAULT_PRICING_TIERS = [
     name: "TOEIC Target 750+ (Chuyên Sâu Điểm Cao)",
     courseType: "TOEIC",
     originalPrice: 5500000,
+    earlyBirdRate: 10,
+    comboRate: 15,
     packages: [
-      { id: "std", name: "Học phí Tiêu chuẩn", price: 5500000, discount: 0, description: "Khóa học chuyên sâu giải đề ETS Part 5, 6, 7" },
-      { id: "early_bird", name: "Ưu đãi Đóng Sớm (Early Bird)", price: 4890000, discount: 610000, description: "Giảm trực tiếp khi hoàn tất thủ tục sớm" },
-      { id: "group", name: "Ưu đãi Nhóm (Từ 2 bạn trở lên)", price: 4690000, discount: 810000, description: "Đăng ký học nhóm cùng bạn bè" },
+      { id: "std", name: "Học phí Tiêu chuẩn", price: 5500000, discount: 0, rate: 0, description: "Khóa học chuyên sâu giải đề ETS Part 5, 6, 7" },
+      { id: "early_bird", name: "Ưu đãi Đóng Sớm (Early Bird -10%)", price: 4950000, discount: 550000, rate: 10, description: "Giảm trực tiếp khi hoàn tất thủ tục sớm" },
+      { id: "combo", name: "Ưu đãi Đóng Theo Combo (-15%)", price: 4675000, discount: 825000, rate: 15, description: "Ưu đãi đăng ký combo 2 cấp độ hoặc học nhóm" },
     ],
     durationSessions: 30,
     materialsIncluded: true,
@@ -61,9 +177,12 @@ export const DEFAULT_PRICING_TIERS = [
     name: "IELTS Foundation (Nền Tảng 4 Kỹ Năng)",
     courseType: "IELTS",
     originalPrice: 6500000,
+    earlyBirdRate: 10,
+    comboRate: 15,
     packages: [
-      { id: "std", name: "Học phí Tiêu chuẩn", price: 6500000, discount: 0, description: "Xây gốc Ngữ pháp, Phát âm & Từ vựng Academic" },
-      { id: "early_bird", name: "Ưu đãi Đóng Sớm (Early Bird)", price: 5800000, discount: 700000, description: "Tặng kèm toàn bộ giáo trình gốc" },
+      { id: "std", name: "Học phí Tiêu chuẩn", price: 6500000, discount: 0, rate: 0, description: "Xây gốc Ngữ pháp, Phát âm & Từ vựng Academic" },
+      { id: "early_bird", name: "Ưu đãi Đóng Sớm (Early Bird -10%)", price: 5850000, discount: 650000, rate: 10, description: "Tặng kèm toàn bộ giáo trình gốc" },
+      { id: "combo", name: "Ưu đãi Đóng Theo Combo (-15%)", price: 5525000, discount: 975000, rate: 15, description: "Đăng ký liên cấp Foundation + Intensive" },
     ],
     durationSessions: 36,
     materialsIncluded: true,
@@ -75,9 +194,12 @@ export const DEFAULT_PRICING_TIERS = [
     name: "IELTS Intensive 6.5+ (Luyện Thi Cấp Tốc)",
     courseType: "IELTS",
     originalPrice: 8500000,
+    earlyBirdRate: 10,
+    comboRate: 15,
     packages: [
-      { id: "std", name: "Học phí Tiêu chuẩn", price: 8500000, discount: 0, description: "Luyện đề thực chiến với giáo viên 8.5 IELTS" },
-      { id: "early_bird", name: "Ưu đãi Đóng Sớm", price: 7650000, discount: 850000, description: "Tặng 3 lượt thi thử Mock Test chuẩn khảo thí" },
+      { id: "std", name: "Học phí Tiêu chuẩn", price: 8500000, discount: 0, rate: 0, description: "Luyện đề thực chiến với giáo viên 8.5 IELTS" },
+      { id: "early_bird", name: "Ưu đãi Đóng Sớm (Early Bird -10%)", price: 7650000, discount: 850000, rate: 10, description: "Tặng 3 lượt thi thử Mock Test chuẩn khảo thí" },
+      { id: "combo", name: "Ưu đãi Đóng Theo Combo (-15%)", price: 7225000, discount: 1275000, rate: 15, description: "Combo IELTS Chuyên Sâu + Luyện Đề VIP" },
     ],
     durationSessions: 40,
     materialsIncluded: true,
@@ -89,9 +211,12 @@ export const DEFAULT_PRICING_TIERS = [
     name: "APTIS ESOL B1 - B2 (Luyện Thi Cấp Tốc)",
     courseType: "APTIS",
     originalPrice: 4200000,
+    earlyBirdRate: 10,
+    comboRate: 15,
     packages: [
-      { id: "std", name: "Học phí Tiêu chuẩn", price: 4200000, discount: 0, description: "Chinh phục chứng chỉ Hội Đồng Anh" },
-      { id: "early_bird", name: "Ưu đãi Đóng Sớm", price: 3790000, discount: 410000, description: "Hỗ trợ phần mềm luyện đề máy tính" },
+      { id: "std", name: "Học phí Tiêu chuẩn", price: 4200000, discount: 0, rate: 0, description: "Chinh phục chứng chỉ Hội Đồng Anh" },
+      { id: "early_bird", name: "Ưu đãi Đóng Sớm (Early Bird -10%)", price: 3780000, discount: 420000, rate: 10, description: "Hỗ trợ phần mềm luyện đề máy tính" },
+      { id: "combo", name: "Ưu đãi Đóng Theo Combo (-15%)", price: 3570000, discount: 630000, rate: 15, description: "Combo Luyện Thi B1 + B2 trọn gói" },
     ],
     durationSessions: 20,
     materialsIncluded: true,
@@ -104,11 +229,11 @@ export const getPricingTiers = async () => {
   try {
     const q = query(collection(db, PRICING_COLLECTION), orderBy("courseType", "asc"));
     const snapshot = await getDocs(q);
-    if (snapshot.empty) return DEFAULT_PRICING_TIERS;
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    if (snapshot.empty) return DEFAULT_PRICING_TIERS.map(normalizeTier);
+    return snapshot.docs.map((d) => normalizeTier({ id: d.id, ...d.data() }));
   } catch (err) {
     console.warn("Pricing tiers fetch fallback to defaults:", err);
-    return DEFAULT_PRICING_TIERS;
+    return DEFAULT_PRICING_TIERS.map(normalizeTier);
   }
 };
 
@@ -118,26 +243,27 @@ export const subscribePricingTiers = (callback) => {
     return onSnapshot(
       q,
       (snapshot) => {
-        if (snapshot.empty) callback(DEFAULT_PRICING_TIERS);
-        else callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+        if (snapshot.empty) callback(DEFAULT_PRICING_TIERS.map(normalizeTier));
+        else callback(snapshot.docs.map((d) => normalizeTier({ id: d.id, ...d.data() })));
       },
       (err) => {
         console.warn("Pricing tiers subscription error:", err);
-        callback(DEFAULT_PRICING_TIERS);
+        callback(DEFAULT_PRICING_TIERS.map(normalizeTier));
       }
     );
   } catch (err) {
     console.warn("Pricing tiers setup error:", err);
-    callback(DEFAULT_PRICING_TIERS);
+    callback(DEFAULT_PRICING_TIERS.map(normalizeTier));
     return () => {};
   }
 };
 
 export const savePricingTier = async (tierData) => {
-  const id = tierData.id || `tier_${Date.now()}`;
+  const normalized = normalizeTier(tierData);
+  const id = normalized.id || `tier_${Date.now()}`;
   const docRef = doc(db, PRICING_COLLECTION, id);
   const data = {
-    ...tierData,
+    ...normalized,
     id,
     updatedAt: new Date().toISOString(),
   };

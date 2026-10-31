@@ -15,6 +15,8 @@ import {
   subscribePricingTiers,
   savePricingTier,
   deletePricingTier,
+  buildTierPackages,
+  normalizeTier,
   subscribeReferrals,
   createReferral,
   settleReferralCommission,
@@ -107,18 +109,35 @@ export const FinancePage = () => {
   // ==========================================
   const [showTierModal, setShowTierModal] = useState(false);
   const [editingTier, setEditingTier] = useState(null);
-  const [tierForm, setTierForm] = useState({
-    id: "",
-    name: "",
-    courseType: "TOEIC",
-    originalPrice: 4500000,
-    durationSessions: 24,
-    materialsIncluded: true,
-    packages: [
-      { id: "std", name: "Học phí Tiêu chuẩn", price: 4500000, discount: 0, description: "Gói tiêu chuẩn" },
-      { id: "early_bird", name: "Ưu đãi Đóng Sớm", price: 3990000, discount: 510000, description: "Đóng trước 5 ngày" },
-    ],
-  });
+  const [tierForm, setTierForm] = useState(() =>
+    normalizeTier({
+      id: "",
+      name: "",
+      courseType: "TOEIC",
+      originalPrice: 4500000,
+      earlyBirdRate: 10,
+      comboRate: 15,
+      durationSessions: 24,
+      materialsIncluded: true,
+      isPopular: false,
+      status: "active",
+    })
+  );
+
+  const handleTierFieldChange = (field, value) => {
+    setTierForm((prev) => {
+      const next = { ...prev, [field]: value };
+      if (field === "originalPrice" || field === "earlyBirdRate" || field === "comboRate") {
+        const pkgs = buildTierPackages({
+          originalPrice: field === "originalPrice" ? Number(value) : next.originalPrice,
+          earlyBirdRate: field === "earlyBirdRate" ? Number(value) : next.earlyBirdRate,
+          comboRate: field === "comboRate" ? Number(value) : next.comboRate,
+        });
+        next.packages = pkgs;
+      }
+      return next;
+    });
+  };
 
   // ==========================================
   // STATE: REFERRAL CREATE MODAL
@@ -297,7 +316,7 @@ export const FinancePage = () => {
       const result = await processPosSale(payload);
       setPosCompletedReceipt(result);
       await loadFinanceData();
-      alert(lang === "vi" ? "🎉 Thanh toán POS & lập phiếu thu thành công!" : "POS payment recorded successfully!");
+      alert(lang === "vi" ? "Thanh toán POS & lập phiếu thu thành công!" : "POS payment recorded successfully!");
     } catch (err) {
       console.error("POS Sale error:", err);
       alert("Lỗi khi xử lý POS: " + err.message);
@@ -472,7 +491,10 @@ export const FinancePage = () => {
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
-          <span>💳</span>
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <rect x="2" y="5" width="20" height="14" rx="2" strokeWidth="2"/>
+            <line x1="2" y1="10" x2="22" y2="10" strokeWidth="2"/>
+          </svg>
           <span>{lang === "vi" ? "Thu Ngân POS" : "POS Cashier"}</span>
           <span className="text-[10px] bg-[#c27803] text-white px-1.5 py-0.2 rounded-full font-sans">
             Mới
@@ -487,7 +509,9 @@ export const FinancePage = () => {
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
-          <span>🏷️</span>
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V5a2 2 0 012-2z"/>
+          </svg>
           <span>{lang === "vi" ? "Biểu Phí Chuẩn" : "Pricing Tiers"}</span>
         </button>
 
@@ -499,7 +523,9 @@ export const FinancePage = () => {
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
-          <span>👥</span>
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
           <span>{lang === "vi" ? "Quản Lý Referral" : "Referrals"}</span>
           {pendingReferralCommissions > 0 && (
             <span className="text-[10px] bg-rose-500 text-white px-1.5 py-0.2 rounded-full font-sans">
@@ -516,7 +542,9 @@ export const FinancePage = () => {
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
-          <span>📚</span>
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
           <span>{lang === "vi" ? "Theo Dõi Học Phí" : "Tuition Tracking"}</span>
         </button>
 
@@ -528,7 +556,9 @@ export const FinancePage = () => {
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
-          <span>📒</span>
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
           <span>{lang === "vi" ? "Sổ Quỹ Thu - Chi" : "Internal Ledger"}</span>
         </button>
 
@@ -540,7 +570,9 @@ export const FinancePage = () => {
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
-          <span>📊</span>
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
           <span>{lang === "vi" ? "Báo Cáo P&L" : "Monthly P&L"}</span>
         </button>
       </div>
@@ -817,7 +849,7 @@ export const FinancePage = () => {
                       <div className="p-3 bg-white rounded-lg border border-amber-200/80 space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">
-                            📌 Nhóm 1: Phân loại Người giới thiệu
+                            Nhóm 1: Phân loại Người giới thiệu
                           </span>
                         </div>
 
@@ -831,7 +863,7 @@ export const FinancePage = () => {
                                 : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                             }`}
                           >
-                            🎓 Học viên hiện tại
+                            Học viên hiện tại
                           </button>
                           <button
                             type="button"
@@ -842,7 +874,7 @@ export const FinancePage = () => {
                                 : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                             }`}
                           >
-                            🌐 Người ngoài
+                            Người ngoài
                           </button>
                         </div>
 
@@ -928,7 +960,7 @@ export const FinancePage = () => {
                       {/* NHÓM 2: HÌNH THỨC NHẬN COMMISSION */}
                       <div className="p-3 bg-white rounded-lg border border-amber-200/80 space-y-3">
                         <span className="text-xs font-bold text-amber-900 uppercase tracking-wider block">
-                          💰 Nhóm 2: Hình thức nhận Commission (Hoa hồng)
+                          Nhóm 2: Hình thức nhận Commission (Hoa hồng)
                         </span>
 
                         <div className="grid grid-cols-2 gap-2">
@@ -941,7 +973,7 @@ export const FinancePage = () => {
                                 : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                             }`}
                           >
-                            💵 Tiền mặt / Chuyển khoản (Ghi nhận khoản phải chi)
+                            Tiền mặt / Chuyển khoản (Ghi nhận khoản phải chi)
                           </button>
                           <button
                             type="button"
@@ -1035,7 +1067,7 @@ export const FinancePage = () => {
                           : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                       }`}
                     >
-                      <span className="text-base">💳</span>
+                      <svg className="w-4 h-4 shrink-0 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2" strokeWidth="2"/><line x1="2" y1="10" x2="22" y2="10" strokeWidth="2"/></svg>
                       <span>Quẹt thẻ POS</span>
                     </button>
                   </div>
@@ -1191,7 +1223,7 @@ export const FinancePage = () => {
                       onClick={() => window.print()}
                       className="w-full mt-2 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] transition"
                     >
-                      🖨️ In Hóa Đơn / Phiếu Thu POS
+                      In Hóa Đơn / Phiếu Thu POS
                     </button>
                   </div>
                 )}
@@ -1220,24 +1252,27 @@ export const FinancePage = () => {
 
             <button
               onClick={() => {
-                setEditingTier(null);
-                setTierForm({
+                const defaultNew = normalizeTier({
                   id: `tier_${Date.now()}`,
                   name: "",
                   courseType: "TOEIC",
                   originalPrice: 4500000,
+                  earlyBirdRate: 10,
+                  comboRate: 15,
                   durationSessions: 24,
                   materialsIncluded: true,
-                  packages: [
-                    { id: "std", name: "Học phí Tiêu chuẩn", price: 4500000, discount: 0, description: "Tiêu chuẩn" },
-                    { id: "early_bird", name: "Ưu đãi Đóng Sớm", price: 3990000, discount: 510000, description: "Đóng sớm" },
-                  ],
+                  isPopular: false,
+                  status: "active",
                 });
+                setEditingTier(null);
+                setTierForm(defaultNew);
                 setShowTierModal(true);
               }}
-              className="py-2 px-4 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-2 shrink-0"
+              className="py-2.5 px-4 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-2 shrink-0"
             >
-              <span>➕</span>
+              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"/>
+              </svg>
               <span>{lang === "vi" ? "Thêm Biểu Phí Mới" : "New Pricing Tier"}</span>
             </button>
           </div>
@@ -1268,9 +1303,26 @@ export const FinancePage = () => {
                     <div className="text-xl font-bold text-[#c27803]">
                       {tier.originalPrice?.toLocaleString("vi-VN")} ₫
                     </div>
-                    <div className="text-xs text-slate-600 mt-1 flex items-center gap-3">
-                      <span>⏱️ {tier.durationSessions} buổi học</span>
-                      <span>📚 {tier.materialsIncluded ? "Đã gồm tài liệu" : "Chưa gồm sách"}</span>
+                    <div className="text-xs text-slate-600 mt-1.5 flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                          <polyline points="12 6 12 12 16 14" strokeWidth="2"/>
+                        </svg>
+                        {tier.durationSessions} {lang === "vi" ? "buổi học" : "sessions"}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        {tier.materialsIncluded
+                          ? lang === "vi"
+                            ? "Đã gồm tài liệu"
+                            : "Materials incl."
+                          : lang === "vi"
+                          ? "Chưa gồm sách"
+                          : "Books excl."}
+                      </span>
                     </div>
                   </div>
 
@@ -1279,38 +1331,72 @@ export const FinancePage = () => {
                     <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                       Các gói áp dụng:
                     </span>
-                    {tier.packages?.map((pkg) => (
-                      <div
-                        key={pkg.id}
-                        className="p-2.5 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between text-xs"
-                      >
-                        <div>
-                          <div className="font-bold text-slate-800">{pkg.name}</div>
-                          <div className="text-[10px] text-slate-400">{pkg.description}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-slate-900">{pkg.price?.toLocaleString("vi-VN")} ₫</div>
-                          {pkg.discount > 0 && (
-                            <div className="text-[10px] text-emerald-600 font-semibold">
-                              Tiết kiệm {pkg.discount?.toLocaleString("vi-VN")} ₫
+                    {tier.packages?.map((pkg) => {
+                      const isCombo = pkg.id === "combo" || pkg.id?.includes("combo") || pkg.id === "group";
+                      const isEarlyBird = pkg.id === "early_bird" || pkg.id?.includes("early");
+
+                      return (
+                        <div
+                          key={pkg.id}
+                          className={`p-2.5 rounded-xl border flex items-center justify-between text-xs transition ${
+                            isCombo
+                              ? "bg-purple-50/40 border-purple-200/80"
+                              : isEarlyBird
+                              ? "bg-amber-50/40 border-amber-200/80"
+                              : "bg-slate-50 border-slate-100"
+                          }`}
+                        >
+                          <div className="pr-2">
+                            <div className="font-bold text-slate-800 flex items-center gap-1.5 flex-wrap">
+                              <span>{pkg.name}</span>
+                              {isCombo && (
+                                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-purple-100 text-purple-700">
+                                  Combo
+                                </span>
+                              )}
                             </div>
-                          )}
+                            <div className="text-[10px] text-slate-400 mt-0.5">{pkg.description}</div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div
+                              className={`font-bold ${
+                                isCombo
+                                  ? "text-purple-900"
+                                  : isEarlyBird
+                                  ? "text-amber-900"
+                                  : "text-slate-900"
+                              }`}
+                            >
+                              {pkg.price?.toLocaleString("vi-VN")} ₫
+                            </div>
+                            {pkg.discount > 0 ? (
+                              <div className="text-[10px] text-emerald-600 font-semibold">
+                                Tiết kiệm {pkg.discount?.toLocaleString("vi-VN")} ₫
+                              </div>
+                            ) : (
+                              <div className="text-[10px] text-slate-400 font-medium">Học phí gốc</div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
                 <div className="pt-4 mt-4 border-t border-slate-100 flex gap-2">
                   <button
                     onClick={() => {
-                      setEditingTier(tier);
-                      setTierForm({ ...tier });
+                      const normalized = normalizeTier(tier);
+                      setEditingTier(normalized);
+                      setTierForm(normalized);
                       setShowTierModal(true);
                     }}
-                    className="flex-1 py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition"
+                    className="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5"
                   >
-                    ✏️ Sửa Biểu Phí
+                    <svg className="w-3.5 h-3.5 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 00 2 2h14a2 2 0 00 2-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    <span>{lang === "vi" ? "Sửa Biểu Phí" : "Edit Tier"}</span>
                   </button>
                   <button
                     onClick={async () => {
@@ -1318,9 +1404,12 @@ export const FinancePage = () => {
                         await deletePricingTier(tier.id);
                       }
                     }}
-                    className="py-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-semibold transition"
+                    title={lang === "vi" ? "Xóa biểu phí" : "Delete tier"}
+                    className="py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-semibold transition flex items-center justify-center"
                   >
-                    🗑️
+                    <svg className="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -1330,13 +1419,30 @@ export const FinancePage = () => {
           {/* Modal Thêm/Sửa Biểu Phí */}
           {showTierModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-              <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+              <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4 border-b pb-3">
-                  <h3 className="text-base font-bold font-heading text-slate-900">
-                    {editingTier ? "Chỉnh Sửa Biểu Phí Chuẩn" : "Thêm Biểu Phí Chuẩn Mới"}
-                  </h3>
-                  <button onClick={() => setShowTierModal(false)} className="text-slate-400 hover:text-slate-600">
-                    ✕
+                  <div className="flex items-center gap-2.5">
+                    <span className="p-2 rounded-xl bg-amber-50 text-[#c27803]">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V5a2 2 0 012-2z"/>
+                      </svg>
+                    </span>
+                    <div>
+                      <h3 className="text-base font-bold font-heading text-slate-900">
+                        {editingTier ? "Chỉnh Sửa Biểu Phí Chuẩn" : "Thêm Biểu Phí Chuẩn Mới"}
+                      </h3>
+                      <p className="text-[11px] text-slate-500">
+                        Học phí chuẩn và các gói ưu đãi (đóng sớm, combo) sẽ tự động khớp và đồng bộ 100%.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowTierModal(false)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
                   </button>
                 </div>
 
@@ -1354,19 +1460,19 @@ export const FinancePage = () => {
                       type="text"
                       required
                       value={tierForm.name}
-                      onChange={(e) => setTierForm({ ...tierForm, name: e.target.value })}
+                      onChange={(e) => handleTierFieldChange("name", e.target.value)}
                       placeholder="VD: TOEIC Target 650+ Bứt Phá"
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-[#c27803] focus:ring-1 focus:ring-[#c27803] outline-none"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block font-semibold text-slate-700 mb-1">Phân Loại:</label>
+                      <label className="block font-semibold text-slate-700 mb-1">Phân Loại Khóa Học:</label>
                       <select
                         value={tierForm.courseType}
-                        onChange={(e) => setTierForm({ ...tierForm, courseType: e.target.value })}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                        onChange={(e) => handleTierFieldChange("courseType", e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:border-[#c27803] outline-none"
                       >
                         <option value="TOEIC">TOEIC</option>
                         <option value="IELTS">IELTS</option>
@@ -1377,45 +1483,190 @@ export const FinancePage = () => {
                     </div>
 
                     <div>
-                      <label className="block font-semibold text-slate-700 mb-1">Học Phí Gốc Chuẩn (₫):</label>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Học Phí Gốc Chuẩn (₫) (*):
+                      </label>
                       <input
                         type="number"
-                        step="100000"
+                        step="10000"
+                        min="0"
                         required
                         value={tierForm.originalPrice}
                         onChange={(e) =>
-                          setTierForm({ ...tierForm, originalPrice: Number(e.target.value) })
+                          handleTierFieldChange("originalPrice", Math.max(0, Number(e.target.value)))
                         }
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-[#c27803]"
+                        className="w-full px-3 py-2 bg-amber-50/50 border border-amber-200 rounded-xl text-xs font-bold text-[#c27803] focus:bg-white focus:border-[#c27803] outline-none"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  {/* CẤU HÌNH TỈ LỆ ƯU ĐÃI (ADMIN CÓ THỂ CHỈNH SỬA) */}
+                  <div className="p-3.5 bg-gradient-to-br from-amber-50/60 to-slate-50 rounded-xl border border-amber-200/70 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                        <svg className="w-4 h-4 text-[#c27803]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Tỉ Lệ Ưu Đãi (Tự Động Tính & Đồng Bộ)
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-medium">
+                        Admin có thể chỉnh sửa %
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="font-semibold text-slate-700 text-[11px]">
+                            Ưu đãi Đóng Sớm (Early Bird):
+                          </label>
+                          <span className="text-[11px] font-bold text-amber-700">
+                            {tierForm.earlyBirdRate ?? 10}%
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="0"
+                            max="90"
+                            step="1"
+                            value={tierForm.earlyBirdRate ?? 10}
+                            onChange={(e) =>
+                              handleTierFieldChange(
+                                "earlyBirdRate",
+                                Math.max(0, Math.min(90, Number(e.target.value)))
+                              )
+                            }
+                            className="w-20 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center"
+                          />
+                          <span className="text-xs text-slate-500">%</span>
+                          <div className="text-[10px] text-slate-500 flex-1 text-right">
+                            Giảm: -
+                            {(
+                              Math.round(
+                                ((Number(tierForm.originalPrice || 0) * (tierForm.earlyBirdRate ?? 10)) / 100) / 1000
+                              ) * 1000
+                            ).toLocaleString("vi-VN")}{" "}
+                            ₫
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-2.5 rounded-lg border border-purple-200 shadow-2xs">
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="font-semibold text-purple-950 text-[11px]">
+                            Ưu đãi Đóng Theo Combo:
+                          </label>
+                          <span className="text-[11px] font-bold text-purple-700">
+                            {tierForm.comboRate ?? 15}%
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="0"
+                            max="90"
+                            step="1"
+                            value={tierForm.comboRate ?? 15}
+                            onChange={(e) =>
+                              handleTierFieldChange(
+                                "comboRate",
+                                Math.max(0, Math.min(90, Number(e.target.value)))
+                              )
+                            }
+                            className="w-20 px-2 py-1.5 bg-purple-50/50 border border-purple-200 rounded-lg text-xs font-bold text-purple-800 text-center"
+                          />
+                          <span className="text-xs text-purple-700 font-semibold">%</span>
+                          <div className="text-[10px] text-purple-600 flex-1 text-right">
+                            Giảm: -
+                            {(
+                              Math.round(
+                                ((Number(tierForm.originalPrice || 0) * (tierForm.comboRate ?? 15)) / 100) / 1000
+                              ) * 1000
+                            ).toLocaleString("vi-VN")}{" "}
+                            ₫
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* LIVE PREVIEW CÁC GÓI SẼ LƯU */}
+                    <div className="pt-2 border-t border-amber-200/60">
+                      <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center justify-between">
+                        <span>Bản xem trước các gói học phí áp dụng:</span>
+                        <span className="text-emerald-600 font-bold normal-case text-[10px]">
+                          ✓ Khớp hoàn toàn
+                        </span>
+                      </div>
+                      <div className="space-y-1.5">
+                        {tierForm.packages?.map((pkg) => (
+                          <div
+                            key={pkg.id}
+                            className="p-2 rounded-lg bg-white border border-slate-200 flex items-center justify-between"
+                          >
+                            <div>
+                              <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                                {pkg.name}
+                                {pkg.id === "combo" && (
+                                  <span className="text-[9px] px-1.5 py-0.2 rounded font-bold uppercase bg-purple-100 text-purple-800">
+                                    Combo
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[10px] text-slate-400">{pkg.description}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-slate-900 text-xs">
+                                {pkg.price?.toLocaleString("vi-VN")} ₫
+                              </div>
+                              {pkg.discount > 0 ? (
+                                <div className="text-[10px] text-emerald-600 font-semibold">
+                                  Tiết kiệm {pkg.discount?.toLocaleString("vi-VN")} ₫
+                                </div>
+                              ) : (
+                                <div className="text-[10px] text-slate-400 font-medium">Học phí gốc</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block font-semibold text-slate-700 mb-1">Tổng Số Buổi Học:</label>
                       <input
                         type="number"
+                        min="1"
                         value={tierForm.durationSessions}
                         onChange={(e) =>
-                          setTierForm({ ...tierForm, durationSessions: Number(e.target.value) })
+                          handleTierFieldChange("durationSessions", Number(e.target.value))
                         }
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white outline-none"
                       />
                     </div>
 
-                    <div className="flex items-center gap-2 pt-5">
-                      <input
-                        type="checkbox"
-                        id="matInc"
-                        checked={tierForm.materialsIncluded}
-                        onChange={(e) =>
-                          setTierForm({ ...tierForm, materialsIncluded: e.target.checked })
-                        }
-                        className="w-4 h-4 rounded text-[#c27803]"
-                      />
-                      <label htmlFor="matInc" className="font-semibold text-slate-700">
-                        Đã bao gồm giáo trình trọn bộ
+                    <div className="flex flex-col justify-center space-y-2 pt-2">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={tierForm.materialsIncluded}
+                          onChange={(e) =>
+                            handleTierFieldChange("materialsIncluded", e.target.checked)
+                          }
+                          className="w-4 h-4 rounded text-[#c27803] focus:ring-[#c27803]"
+                        />
+                        <span className="font-semibold text-slate-700">Đã bao gồm giáo trình trọn bộ</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={tierForm.isPopular || false}
+                          onChange={(e) => handleTierFieldChange("isPopular", e.target.checked)}
+                          className="w-4 h-4 rounded text-rose-500 focus:ring-rose-500"
+                        />
+                        <span className="font-semibold text-slate-700">Gắn huy hiệu Phổ biến nhất (Best seller)</span>
                       </label>
                     </div>
                   </div>
@@ -1424,13 +1675,13 @@ export const FinancePage = () => {
                     <button
                       type="button"
                       onClick={() => setShowTierModal(false)}
-                      className="flex-1 py-2.5 px-3 border border-slate-200 text-slate-600 rounded-xl font-bold uppercase"
+                      className="flex-1 py-2.5 px-3 border border-slate-200 text-slate-600 rounded-xl font-bold uppercase hover:bg-slate-50 transition"
                     >
                       Hủy
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 py-2.5 px-3 bg-[#c27803] text-white rounded-xl font-bold uppercase hover:bg-[#92400e]"
+                      className="flex-1 py-2.5 px-3 bg-[#c27803] text-white rounded-xl font-bold uppercase hover:bg-[#92400e] shadow-sm transition"
                     >
                       Lưu Biểu Phí
                     </button>
@@ -1520,7 +1771,7 @@ export const FinancePage = () => {
                   onClick={() => setShowRefModal(true)}
                   className="py-1.5 px-3 bg-[#c27803] hover:bg-[#92400e] text-white rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition shadow-sm"
                 >
-                  ➕ Thêm Referral
+                  + Thêm Referral
                 </button>
               </div>
             </div>
@@ -1565,11 +1816,11 @@ export const FinancePage = () => {
                             <div className="flex items-center gap-1.5 mb-1">
                               {isStudent ? (
                                 <span className="text-[10px] bg-amber-100 text-[#c27803] font-bold px-1.5 py-0.5 rounded border border-amber-200">
-                                  🎓 Học viên hiện tại
+                                  Học viên hiện tại
                                 </span>
                               ) : (
                                 <span className="text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded border border-purple-200">
-                                  🌐 Người ngoài
+                                  Người ngoài
                                 </span>
                               )}
                             </div>

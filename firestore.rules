@@ -86,5 +86,12 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isSuperAdmin();
     }
+
+    // 11. Activity Logs (Audit Trail)
+    match /activity_logs/{logId} {
+      allow create: if isAuthenticated();
+      allow read: if isAdmin();
+      allow update, delete: if false; // Immutable audit log
+    }
   }
 }

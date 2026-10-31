@@ -12,6 +12,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { logActivity, ACTION_TYPES } from "./auditLogService";
 import { getClassroomGrades } from "./api";
 
 const COLLECTION_NAME = "scores";
@@ -313,6 +314,15 @@ export const saveBatchScores = async ({
   }
 
   await batch.commit();
+
+  logActivity({
+    action: ACTION_TYPES.SCORE_SAVE,
+    resource: "scores",
+    targetId: activeSessionId,
+    details: `Nhập điểm bài thi "${testTitle}" cho lớp ${classId} (${entries.length} học viên)`,
+    metadata: { classId, testTitle, testType, testDate, count: entries.length },
+  });
+
   return activeSessionId;
 };
 

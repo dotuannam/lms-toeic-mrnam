@@ -15,6 +15,7 @@ import {
 import { inviteStudentToClassroom, shareDriveFolderWithStudent } from "./api";
 import { addLedgerTransaction } from "./financeService";
 import { createReferral } from "./pricingReferralWebhookService";
+import { logActivity, ACTION_TYPES } from "./auditLogService";
 import { db } from "../config/firebase";
 
 const COLLECTION_NAME = "students";
@@ -245,6 +246,14 @@ export const createStudent = async (
     }
   }
 
+  logActivity({
+    action: ACTION_TYPES.STUDENT_CREATE,
+    resource: "students",
+    targetId: studentId,
+    targetName: newStudent.fullName,
+    details: `Tạo hồ sơ học viên ${newStudent.fullName} (${studentId})${selectedClass ? ` - Lớp: ${selectedClass.name}` : ""}`,
+  });
+
   return { studentId, ...newStudent };
 };
 
@@ -257,6 +266,12 @@ export const updateStudent = async (studentId, updateData) => {
     ...updateData,
     updatedAt: serverTimestamp(),
   });
+  logActivity({
+    action: ACTION_TYPES.STUDENT_UPDATE,
+    resource: "students",
+    targetId: studentId,
+    details: `Cập nhật thông tin học viên ${studentId}`,
+  });
 };
 
 /**
@@ -265,6 +280,13 @@ export const updateStudent = async (studentId, updateData) => {
 export const deleteStudent = async (studentId, classId = null) => {
   const docRef = doc(db, COLLECTION_NAME, studentId);
   await deleteDoc(docRef);
+
+  logActivity({
+    action: ACTION_TYPES.STUDENT_DELETE,
+    resource: "students",
+    targetId: studentId,
+    details: `Xóa học viên ${studentId}`,
+  });
 
   if (classId) {
     try {

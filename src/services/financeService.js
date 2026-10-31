@@ -14,6 +14,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { logActivity, ACTION_TYPES } from "./auditLogService";
 
 const TUITIONS_COLLECTION = "tuitions";
 const LEDGER_COLLECTION = "ledger";
@@ -105,6 +106,15 @@ export const recordTuitionPayment = async ({
     createdBy: receivedBy,
   });
 
+  logActivity({
+    action: ACTION_TYPES.PAYMENT_RECORD,
+    resource: "finance",
+    targetId: receiptId,
+    targetName: studentName,
+    details: `Thu học phí ${numAmount.toLocaleString("vi-VN")} đ từ học viên ${studentName} (${studentId})`,
+    metadata: { tuitionId, studentId, amount: numAmount, newDebt, newStatus, paymentMethod },
+  });
+
   return { receiptId, newDebt, newStatus };
 };
 
@@ -162,6 +172,14 @@ export const addLedgerTransaction = async ({
     },
     { merge: true }
   );
+
+  logActivity({
+    action: ACTION_TYPES.LEDGER_ADD,
+    resource: "ledger",
+    targetId: txId,
+    details: `Ghi sổ ${type === "income" ? "Thu" : "Chi"}: ${numAmount.toLocaleString("vi-VN")} đ (${category}) - ${description}`,
+    metadata: { txId, type, category, amount: numAmount },
+  });
 
   return transactionData;
 };
