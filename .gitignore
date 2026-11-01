@@ -33,4 +33,7 @@ dist-ssr
 *.sw?
 
 # Standalone bots
-discord-bot/
+discord-bot/node_modules/
+discord-bot/.env
+discord-bot/serviceAccountKey.json
+discord-bot/*.log

@@ -1,0 +1,31 @@
+{
+  "name": "lms-discord-bot",
+  "version": "1.0.0",
+  "description": "Discord Management & Activity Audit Bot for TOEIC MR.NAM LMS",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "deploy-commands": "node scripts/deploy-commands.js",
+    "test-conn": "node scripts/test-connection.js"
+  },
+  "keywords": [
+    "discord-bot",
+    "lms",
+    "toeic",
+    "audit-logs",
+    "firebase"
+  ],
+  "author": "TOEIC MR.NAM",
+  "license": "ISC",
+  "dependencies": {
+    "csv-stringify": "^6.5.1",
+    "date-fns": "^3.6.0",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "firebase": "^10.12.5",
+    "firebase-admin": "^12.7.0",
+    "node-cron": "^3.0.3"
+  }
+}
