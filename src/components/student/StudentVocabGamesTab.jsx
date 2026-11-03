@@ -699,10 +699,10 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
               <button
                 type="button"
                 onClick={() => setLearnViewMode("notebook")}
-                className={`px-3.5 py-1.5 rounded-lg font-heading font-bold uppercase tracking-wider transition flex items-center gap-1.5 ${
+                className={`px-3.5 py-1.5 rounded-lg font-heading font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer ${
                   learnViewMode === "notebook"
-                    ? "bg-[#c27803] text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
+                    ? "bg-[#c27803] dark:bg-amber-500 text-white dark:text-slate-950 shadow-xs"
+                    : "text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 <span>📋</span>
@@ -726,10 +726,10 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                     setCurrentWordIndex(0);
                     setIsFlipped(false);
                   }}
-                  className={`px-3 py-1.5 rounded-xl font-heading font-bold text-[11px] uppercase tracking-wider transition whitespace-nowrap ${
+                  className={`px-3 py-1.5 rounded-xl font-heading font-bold text-[11px] uppercase tracking-wider transition whitespace-nowrap cursor-pointer ${
                     learnFilter === f.id
-                      ? "bg-slate-900 text-white shadow-xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      ? "bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-950 shadow-xs"
+                      : "bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700 hover:bg-slate-200 dark:hover:bg-neutral-700"
                   }`}
                 >
                   {f.label}
@@ -746,13 +746,13 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                 placeholder="🔍 Tìm kiếm từ tiếng Anh, nghĩa tiếng Việt, hoặc nội dung ghi chú..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#c27803]/40 focus:border-[#c27803] shadow-xs"
+                className="w-full px-4 py-2.5 bg-white dark:bg-[#16120D] border border-slate-200 dark:border-neutral-700 text-slate-900 dark:text-white rounded-2xl text-xs placeholder:text-slate-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#c27803]/40 focus:border-[#c27803] shadow-xs"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                  className="absolute right-3 top-2.5 text-slate-400 dark:text-neutral-400 hover:text-slate-600 dark:hover:text-white text-xs font-bold cursor-pointer"
                 >
                   ✕
                 </button>
@@ -823,29 +823,29 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                     </span>
                   </div>
                 ) : (
-                  <div className="my-auto space-y-3 bg-amber-50/50 p-6 rounded-2xl border border-amber-200">
-                    <span className="text-xs uppercase font-heading font-bold text-[#c27803] tracking-wider">
+                  <div className="my-auto space-y-3 bg-amber-50/50 dark:bg-[#261e16] p-6 rounded-2xl border-2 border-amber-300/80 dark:border-amber-500/40">
+                    <span className="text-xs uppercase font-heading font-black text-[#c27803] dark:text-amber-400 tracking-wider">
                       Nghĩa tiếng Việt & Ví dụ
                     </span>
-                    <h3 className="text-2xl font-heading font-bold text-slate-900">
+                    <h3 className="text-2xl font-heading font-black text-slate-900 dark:text-white">
                       {currentWord.meaning}
                     </h3>
-                    <p className="text-xs text-slate-600 italic max-w-md mx-auto leading-relaxed">
+                    <p className="text-xs text-slate-600 dark:text-neutral-300 italic max-w-md mx-auto leading-relaxed">
                       "{currentWord.example || "No example available"}"
                     </p>
 
                     {/* Show saved personal note inside flipped card */}
                     {wordHistoryMap[currentWord.id]?.note && (
-                      <div className="mt-3 p-3 bg-white/90 rounded-xl border border-amber-300 text-left text-xs shadow-2xs">
-                        <div className="flex items-center justify-between text-[10px] text-amber-800 font-bold uppercase tracking-wider mb-0.5">
+                      <div className="mt-3 p-3 bg-white/90 dark:bg-[#1C1610] rounded-xl border border-amber-300 dark:border-neutral-700 text-left text-xs shadow-xs">
+                        <div className="flex items-center justify-between text-[10px] text-amber-800 dark:text-amber-400 font-bold uppercase tracking-wider mb-0.5">
                           <span>📝 Ghi chú cá nhân của bạn:</span>
                           {wordHistoryMap[currentWord.id]?.noteUpdatedAt && (
-                            <span className="text-slate-400 font-normal">
+                            <span className="text-slate-400 dark:text-neutral-400 font-normal">
                               {new Date(wordHistoryMap[currentWord.id].noteUpdatedAt).toLocaleDateString("vi-VN")}
                             </span>
                           )}
                         </div>
-                        <p className="whitespace-pre-line text-slate-800 font-medium">
+                        <p className="whitespace-pre-line text-slate-800 dark:text-white font-medium">
                           {wordHistoryMap[currentWord.id].note}
                         </p>
                       </div>
@@ -904,23 +904,23 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
               </div>
 
               {/* DEDICATED PERSONAL NOTE WORKSPACE (Không gian ghi chú cá nhân) */}
-              <div className="bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 border border-amber-200/90 rounded-3xl p-5 sm:p-6 shadow-sm space-y-3 relative overflow-hidden">
+              <div className="bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 dark:from-[#261e16] dark:via-[#1c1610] dark:to-[#261e16] border border-amber-200/90 dark:border-neutral-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-3 relative overflow-hidden">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-8 h-8 rounded-xl bg-amber-100 text-[#c27803] flex items-center justify-center text-sm font-bold shadow-2xs">
+                    <span className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-[#c27803] dark:text-amber-400 flex items-center justify-center text-sm font-bold shadow-2xs">
                       ✍️
                     </span>
                     <div>
-                      <h4 className="font-heading font-black text-xs text-slate-900 uppercase tracking-wider">
-                        Ghi Chú Cá Nhân Của Bạn: <span className="text-[#c27803]">{currentWord.word}</span>
+                      <h4 className="font-heading font-black text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                        Ghi Chú Cá Nhân Của Bạn: <span className="text-[#c27803] dark:text-amber-400">{currentWord.word}</span>
                       </h4>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-slate-500 dark:text-neutral-400">
                         Lưu mẹo nhớ, ví dụ tự đặt, collocations hoặc lưu ý bài thi TOEIC cho riêng bạn.
                       </p>
                     </div>
                   </div>
                   {wordHistoryMap[currentWord.id]?.note && (
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center gap-1">
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold flex items-center gap-1 border border-emerald-300 dark:border-emerald-700">
                       <span>✓</span>
                       <span>Đã lưu ghi chú</span>
                     </span>
@@ -933,20 +933,20 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
                     placeholder="Gõ ghi chú cá nhân tại đây... (VD: Hay đi với giới từ 'to', bẫy ngữ pháp TOEIC Part 5, mẹo liên tưởng...)"
-                    className="w-full p-3.5 bg-white border border-amber-200/90 rounded-2xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#c27803]/30 focus:border-[#c27803] transition leading-relaxed shadow-2xs"
+                    className="w-full p-3.5 bg-white dark:bg-[#16120D] border border-amber-200/90 dark:border-neutral-700 rounded-2xl text-xs text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#c27803]/30 focus:border-[#c27803] transition leading-relaxed shadow-2xs"
                   />
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
                   {/* Quick Tag Templates */}
                   <div className="flex items-center gap-1.5 overflow-x-auto text-[10px]">
-                    <span className="text-slate-400 font-semibold">Chèn nhanh:</span>
+                    <span className="text-slate-400 dark:text-neutral-400 font-semibold">Chèn nhanh:</span>
                     {["💡 Mẹo nhớ:", "⚠️ Bẫy TOEIC:", "🔗 Đi kèm:", "↔️ Đồng nghĩa:"].map((tag) => (
                       <button
                         key={tag}
                         type="button"
                         onClick={() => setNoteText((prev) => (prev ? `${prev} ${tag} ` : `${tag} `))}
-                        className="px-2 py-0.5 rounded-lg bg-white hover:bg-amber-100 text-amber-900 border border-amber-200/80 font-medium transition active:scale-95"
+                        className="px-2 py-0.5 rounded-lg bg-white dark:bg-[#1C1610] hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-200/80 dark:border-neutral-700 font-medium transition active:scale-95 cursor-pointer"
                       >
                         {tag}
                       </button>
@@ -959,7 +959,7 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                         type="button"
                         disabled={savingNote}
                         onClick={() => handleDeleteNote(currentWord)}
-                        className="px-3 py-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-semibold transition"
+                        className="px-3 py-1.5 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl text-xs font-semibold transition cursor-pointer"
                       >
                         🗑️ Xóa ghi chú
                       </button>
@@ -969,10 +969,10 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                       type="button"
                       disabled={savingNote || !noteText.trim()}
                       onClick={() => handleSaveNote(currentWord)}
-                      className={`px-5 py-2 rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 active:translate-y-px disabled:opacity-50 ${
+                      className={`px-5 py-2 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 active:translate-y-px disabled:opacity-50 cursor-pointer ${
                         noteSavedToast
                           ? "bg-emerald-600 text-white"
-                          : "bg-[#c27803] hover:bg-[#b45309] text-white"
+                          : "bg-[#c27803] hover:bg-[#b45309] dark:bg-amber-500 dark:hover:bg-amber-600 text-white dark:text-slate-950"
                       }`}
                     >
                       {savingNote ? (
@@ -1017,26 +1017,26 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                     return (
                       <div
                         key={item.id}
-                        className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs hover:border-amber-300 transition space-y-3"
+                        className="bg-white dark:bg-[#1C1610] rounded-2xl border border-slate-200/90 dark:border-neutral-800 p-4 shadow-2xs hover:border-amber-300 dark:hover:border-amber-500/50 transition space-y-3"
                       >
                         {/* Word Main Row */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-neutral-800">
                           <div className="flex items-center gap-2.5">
-                            <h3 className="font-heading font-black text-slate-900 text-base">
+                            <h3 className="font-heading font-black text-slate-900 dark:text-white text-base">
                               {item.word}
                             </h3>
                             {item.ipa && (
-                              <span className="font-mono text-xs text-[#c27803] font-bold">
+                              <span className="font-mono text-xs text-[#c27803] dark:text-amber-400 font-bold">
                                 {item.ipa}
                               </span>
                             )}
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700">
                               {item.pos || "n."}
                             </span>
                             <button
                               type="button"
                               onClick={() => speak(item.word)}
-                              className="w-7 h-7 rounded-lg bg-amber-50 hover:bg-[#c27803] text-amber-900 hover:text-white flex items-center justify-center text-xs transition"
+                              className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-500/20 hover:bg-[#c27803] dark:hover:bg-amber-500 text-amber-900 dark:text-amber-300 hover:text-white dark:hover:text-slate-950 flex items-center justify-center text-xs transition cursor-pointer"
                               title="Nghe phát âm"
                             >
                               🔊
@@ -1044,7 +1044,7 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                           </div>
 
                           <div className="flex items-center gap-2 text-xs">
-                            <span className="text-[10px] font-mono text-slate-400">
+                            <span className="text-[10px] font-mono text-slate-400 dark:text-neutral-500">
                               {item.topic || "General"}
                             </span>
                             <button
@@ -1060,12 +1060,12 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                                 });
                                 await loadUserData();
                               }}
-                              className={`px-2.5 py-1 rounded-lg text-[10px] font-heading font-bold uppercase transition ${
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-heading font-bold uppercase transition cursor-pointer ${
                                 itemHistory?.status === "mastered"
-                                  ? "bg-emerald-100 text-emerald-800"
+                                  ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700"
                                   : itemHistory?.status === "review"
-                                  ? "bg-amber-100 text-amber-900"
-                                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                  ? "bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700"
+                                  : "bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400 border border-slate-200 dark:border-neutral-700 hover:bg-slate-200 dark:hover:bg-neutral-700"
                               }`}
                             >
                               {itemHistory?.status === "mastered"
@@ -1079,11 +1079,11 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
 
                         {/* Meaning & Example */}
                         <div className="text-xs space-y-1">
-                          <p className="font-semibold text-slate-800">
+                          <p className="font-semibold text-slate-800 dark:text-white">
                             {item.meaning}
                           </p>
                           {item.example && (
-                            <p className="text-[11px] text-slate-500 italic">
+                            <p className="text-[11px] text-slate-500 dark:text-neutral-400 italic">
                               "{item.example}"
                             </p>
                           )}
@@ -1092,8 +1092,8 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                         {/* Personal Note Section */}
                         <div className="pt-1">
                           {isEditing ? (
-                            <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-300 space-y-2 text-xs">
-                              <div className="flex items-center justify-between text-[11px] font-bold text-amber-950">
+                            <div className="p-3 bg-amber-50/80 dark:bg-[#261e16] rounded-xl border border-amber-300 dark:border-neutral-700 space-y-2 text-xs">
+                              <div className="flex items-center justify-between text-[11px] font-bold text-amber-950 dark:text-amber-400">
                                 <span>✍️ Chỉnh sửa ghi chú cá nhân:</span>
                               </div>
                               <textarea
@@ -1101,13 +1101,13 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                                 value={inlineNoteDraft}
                                 onChange={(e) => setInlineNoteDraft(e.target.value)}
                                 placeholder="Gõ ghi chú cá nhân của bạn..."
-                                className="w-full p-2 bg-white border border-amber-200 rounded-lg text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-[#c27803]"
+                                className="w-full p-2 bg-white dark:bg-[#16120D] border border-amber-200 dark:border-neutral-700 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-neutral-500 rounded-lg text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-[#c27803]"
                               />
                               <div className="flex justify-end gap-2">
                                 <button
                                   type="button"
                                   onClick={() => setEditingInlineWordId(null)}
-                                  className="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg text-[11px] font-medium hover:bg-slate-50"
+                                  className="px-3 py-1 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 text-slate-600 dark:text-neutral-300 rounded-lg text-[11px] font-medium hover:bg-slate-50 dark:hover:bg-neutral-700"
                                 >
                                   Hủy
                                 </button>
@@ -1115,20 +1115,20 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                                   type="button"
                                   disabled={savingNote}
                                   onClick={() => handleSaveNote(item, inlineNoteDraft)}
-                                  className="px-4 py-1 bg-[#c27803] hover:bg-[#b45309] text-white rounded-lg text-[11px] font-bold uppercase shadow-2xs"
+                                  className="px-4 py-1 bg-[#c27803] hover:bg-[#b45309] dark:bg-amber-500 dark:hover:bg-amber-600 text-white dark:text-slate-950 rounded-lg text-[11px] font-bold uppercase shadow-2xs"
                                 >
                                   {savingNote ? "Đang lưu..." : "Lưu Ghi Chú"}
                                 </button>
                               </div>
                             </div>
                           ) : hasNote ? (
-                            <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                            <div className="p-3 bg-amber-50/80 dark:bg-[#261e16] rounded-xl border border-amber-200/90 dark:border-neutral-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                               <div className="space-y-0.5">
-                                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-amber-800">
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-amber-800 dark:text-amber-400">
                                   <span>📝</span>
                                   <span>Ghi chú của bạn:</span>
                                 </div>
-                                <p className="whitespace-pre-line text-slate-800 font-medium text-xs">
+                                <p className="whitespace-pre-line text-slate-800 dark:text-white font-medium text-xs">
                                   {itemHistory.note}
                                 </p>
                               </div>
@@ -1139,14 +1139,14 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                                     setEditingInlineWordId(item.id);
                                     setInlineNoteDraft(itemHistory.note || "");
                                   }}
-                                  className="px-2.5 py-1 bg-white hover:bg-amber-100 text-[#c27803] border border-amber-200 rounded-lg text-[10px] font-bold uppercase transition"
+                                  className="px-2.5 py-1 bg-white dark:bg-[#1C1610] hover:bg-amber-100 dark:hover:bg-amber-500/20 text-[#c27803] dark:text-amber-400 border border-amber-200 dark:border-neutral-700 rounded-lg text-[10px] font-bold uppercase transition"
                                 >
                                   ✏️ Sửa
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteNote(item)}
-                                  className="px-2.5 py-1 bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 rounded-lg text-[10px] font-bold uppercase transition"
+                                  className="px-2.5 py-1 bg-white dark:bg-[#1C1610] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-slate-200 dark:border-neutral-700 rounded-lg text-[10px] font-bold uppercase transition"
                                 >
                                   🗑️
                                 </button>
@@ -1159,7 +1159,7 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                                 setEditingInlineWordId(item.id);
                                 setInlineNoteDraft("");
                               }}
-                              className="w-full py-2 px-3 border border-dashed border-amber-300 hover:border-[#c27803] rounded-xl text-[11px] text-[#c27803] font-semibold hover:bg-amber-50/40 transition flex items-center justify-center gap-1.5"
+                              className="w-full py-2 px-3 border border-dashed border-amber-300 dark:border-neutral-700 hover:border-[#c27803] dark:hover:border-amber-400 rounded-xl text-[11px] text-[#c27803] dark:text-amber-400 font-semibold hover:bg-amber-50/40 dark:hover:bg-[#261e16] transition flex items-center justify-center gap-1.5"
                             >
                               <span>+</span>
                               <span>Viết ghi chú cá nhân cho từ "{item.word}"</span>
@@ -1180,20 +1180,20 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
       {mode === "speedrun" && (
         <div className="max-w-xl mx-auto space-y-4">
           {quizState === "playing" && quizQuestions[quizQuestionIndex] && (
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-lg space-y-6">
+            <div className="bg-white dark:bg-[#1C1610] p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-lg space-y-6">
               {/* Question Top Bar */}
               <div className="flex items-center justify-between text-xs">
-                <span className="font-heading font-bold text-slate-500 uppercase">
+                <span className="font-heading font-bold text-slate-500 dark:text-neutral-400 uppercase">
                   Câu {quizQuestionIndex + 1} / {quizQuestions.length}
                 </span>
 
                 <div className="flex items-center gap-3">
                   {quizStreak >= 3 && (
-                    <span className="px-2 py-0.5 rounded-full font-heading font-bold text-[10px] bg-orange-100 text-orange-800 animate-pulse">
+                    <span className="px-2 py-0.5 rounded-full font-heading font-bold text-[10px] bg-orange-100 dark:bg-orange-950/80 text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-700 animate-pulse">
                       🔥 Streak x{quizStreak} (1.5x XP)
                     </span>
                   )}
-                  <span className="font-heading font-extrabold text-sm text-[#c27803]">
+                  <span className="font-heading font-black text-sm text-[#c27803] dark:text-amber-400">
                     {quizScore} XP
                   </span>
                 </div>
@@ -1201,13 +1201,13 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
 
               {/* Countdown Progress Bar */}
               <div className="space-y-1">
-                <div className="flex items-center justify-between text-[11px] font-mono font-bold text-slate-500">
+                <div className="flex items-center justify-between text-[11px] font-mono font-bold text-slate-500 dark:text-neutral-400">
                   <span>Thời gian:</span>
-                  <span className={quizTimer <= 5 ? "text-rose-600 animate-pulse font-extrabold" : "text-amber-700"}>
+                  <span className={quizTimer <= 5 ? "text-rose-600 dark:text-rose-400 animate-pulse font-extrabold" : "text-amber-700 dark:text-amber-400"}>
                     ⏱️ {quizTimer}s
                   </span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-slate-100 dark:bg-neutral-800 rounded-full h-2 overflow-hidden">
                   <div
                     className="bg-gradient-to-r from-amber-500 to-[#c27803] h-full transition-all duration-1000"
                     style={{
@@ -1218,14 +1218,14 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
               </div>
 
               {/* Target Word */}
-              <div className="text-center py-4 bg-amber-50/50 rounded-2xl border border-amber-200">
-                <span className="text-[10px] uppercase font-heading font-bold text-slate-400 tracking-wider">
-                  Chọn nghĩa tiếng Việt chính xác
+              <div className="text-center py-5 bg-amber-50/50 dark:bg-[#261e16] rounded-2xl border-2 border-amber-300/80 dark:border-amber-500/40 space-y-1 shadow-xs">
+                <span className="text-xs uppercase font-heading font-black text-amber-700 dark:text-amber-400 tracking-wider block">
+                  Chọn nghĩa tiếng Việt chính xác:
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-heading font-black text-slate-900 mt-1">
+                <h3 className="text-2xl sm:text-3xl font-heading font-black text-slate-900 dark:text-white mt-1">
                   {quizQuestions[quizQuestionIndex].word}
                 </h3>
-                <span className="font-mono text-xs text-[#c27803]">
+                <span className="font-mono text-xs text-[#c27803] dark:text-amber-300 font-bold block">
                   {quizQuestions[quizQuestionIndex].ipa}
                 </span>
               </div>
@@ -1237,12 +1237,12 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                     key={idx}
                     type="button"
                     onClick={() => handleAnswerQuiz(opt)}
-                    className="p-3.5 bg-slate-50 hover:bg-amber-100 hover:border-amber-400 text-slate-800 border border-slate-200 rounded-2xl text-xs font-semibold text-left transition active:scale-[0.99] flex items-center gap-3 group"
+                    className="p-3.5 bg-slate-50 dark:bg-[#261e16] hover:bg-amber-100 dark:hover:bg-[#342a20] hover:border-amber-400 dark:hover:border-amber-500 text-slate-800 dark:text-white border border-slate-200 dark:border-neutral-700 rounded-2xl text-xs font-semibold text-left transition active:scale-[0.99] flex items-center gap-3 group cursor-pointer"
                   >
-                    <span className="w-6 h-6 rounded-lg bg-white border border-slate-200 group-hover:bg-[#c27803] group-hover:text-white flex items-center justify-center font-bold text-[11px] text-slate-600 shrink-0">
+                    <span className="w-6 h-6 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 group-hover:bg-[#c27803] group-hover:text-white flex items-center justify-center font-bold text-[11px] text-slate-600 dark:text-amber-300 shrink-0">
                       {String.fromCharCode(65 + idx)}
                     </span>
-                    <span className="flex-1">{opt.text}</span>
+                    <span className="flex-1 text-slate-800 dark:text-white font-medium">{opt.text}</span>
                   </button>
                 ))}
               </div>
@@ -1250,27 +1250,27 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
           )}
 
           {quizState === "finished" && (
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl text-center space-y-4">
+            <div className="bg-white dark:bg-[#1C1610] p-8 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-xl text-center space-y-4">
               <span className="text-5xl block animate-bounce">🏆</span>
-              <h2 className="text-2xl font-heading font-black text-slate-900 uppercase">
+              <h2 className="text-2xl font-heading font-black text-slate-900 dark:text-white uppercase">
                 Hoàn Thành Lượt Chơi Speedrun!
               </h2>
-              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 max-w-sm mx-auto space-y-1.5 text-xs text-slate-700">
+              <div className="p-4 bg-amber-50 dark:bg-[#261e16] rounded-2xl border border-amber-200 dark:border-amber-500/40 max-w-sm mx-auto space-y-1.5 text-xs text-slate-700 dark:text-neutral-200">
                 <div className="flex justify-between">
                   <span>Tổng điểm đạt được:</span>
-                  <strong className="font-heading font-black text-base text-[#c27803]">
+                  <strong className="font-heading font-black text-base text-[#c27803] dark:text-amber-400">
                     +{quizScore} XP
                   </strong>
                 </div>
                 <div className="flex justify-between">
                   <span>Số câu trả lời đúng:</span>
-                  <strong className="text-emerald-700">
+                  <strong className="text-emerald-700 dark:text-emerald-400">
                     {quizCorrectCount} / {quizQuestions.length} câu
                   </strong>
                 </div>
                 <div className="flex justify-between">
                   <span>Độ chính xác:</span>
-                  <strong className="font-mono text-slate-900">
+                  <strong className="font-mono text-slate-900 dark:text-white">
                     {Math.round((quizCorrectCount / quizQuestions.length) * 100)}%
                   </strong>
                 </div>
@@ -1280,14 +1280,14 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                 <button
                   type="button"
                   onClick={startSpeedrunQuiz}
-                  className="px-6 py-3 bg-[#c27803] hover:bg-[#b45309] text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider shadow-md transition"
+                  className="px-6 py-3 bg-[#c27803] hover:bg-[#b45309] dark:bg-amber-500 dark:hover:bg-amber-600 text-white dark:text-slate-950 rounded-xl text-xs font-heading font-black uppercase tracking-wider shadow-md transition cursor-pointer"
                 >
                   Chơi Lại Lượt Mới 🔄
                 </button>
                 <button
                   type="button"
                   onClick={() => setMode("history")}
-                  className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition"
+                  className="px-4 py-3 bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-700 dark:text-neutral-200 border border-slate-200 dark:border-neutral-700 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition cursor-pointer"
                 >
                   Xem Lịch Sử 📊
                 </button>
@@ -1300,21 +1300,21 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
       {/* 4. MODE: 3. MEMORY MATCH */}
       {mode === "memory" && (
         <div className="max-w-2xl mx-auto space-y-4">
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs">
+          <div className="bg-white dark:bg-[#1C1610] p-4 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-2xs flex items-center justify-between text-xs">
             <div>
-              <span className="font-heading font-bold uppercase text-slate-500">Số Lượt Lật:</span>{" "}
-              <strong className="text-slate-900 font-mono text-sm">{memoryFlips}</strong>
+              <span className="font-heading font-bold uppercase text-slate-500 dark:text-neutral-400">Số Lượt Lật:</span>{" "}
+              <strong className="text-slate-900 dark:text-white font-mono text-sm">{memoryFlips}</strong>
             </div>
             <div>
-              <span className="font-heading font-bold uppercase text-slate-500">Đã Khớp:</span>{" "}
-              <strong className="text-[#c27803] font-mono text-sm">
+              <span className="font-heading font-bold uppercase text-slate-500 dark:text-neutral-400">Đã Khớp:</span>{" "}
+              <strong className="text-[#c27803] dark:text-amber-400 font-mono text-sm">
                 {matchedCardIds.length} / {memoryCards.length / 2} cặp
               </strong>
             </div>
             <button
               type="button"
               onClick={startMemoryGame}
-              className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold"
+              className="px-3 py-1 bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-700 dark:text-neutral-200 border border-slate-200 dark:border-neutral-700 rounded-lg text-xs font-semibold cursor-pointer"
             >
               Xáo Lại Thẻ 🔄
             </button>
@@ -1332,12 +1332,12 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                     type="button"
                     disabled={isMatched}
                     onClick={() => handleCardClick(card)}
-                    className={`h-28 rounded-2xl p-2.5 text-center flex flex-col items-center justify-center transition-all duration-300 font-medium ${
+                    className={`h-28 rounded-2xl p-2.5 text-center flex flex-col items-center justify-center transition-all duration-300 font-medium cursor-pointer ${
                       isMatched
-                        ? "bg-emerald-100 border border-emerald-300 text-emerald-900 opacity-60 pointer-events-none"
+                        ? "bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-300 opacity-60 pointer-events-none"
                         : isSelected
-                        ? "bg-[#c27803] text-white shadow-md scale-105"
-                        : "bg-white hover:bg-amber-50/60 border-2 border-slate-200 text-slate-800 shadow-2xs"
+                        ? "bg-[#c27803] dark:bg-amber-500 text-white dark:text-slate-950 shadow-md scale-105"
+                        : "bg-white dark:bg-[#261e16] hover:bg-amber-50/60 dark:hover:bg-[#342a20] border-2 border-slate-200 dark:border-neutral-700 text-slate-800 dark:text-white shadow-2xs"
                     }`}
                   >
                     {isSelected || isMatched ? (
@@ -1352,25 +1352,25 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                         )}
                       </div>
                     ) : (
-                      <span className="text-2xl text-amber-600/40 font-bold select-none">🎴</span>
+                      <span className="text-2xl text-amber-600/40 dark:text-amber-400/60 font-bold select-none">🎴</span>
                     )}
                   </button>
                 );
               })}
             </div>
           ) : (
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl text-center space-y-4">
+            <div className="bg-white dark:bg-[#1C1610] p-8 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-xl text-center space-y-4">
               <span className="text-5xl block animate-bounce">🎉</span>
-              <h2 className="text-2xl font-heading font-black text-slate-900 uppercase">
+              <h2 className="text-2xl font-heading font-black text-slate-900 dark:text-white uppercase">
                 Chúc Mừng Bạn Đã Tìm Hết Các Cặp Thẻ!
               </h2>
-              <p className="text-xs text-slate-500">
-                Bạn đã hoàn thành trò chơi trong <strong>{memoryFlips}</strong> lượt lật thẻ. Điểm thưởng XP đã được cộng vào hồ sơ cá nhân.
+              <p className="text-xs text-slate-500 dark:text-neutral-400">
+                Bạn đã hoàn thành trò chơi trong <strong className="text-slate-900 dark:text-white">{memoryFlips}</strong> lượt lật thẻ. Điểm thưởng XP đã được cộng vào hồ sơ cá nhân.
               </p>
               <button
                 type="button"
                 onClick={startMemoryGame}
-                className="px-6 py-3 bg-[#c27803] hover:bg-[#b45309] text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider shadow-md transition"
+                className="px-6 py-3 bg-[#c27803] hover:bg-[#b45309] dark:bg-amber-500 dark:hover:bg-amber-600 text-white dark:text-slate-950 rounded-xl text-xs font-heading font-black uppercase tracking-wider shadow-md transition cursor-pointer"
               >
                 Chơi Ván Mới 🔄
               </button>
@@ -1383,40 +1383,40 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
       {mode === "scramble" && (
         <div className="max-w-xl mx-auto space-y-4">
           {!scrambleFinished && scrambleWords[scrambleIndex] ? (
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-lg space-y-6 text-center">
+            <div className="bg-white dark:bg-[#1C1610] p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-xl space-y-6 text-center">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-heading font-bold text-slate-500 uppercase">
+                <span className="font-heading font-bold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
                   Từ {scrambleIndex + 1} / {scrambleWords.length}
                 </span>
-                <span className="font-heading font-extrabold text-sm text-[#c27803]">
+                <span className="font-heading font-black text-sm text-[#c27803] dark:text-amber-400">
                   {scrambleScore} XP
                 </span>
               </div>
 
-              {/* Clue Box */}
-              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
-                <span className="text-[10px] uppercase font-heading font-bold text-slate-400">
+              {/* Clue Box - High-Contrast Dark & Light Theme */}
+              <div className="p-5 bg-amber-500/10 dark:bg-[#282017] rounded-2xl border-2 border-amber-300/80 dark:border-amber-500/40 space-y-1.5 shadow-xs text-center">
+                <span className="text-xs uppercase font-heading font-black text-[#c27803] dark:text-amber-400 tracking-wider block">
                   Gợi ý nghĩa tiếng Việt:
                 </span>
-                <h3 className="text-xl font-heading font-bold text-slate-900">
+                <h3 className="text-2xl font-heading font-black text-slate-900 dark:text-white leading-snug">
                   {scrambleWords[scrambleIndex].meaning}
                 </h3>
-                <span className="text-xs font-mono text-[#c27803]">
+                <span className="text-xs font-mono font-bold text-[#c27803] dark:text-amber-300 block">
                   Phiên âm: {scrambleWords[scrambleIndex].ipa}
                 </span>
               </div>
 
               {/* Current Guess Slot */}
-              <div className="min-h-[50px] p-3 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex items-center justify-center gap-1.5 font-mono text-xl font-black text-slate-900 tracking-widest">
-                {currentGuess ? currentGuess : <span className="text-xs font-sans text-slate-400">Bấm các chữ cái bên dưới để ghép từ</span>}
+              <div className="min-h-[56px] p-3.5 bg-slate-100 dark:bg-[#16120D] rounded-2xl border-2 border-dashed border-slate-300 dark:border-neutral-700 flex items-center justify-center gap-1.5 font-mono text-2xl font-black text-slate-900 dark:text-amber-400 tracking-widest shadow-inner">
+                {currentGuess ? currentGuess : <span className="text-xs font-sans text-slate-400 dark:text-neutral-400 font-semibold">Bấm các chữ cái bên dưới để ghép từ</span>}
               </div>
 
               {scrambleFeedback && (
                 <div
-                  className={`p-2.5 rounded-xl text-xs font-bold ${
+                  className={`p-3 rounded-xl text-xs font-bold ${
                     scrambleFeedback.correct
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-rose-100 text-rose-800"
+                      ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700"
+                      : "bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-700"
                   }`}
                 >
                   {scrambleFeedback.text}
@@ -1431,10 +1431,10 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                     type="button"
                     disabled={l.used}
                     onClick={() => handlePickScrambleLetter(l)}
-                    className={`w-11 h-11 rounded-xl font-mono text-lg font-black border transition ${
+                    className={`w-12 h-12 rounded-xl font-mono text-xl font-black border transition cursor-pointer ${
                       l.used
-                        ? "bg-slate-100 border-slate-200 text-slate-300 pointer-events-none"
-                        : "bg-white hover:bg-[#c27803] hover:text-white border-slate-300 text-slate-900 shadow-2xs active:scale-95"
+                        ? "bg-slate-100 dark:bg-neutral-900/60 border-slate-200 dark:border-neutral-800 text-slate-300 dark:text-neutral-600 pointer-events-none"
+                        : "bg-white dark:bg-[#282017] hover:bg-[#c27803] hover:text-white dark:hover:bg-amber-500 dark:hover:text-slate-950 border-slate-300 dark:border-neutral-700 text-slate-900 dark:text-white shadow-sm active:scale-95"
                     }`}
                   >
                     {l.char}
@@ -1447,7 +1447,7 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                 <button
                   type="button"
                   onClick={handleClearScramble}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
+                  className="px-5 py-2.5 bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-700 dark:text-neutral-200 border border-slate-200 dark:border-neutral-700 rounded-xl text-xs font-bold transition cursor-pointer"
                 >
                   Xóa Lại
                 </button>
@@ -1455,25 +1455,25 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                   type="button"
                   onClick={handleCheckScramble}
                   disabled={!currentGuess}
-                  className="px-6 py-2.5 bg-[#c27803] hover:bg-[#b45309] text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider transition shadow-sm disabled:opacity-50"
+                  className="px-6 py-2.5 bg-[#c27803] hover:bg-[#b45309] dark:bg-amber-500 dark:hover:bg-amber-600 text-white dark:text-slate-950 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition shadow-md cursor-pointer disabled:opacity-50"
                 >
                   Kiểm Tra Đáp Án →
                 </button>
               </div>
             </div>
           ) : (
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl text-center space-y-4">
+            <div className="bg-white dark:bg-[#1C1610] p-8 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-xl text-center space-y-4">
               <span className="text-5xl block animate-bounce">🔤</span>
-              <h2 className="text-2xl font-heading font-black text-slate-900 uppercase">
+              <h2 className="text-2xl font-heading font-black text-slate-900 dark:text-white uppercase">
                 Hoàn Thành Game Sắp Xếp Chữ Cái!
               </h2>
-              <p className="text-xs text-slate-500">
-                Bạn đã ghép chính xác toàn bộ các từ vựng. Đã cộng <strong>+{scrambleScore} XP</strong> vào hồ sơ cá nhân của bạn!
+              <p className="text-xs text-slate-500 dark:text-neutral-400">
+                Bạn đã ghép chính xác toàn bộ các từ vựng. Đã cộng <strong className="text-amber-600 dark:text-amber-400">+{scrambleScore} XP</strong> vào hồ sơ cá nhân của bạn!
               </p>
               <button
                 type="button"
                 onClick={startScrambleGame}
-                className="px-6 py-3 bg-[#c27803] hover:bg-[#b45309] text-white rounded-xl text-xs font-heading font-extrabold uppercase tracking-wider shadow-md transition"
+                className="px-6 py-3 bg-[#c27803] hover:bg-[#b45309] dark:bg-amber-500 dark:hover:bg-amber-600 text-white dark:text-slate-950 rounded-xl text-xs font-heading font-black uppercase tracking-wider shadow-md transition cursor-pointer"
               >
                 Chơi Vòng Mới 🔄
               </button>
@@ -1487,51 +1487,51 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
         <div className="space-y-6">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-              <span className="text-[11px] font-heading font-bold text-slate-400 uppercase">
+            <div className="bg-white dark:bg-[#1C1610] p-5 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-2xs">
+              <span className="text-[11px] font-heading font-bold text-slate-400 dark:text-neutral-400 uppercase">
                 Tổng Điểm Tích Lũy
               </span>
-              <div className="text-2xl font-heading font-black text-[#c27803] mt-1">
+              <div className="text-2xl font-heading font-black text-[#c27803] dark:text-amber-400 mt-1">
                 {totalXp} XP
               </div>
-              <span className="text-[10px] text-slate-400">Trên toàn hệ thống</span>
+              <span className="text-[10px] text-slate-400 dark:text-neutral-500">Trên toàn hệ thống</span>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-              <span className="text-[11px] font-heading font-bold text-slate-400 uppercase">
+            <div className="bg-white dark:bg-[#1C1610] p-5 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-2xs">
+              <span className="text-[11px] font-heading font-bold text-slate-400 dark:text-neutral-400 uppercase">
                 Số Từ Đã Thuộc
               </span>
-              <div className="text-2xl font-heading font-black text-emerald-600 mt-1">
+              <div className="text-2xl font-heading font-black text-emerald-600 dark:text-emerald-400 mt-1">
                 {masteredCount} từ
               </div>
-              <span className="text-[10px] text-slate-400">Đã tự tin ghi nhớ</span>
+              <span className="text-[10px] text-slate-400 dark:text-neutral-500">Đã tự tin ghi nhớ</span>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-              <span className="text-[11px] font-heading font-bold text-slate-400 uppercase">
+            <div className="bg-white dark:bg-[#1C1610] p-5 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-2xs">
+              <span className="text-[11px] font-heading font-bold text-slate-400 dark:text-neutral-400 uppercase">
                 Từ Cần Ôn Lại
               </span>
-              <div className="text-2xl font-heading font-black text-amber-600 mt-1">
+              <div className="text-2xl font-heading font-black text-amber-600 dark:text-amber-400 mt-1">
                 {reviewCount} từ
               </div>
-              <span className="text-[10px] text-slate-400">Cần lật thẻ ôn tập</span>
+              <span className="text-[10px] text-slate-400 dark:text-neutral-500">Cần lật thẻ ôn tập</span>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-              <span className="text-[11px] font-heading font-bold text-slate-400 uppercase">
+            <div className="bg-white dark:bg-[#1C1610] p-5 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-2xs">
+              <span className="text-[11px] font-heading font-bold text-slate-400 dark:text-neutral-400 uppercase">
                 Tổng Lượt Chơi Game
               </span>
-              <div className="text-2xl font-heading font-black text-sky-600 mt-1">
+              <div className="text-2xl font-heading font-black text-sky-600 dark:text-sky-400 mt-1">
                 {gameSessions.length} lượt
               </div>
-              <span className="text-[10px] text-slate-400">Mini Game đã hoàn thành</span>
+              <span className="text-[10px] text-slate-400 dark:text-neutral-500">Mini Game đã hoàn thành</span>
             </div>
           </div>
 
           {/* Recent Game Sessions Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 flex items-center gap-2">
+          <div className="bg-white dark:bg-[#1C1610] rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-2xs overflow-hidden">
+            <div className="p-4 border-b border-slate-100 dark:border-neutral-800 flex items-center justify-between">
+              <h3 className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
                 <span>🎮</span>
                 <span>Lịch Sử Các Lượt Chơi Mini Game Đã Lưu</span>
               </h3>
@@ -1548,33 +1548,33 @@ export const StudentVocabGamesTab = ({ student, activeClass }) => {
                     <th className="py-2.5 px-4">Thời Gian Chơi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100 dark:divide-neutral-800 text-slate-700 dark:text-neutral-200">
                   {gameSessions.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-slate-400">
+                      <td colSpan={5} className="py-8 text-center text-slate-400 dark:text-neutral-500">
                         Bạn chưa hoàn thành lượt chơi game nào. Hãy thử chơi một ván ở trên nhé!
                       </td>
                     </tr>
                   ) : (
                     gameSessions.map((s, idx) => (
-                      <tr key={s.sessionId || idx} className="hover:bg-amber-50/30">
-                        <td className="py-3 px-4 font-heading font-bold text-slate-900">
+                      <tr key={s.sessionId || idx} className="hover:bg-amber-50/30 dark:hover:bg-amber-500/10 transition-colors">
+                        <td className="py-3 px-4 font-heading font-bold text-slate-900 dark:text-white">
                           {s.gameType === "speedrun"
                             ? "⚡ Speedrun Quiz"
                             : s.gameType === "memory"
                             ? "🧩 Memory Match"
                             : "🔤 Word Scramble"}
                         </td>
-                        <td className="py-3 px-4 font-heading font-extrabold text-sm text-[#c27803]">
+                        <td className="py-3 px-4 font-heading font-black text-sm text-[#c27803] dark:text-amber-400">
                           +{s.score} XP
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4 dark:text-neutral-200">
                           {s.correctCount} / {s.totalQuestions}
                         </td>
-                        <td className="py-3 px-4 font-mono font-bold text-emerald-700">
+                        <td className="py-3 px-4 font-mono font-bold text-emerald-700 dark:text-emerald-400">
                           {s.accuracy}%
                         </td>
-                        <td className="py-3 px-4 text-slate-400 text-[11px]">
+                        <td className="py-3 px-4 text-slate-400 dark:text-neutral-400 text-[11px]">
                           {s.playedAt ? new Date(s.playedAt).toLocaleString("vi-VN") : "—"}
                         </td>
                       </tr>
