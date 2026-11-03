@@ -1336,8 +1336,8 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
             refObj: placementTestRef,
             icon: <IconClipboardCheck className="w-6 h-6 text-amber-900" />,
             badge: "Định Vị Năng Lực Nhanh",
-            title: "TOEIC Reading Placement Test (7 Phút - Chuẩn Part 5 - 7 ETS)",
-            summary: "Đánh giá chuyên sâu năng lực Ngữ pháp & Đọc hiểu trong 7 phút, tự động chấm điểm và gợi ý lộ trình bứt phá điểm số",
+            title: "TOEIC Comprehensive Placement Test (10 Phút - Listening & Reading ETS)",
+            summary: "Đánh giá chuyên sâu năng lực Nghe điền từ công sở và Đọc hiểu ngữ pháp trong 10 phút, tự động chấm điểm và gợi ý lộ trình bứt phá điểm số",
           })}
 
           {expandedSections.placementTest && (
@@ -1357,10 +1357,10 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
 
                       <div className="space-y-3">
                         <h3 className="text-2xl sm:text-4xl font-serif font-bold text-white tracking-tight leading-tight">
-                          Kiểm Tra Trình Độ Ngữ Pháp & Đọc Hiểu Trong 7 Phút
+                          Khảo Sát Năng Lực Nghe & Đọc Hiểu Trong 10 Phút
                         </h3>
                         <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-normal">
-                          Bài test gồm <strong>7 câu trắc nghiệm cốt lõi bao quát đủ 3 Part Đọc</strong>: Part 5 (Từ loại, Đảo ngữ), Part 6 (Điền từ đoạn văn) và Part 7 (Đọc hiểu thông báo Notice). Hệ thống tự động phân loại trình độ của bạn vào 3 cấp độ: <strong>Foundation (&lt; 450)</strong>, <strong>550+</strong>, hoặc <strong>650+</strong> và gửi báo cáo phân tích trực tiếp cho Thầy Đỗ Tuấn Nam.
+                          Bài test gồm <strong>17 câu chuẩn hóa bao quát 2 kỹ năng cốt lõi</strong>: Phần Nghe điền từ Part 3 Cloze (10 câu từ vựng công sở) và Phần Đọc hiểu chuẩn ETS (7 câu Part 5, 6, 7). Hệ thống tự động phân loại trình độ của bạn vào 3 cấp độ: <strong>Foundation (&lt; 450)</strong>, <strong>550+</strong>, hoặc <strong>650+</strong> và gửi báo cáo phân tích trực tiếp cho Thầy Đỗ Tuấn Nam.
                         </p>
                       </div>
 
@@ -1368,11 +1368,11 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5">
                           <span className="text-lg text-amber-400">⏱️</span>
-                          <span className="text-neutral-200">7 phút đếm ngược tự động</span>
+                          <span className="text-neutral-200">10 phút đếm ngược tự động</span>
                         </div>
                         <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5">
-                          <span className="text-lg text-sky-400">📖</span>
-                          <span className="text-neutral-200">Chuẩn hóa Part 5, 6, 7 ETS</span>
+                          <span className="text-lg text-sky-400">🎧</span>
+                          <span className="text-neutral-200">Nghe điền từ Part 3 Cloze</span>
                         </div>
                         <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5">
                           <span className="text-lg text-emerald-400">📊</span>
@@ -1380,7 +1380,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                         </div>
                         <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5">
                           <span className="text-lg text-amber-400">💡</span>
-                          <span className="text-neutral-200">Giải thích bẫy đề thi chi tiết</span>
+                          <span className="text-neutral-200">Tải bản Word giải thích chi tiết</span>
                         </div>
                       </div>
 
@@ -1401,7 +1401,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                     <div className="lg:col-span-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 space-y-4 text-left">
                       <div className="flex items-center justify-between border-b border-white/10 pb-3">
                         <span className="text-xs uppercase tracking-wider font-mono font-bold text-amber-400">
-                          Cấu Trúc Đề Thi Reading
+                          Cấu Trúc Đề Thi 17 Câu
                         </span>
                         <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 text-[11px] font-bold rounded-full">
                           Chuẩn ETS 2026
@@ -1410,20 +1410,20 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
 
                       <div className="space-y-2.5 text-xs">
                         <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
-                          <span className="font-bold text-white">Part 5: Incomplete Sentences</span>
-                          <span className="text-amber-400 font-mono font-bold">Câu 1 - 3</span>
+                          <span className="font-bold text-white">Part 3: Listening Cloze</span>
+                          <span className="text-amber-400 font-mono font-bold">10 Chỗ trống (Câu 1 - 10)</span>
                         </div>
                         <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
-                          <span className="font-bold text-white">Part 6: Text Completion (Memo)</span>
-                          <span className="text-sky-400 font-mono font-bold">Câu 4 - 5</span>
+                          <span className="font-bold text-white">Part 5: Incomplete Sentences</span>
+                          <span className="text-sky-400 font-mono font-bold">3 Câu (Câu 11 - 13)</span>
+                        </div>
+                        <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
+                          <span className="font-bold text-white">Part 6: Text Completion</span>
+                          <span className="text-emerald-400 font-mono font-bold">2 Câu (Câu 14 - 15)</span>
                         </div>
                         <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
                           <span className="font-bold text-white">Part 7: Reading Notice</span>
-                          <span className="text-emerald-400 font-mono font-bold">Câu 6 - 7</span>
-                        </div>
-                        <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
-                          <span className="font-bold text-white">Báo cáo kết quả</span>
-                          <span className="text-neutral-300 font-medium">Email & Discord Realtime</span>
+                          <span className="text-purple-400 font-mono font-bold">2 Câu (Câu 16 - 17)</span>
                         </div>
                       </div>
 

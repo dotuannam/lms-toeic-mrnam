@@ -95,15 +95,15 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
         <div className="max-w-4xl mx-auto text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-400/40 rounded-full text-xs font-mono font-black text-amber-900 uppercase tracking-widest">
             <span>🎯</span>
-            <span>BÀI TEST XẾP LỚP 7 PHÚT • TOEIC READING (PART 5 - 7)</span>
+            <span>BÀI TEST XẾP LỚP 10 PHÚT • TOEIC LISTENING & READING (17 CÂU)</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-serif font-bold text-neutral-950 tracking-tight">
-            TOEIC Reading Placement Test
+            TOEIC Comprehensive Placement Test
           </h1>
 
           <p className="text-xs sm:text-sm text-neutral-700 font-medium max-w-2xl mx-auto leading-relaxed">
-            Đánh giá chính xác kiến thức <strong>Từ loại, Ngữ pháp nâng cao (Part 5)</strong> và kỹ năng <strong>Đọc hiểu văn bản (Part 6, Part 7)</strong> theo chuẩn định dạng ETS. Sau khi nộp bài, hệ thống sẽ tự động chấm điểm, ước tính cấp độ và gửi kết quả chi tiết tới Thầy Đỗ Tuấn Nam.
+            Đánh giá toàn diện <strong>Kỹ năng Nghe điền từ công sở (Part 3 Cloze - 10 chỗ trống)</strong> và kỹ năng <strong>Đọc hiểu - Ngữ pháp nâng cao (Part 5, 6, 7: 7 câu)</strong> theo định dạng chuẩn ETS. Sau khi nộp bài, hệ thống sẽ tự động chấm điểm, ước tính cấp độ và gửi kết quả chi tiết tới Thầy Đỗ Tuấn Nam.
           </p>
         </div>
       </section>

@@ -27,18 +27,18 @@ export const buildPlacementTestEmbed = (log) => {
   const phone = meta.phone || "Chưa cung cấp";
   const email = meta.email || "Chưa cung cấp";
   const score = meta.score ?? 0;
-  const total = meta.totalQuestions || 15;
+  const total = meta.totalQuestions || 17;
   const tier = meta.tier || "Foundation";
   const course = meta.recommendedCourse || "Khóa học TOEIC Foundation";
   const percent = Math.round((score / total) * 100);
 
-  const color = score >= 12 ? COLORS.SUCCESS : score >= 7 ? COLORS.PRIMARY : COLORS.WARNING;
+  const color = score >= 13 ? COLORS.SUCCESS : score >= 8 ? COLORS.PRIMARY : COLORS.WARNING;
 
   const embed = new EmbedBuilder()
     .setTitle("🎯 THÍ SINH VỪA NỘP BÀI MINI PLACEMENT TEST!")
     .setColor(color)
     .setDescription(
-      `Thí sinh **${candidateName}** vừa hoàn thành bài kiểm tra TOEIC Mini Placement Test 15 câu trên Landing Page!\n` +
+      `Thí sinh **${candidateName}** vừa hoàn thành bài kiểm tra TOEIC Mini Placement Test ${total} câu trên Landing Page!\n` +
       `⏱️ Điểm số: **${score}/${total}** (${percent}%) • Xếp lớp: **${tier}**`
     )
     .addFields(
