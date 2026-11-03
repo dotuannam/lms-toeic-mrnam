@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MINI_PLACEMENT_TEST_QUESTIONS,
   getPlacementScoreEvaluation,
@@ -9,21 +9,6 @@ import { db } from "../../config/firebase";
 import { logActivity, ACTION_TYPES } from "../../services/auditLogService";
 import { sendEmailNotification } from "../../services/api";
 
-// Helper to resolve asset paths for both Firebase root and GitHub Pages repository subpath
-export const getAssetUrl = (path) => {
-  if (!path) return "";
-  if (path.startsWith("http")) return path;
-  const clean = path.startsWith("/") ? path.slice(1) : path;
-  const base =
-    typeof window !== "undefined" && window.location.pathname.startsWith("/lms-toeic-mrnam")
-      ? "/lms-toeic-mrnam"
-      : "";
-  return base ? `${base}/${clean}` : `/${clean}`;
-};
-
-// Official Audio File Path (Drop any new studio recording to public/audio/ to update)
-export const OFFICIAL_AUDIO_SRC = "/audio/TOEIC_Placement_Test_Listening_Full.wav";
-
 const TARGET_GOAL_OPTIONS = [
   "Mất gốc / Căn bản (Mục tiêu 350 — 450+ TOEIC)",
   "Chuẩn đầu ra tốt nghiệp (Mục tiêu 500 — 600+ TOEIC)",
@@ -32,7 +17,7 @@ const TARGET_GOAL_OPTIONS = [
 ];
 
 export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
-  // Step & Candidate State
+  // Candidate Info State
   const [hasStarted, setHasStarted] = useState(false);
   const [candidateInfo, setCandidateInfo] = useState({
     fullName: "",
@@ -47,23 +32,15 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
   const [userAnswers, setUserAnswers] = useState(
     Array(MINI_PLACEMENT_TEST_QUESTIONS.length).fill(null)
   );
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes (600s)
+  const [timeLeft, setTimeLeft] = useState(420); // 7 minutes (420s)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [testResults, setTestResults] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [reviewFilter, setReviewFilter] = useState("all"); // 'all' | 'incorrect' | 'correct'
 
-  // Audio Player State for Section 1 (Listening Q1 - 8)
-  const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(338); // ~5m38s
-  const [playbackRate, setPlaybackRate] = useState(1);
-
   const totalQuestions = MINI_PLACEMENT_TEST_QUESTIONS.length;
   const currentQ = MINI_PLACEMENT_TEST_QUESTIONS[currentIndex];
-  const isListeningSection = currentQ.section === "listening";
 
   // Countdown Timer
   useEffect(() => {
@@ -81,60 +58,6 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     return () => clearInterval(timer);
   }, [hasStarted, isCompleted, timeLeft]);
 
-  // Audio Event Listeners
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleLoadedMetadata = () => {
-      if (audio.duration && !isNaN(audio.duration)) {
-        setDuration(audio.duration);
-      }
-    };
-    const handleEnded = () => setIsPlaying(false);
-    const handlePause = () => setIsPlaying(false);
-    const handlePlay = () => setIsPlaying(true);
-
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("ended", handleEnded);
-    audio.addEventListener("pause", handlePause);
-    audio.addEventListener("play", handlePlay);
-
-    return () => {
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("pause", handlePause);
-      audio.removeEventListener("play", handlePlay);
-    };
-  }, [hasStarted]);
-
-  const toggleAudio = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch((e) => {
-        console.warn("[Audio] Play error:", e);
-      });
-    }
-  };
-
-  const handleSeekAudio = (e) => {
-    if (!audioRef.current) return;
-    const seekTime = parseFloat(e.target.value);
-    audioRef.current.currentTime = seekTime;
-    setCurrentTime(seekTime);
-  };
-
-  const handleRateChange = (rate) => {
-    if (!audioRef.current) return;
-    audioRef.current.playbackRate = rate;
-    setPlaybackRate(rate);
-  };
-
   // Format time mm:ss
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
@@ -142,7 +65,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Start Quiz Handler
+  // Start Test Handler
   const handleStartTest = (e) => {
     e.preventDefault();
     if (!candidateInfo.fullName.trim()) {
@@ -156,7 +79,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     setInfoError("");
     setHasStarted(true);
     setCurrentIndex(0);
-    setTimeLeft(600);
+    setTimeLeft(420);
     setUserAnswers(Array(totalQuestions).fill(null));
     setIsCompleted(false);
     setTestResults(null);
@@ -181,10 +104,6 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     setShowConfirmModal(false);
     setIsSubmitting(true);
 
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-
     // 1. Calculate Score & Question-by-Question Results
     let correctCount = 0;
     const detailedResults = MINI_PLACEMENT_TEST_QUESTIONS.map((q, idx) => {
@@ -207,15 +126,17 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
         correctChoice: correctLetter,
         isCorrect,
         explanation: q.explanation || "",
-        transcript: q.transcript || "",
         tier: q.tier || "",
       };
     });
 
     const evaluation = getPlacementScoreEvaluation(correctCount);
-    const timeSpent = Math.max(0, 600 - timeLeft);
+    const timeSpent = Math.max(0, 420 - timeLeft);
 
     const resultPayload = {
+      candidateName: candidateInfo.fullName.trim(),
+      phone: candidateInfo.phone.trim(),
+      email: candidateInfo.email.trim(),
       score: correctCount,
       totalQuestions,
       percentage: Math.round((correctCount / totalQuestions) * 100),
@@ -225,6 +146,11 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     };
 
     setTestResults(resultPayload);
+
+    // Save to localStorage for seamless Consultation form auto-fill
+    try {
+      localStorage.setItem("toeic_last_placement_result", JSON.stringify(resultPayload));
+    } catch (e) {}
 
     // 2. Save Submission to Firestore: 'placement_test_submissions'
     try {
@@ -254,7 +180,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
         action: ACTION_TYPES.PLACEMENT_TEST_SUBMISSION || "PLACEMENT_TEST_SUBMISSION",
         resource: "placement_test",
         targetName: candidateInfo.fullName.trim(),
-        details: `Thí sinh ${candidateInfo.fullName.trim()} (SĐT: ${candidateInfo.phone.trim()}) vừa hoàn thành Mini Placement Test: ${correctCount}/${totalQuestions} câu đúng (${evaluation.range}). Khóa học đề xuất: ${evaluation.recommendedCourse}`,
+        details: `Thí sinh ${candidateInfo.fullName.trim()} (SĐT: ${candidateInfo.phone.trim()}) vừa hoàn thành TOEIC Reading Placement Test: ${correctCount}/${totalQuestions} câu đúng (${evaluation.range}). Khóa học đề xuất: ${evaluation.recommendedCourse}`,
         metadata: {
           candidateName: candidateInfo.fullName.trim(),
           phone: candidateInfo.phone.trim(),
@@ -284,7 +210,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           return `
             <tr style="background-color: ${rowBg}; border-bottom: 1px solid #e2e8f0;">
               <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: #0f172a;">Câu ${r.qNum}</td>
-              <td style="padding: 10px 8px; color: #334155;"><strong>${r.part.split(":")[0]}</strong></td>
+              <td style="padding: 10px 8px; color: #334155;"><strong>${r.part}</strong></td>
               <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: ${userColor}; font-size: 14px;">${r.userChoice}</td>
               <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: #0284c7; font-size: 14px;">${r.correctChoice}</td>
               <td style="padding: 10px 8px; text-align: center; font-weight: bold; font-size: 13px;">${statusText}</td>
@@ -297,7 +223,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; background-color: #faf9f6; border: 1px solid #e7e5e4; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
           <div style="background-color: #1c1610; padding: 26px 24px; text-align: center; border-bottom: 4px solid #c27803;">
             <h2 style="color: #ffffff; margin: 0 0 6px; font-size: 21px; font-weight: 800; letter-spacing: 0.5px;">TOEIC MR.NAM — HỆ THỐNG LMS</h2>
-            <p style="color: #f59e0b; margin: 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Thí Sinh Vừa Nộp Bài Mini Placement Test (15 Câu)</p>
+            <p style="color: #f59e0b; margin: 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Thí Sinh Vừa Nộp Bài Reading Placement Test</p>
           </div>
           
           <div style="padding: 24px;">
@@ -308,7 +234,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 <tr><td style="padding: 5px 0; color: #64748b;">Số điện thoại:</td><td style="padding: 5px 0; color: #0f172a; font-weight: bold;"><a href="tel:${candidateInfo.phone.trim()}" style="color: #0284c7; text-decoration: none;">${candidateInfo.phone.trim()}</a></td></tr>
                 <tr><td style="padding: 5px 0; color: #64748b;">Email:</td><td style="padding: 5px 0; color: #0f172a; font-weight: bold;"><a href="mailto:${candidateInfo.email.trim()}" style="color: #0284c7; text-decoration: none;">${candidateInfo.email.trim() || "Chưa cung cấp"}</a></td></tr>
                 <tr><td style="padding: 5px 0; color: #64748b;">Mục tiêu mong muốn:</td><td style="padding: 5px 0; color: #d97706; font-weight: bold;">${candidateInfo.targetGoal}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">Thời gian hoàn thành:</td><td style="padding: 5px 0; color: #0f172a;">${formatTime(timeSpent)} / 10 phút</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Thời gian hoàn thành:</td><td style="padding: 5px 0; color: #0f172a;">${formatTime(timeSpent)} / 7 phút</td></tr>
                 <tr><td style="padding: 5px 0; color: #64748b;">Thời điểm nộp:</td><td style="padding: 5px 0; color: #0f172a;">${new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}</td></tr>
               </table>
             </div>
@@ -322,7 +248,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               </div>
             </div>
 
-            <h3 style="margin: 0 0 10px; color: #0f172a; font-size: 15px;">📝 Chi Tiết 15 Câu Làm Bài (Đúng / Sai):</h3>
+            <h3 style="margin: 0 0 10px; color: #0f172a; font-size: 15px;">📝 Chi Tiết Bài Làm (${totalQuestions} Câu):</h3>
             <table style="width: 100%; border-collapse: collapse; font-size: 13px; background-color: #ffffff; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 22px;">
               <thead>
                 <tr style="background-color: #0f172a; color: #ffffff;">
@@ -392,13 +318,13 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
 
             <div className="space-y-2">
               <span className="inline-block px-3 py-1 bg-amber-100 text-amber-900 font-extrabold text-xs uppercase tracking-wider rounded-full border border-amber-300">
-                Chuẩn Định Dạng ETS • 10 Phút
+                Chuẩn Định Dạng ETS • 7 Phút
               </span>
               <h3 className="text-2xl sm:text-3xl font-heading font-black text-neutral-950 tracking-tight">
-                TOEIC Mini Placement Test (15 Câu Chuẩn 7 Parts)
+                TOEIC Reading Placement Test (Part 5 - 7)
               </h3>
               <p className="text-sm text-neutral-700 font-medium leading-relaxed">
-                Đánh giá toàn diện 7 Parts: <strong>Listening (Part 1 - 4)</strong> có audio phòng thi và <strong>Reading (Part 5 - 7)</strong> có bài đọc chuẩn hóa. Hệ thống tự động chấm điểm và gửi phân tích chi tiết từng câu cho bạn ngay sau khi nộp bài.
+                Đánh giá toàn diện năng lực Ngữ pháp & Đọc hiểu: <strong>Part 5 (Từ loại, Đảo ngữ)</strong>, <strong>Part 6 (Văn bản Memorandum)</strong> và <strong>Part 7 (Thông báo Notice)</strong>. Hệ thống tự động chấm điểm và gửi phân tích chi tiết cho bạn ngay sau khi nộp bài.
               </p>
             </div>
           </div>
@@ -408,22 +334,22 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
             <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-200 flex items-center gap-3">
               <span className="text-xl text-amber-600 font-black">⏱️</span>
               <div>
-                <span className="block font-bold text-neutral-900">Thời gian 10 Phút</span>
+                <span className="block font-bold text-neutral-900">Thời gian 7 Phút</span>
                 <span className="text-[11px] text-neutral-600 font-normal">Đồng hồ đếm ngược tự động</span>
               </div>
             </div>
             <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-200 flex items-center gap-3">
-              <span className="text-xl text-sky-600 font-black">🎧</span>
+              <span className="text-xl text-sky-600 font-black">📖</span>
               <div>
-                <span className="block font-bold text-neutral-900">Audio 7 Parts</span>
-                <span className="text-[11px] text-neutral-600 font-normal">Nghe Part 1 - 4 & Đọc Part 5 - 7</span>
+                <span className="block font-bold text-neutral-900">Chuẩn Part 5 - 7 ETS</span>
+                <span className="text-[11px] text-neutral-600 font-normal">Từ loại, Đoạn văn & Đọc hiểu</span>
               </div>
             </div>
             <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-200 flex items-center gap-3">
-              <span className="text-xl text-emerald-600 font-black">📥</span>
+              <span className="text-xl text-emerald-600 font-black">📊</span>
               <div>
-                <span className="block font-bold text-neutral-900">Tải File Transcript</span>
-                <span className="text-[11px] text-neutral-600 font-normal">Tặng file Word lời thoại & giải thích</span>
+                <span className="block font-bold text-neutral-900">Xếp Lớp Tức Thì</span>
+                <span className="text-[11px] text-neutral-600 font-normal">Định vị Foundation, 550+, 650+</span>
               </div>
             </div>
           </div>
@@ -524,7 +450,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 type="submit"
                 className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-sm uppercase tracking-wider rounded-xl shadow-lg hover:shadow-amber-500/25 transition-all transform hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>Bắt Đầu Làm Bài Thi (10 Phút)</span>
+                <span>Bắt Đầu Làm Bài Thi (7 Phút)</span>
                 <span className="text-lg">→</span>
               </button>
             </div>
@@ -547,7 +473,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 </span>
                 <span
                   className={`text-xl sm:text-2xl font-mono font-black tracking-wider ${
-                    timeLeft < 120 ? "text-rose-400 animate-pulse" : "text-amber-400"
+                    timeLeft < 90 ? "text-rose-400 animate-pulse" : "text-amber-400"
                   }`}
                 >
                   {formatTime(timeLeft)}
@@ -573,93 +499,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
             </div>
           </div>
 
-          {/* Section 1: Listening Audio Player Box */}
-          {isListeningSection && (
-            <div className="p-4 sm:p-5 bg-gradient-to-r from-amber-50 via-sky-50 to-amber-50 rounded-2xl border-2 border-amber-300 shadow-xs space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center">
-                    🎧
-                  </span>
-                  <div>
-                    <h4 className="font-heading font-black text-xs sm:text-sm text-neutral-950 uppercase tracking-wider">
-                      Audio Section 1: Listening (Part 1 - 4)
-                    </h4>
-                    <span className="text-[11px] text-neutral-600 font-medium">
-                      Bấm Play để nghe toàn bộ đề nghe chuẩn ETS (~5 phút 38 giây)
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-neutral-700 bg-white/80 px-2.5 py-1 rounded-lg border border-neutral-200">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>/</span>
-                  <span>{formatTime(duration)}</span>
-                </div>
-              </div>
-
-              {/* Hidden HTML5 Audio Element */}
-              <audio
-                ref={audioRef}
-                src={getAssetUrl(OFFICIAL_AUDIO_SRC)}
-                preload="metadata"
-              />
-
-              {/* Audio Status Notice */}
-              <div className="px-3 py-1.5 bg-amber-100/80 border border-amber-300/80 rounded-xl text-[11px] text-amber-950 font-medium flex items-center gap-1.5">
-                <span>🎙️</span>
-                <span>
-                  <strong>Lưu ý âm thanh:</strong> Audio mô phỏng chuẩn ETS. Bản thu âm studio chính thức từ Thầy Nam sẽ được cập nhật sớm.
-                </span>
-              </div>
-
-              {/* Player Controls */}
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <button
-                  type="button"
-                  onClick={toggleAudio}
-                  className={`w-full sm:w-auto px-5 py-2 rounded-xl font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm ${
-                    isPlaying
-                      ? "bg-amber-600 hover:bg-amber-700 text-white"
-                      : "bg-neutral-950 hover:bg-neutral-800 text-white"
-                  }`}
-                >
-                  <span>{isPlaying ? "⏸ Tạm Dừng" : "▶ Bật Âm Thanh Nghe"}</span>
-                </button>
-
-                {/* Progress bar slider */}
-                <input
-                  type="range"
-                  min="0"
-                  max={duration || 338}
-                  step="0.1"
-                  value={currentTime}
-                  onChange={handleSeekAudio}
-                  className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
-                />
-
-                {/* Speed Controls */}
-                <div className="flex items-center gap-1 shrink-0">
-                  {[1, 1.25].map((rate) => (
-                    <button
-                      key={rate}
-                      type="button"
-                      onClick={() => handleRateChange(rate)}
-                      className={`px-2 py-1 text-[11px] font-mono font-bold rounded-md transition cursor-pointer ${
-                        playbackRate === rate
-                          ? "bg-amber-600 text-white"
-                          : "bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-300"
-                      }`}
-                    >
-                      {rate}x
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Question Jump Palette (1 to 15 pills) */}
+          {/* Question Jump Palette (1 to 7 pills) */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs text-neutral-600 font-semibold">
               <span>Bảng câu hỏi ({answeredCount}/{totalQuestions} hoàn thành):</span>
@@ -668,7 +508,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+            <div className="flex flex-wrap gap-2">
               {MINI_PLACEMENT_TEST_QUESTIONS.map((q, idx) => {
                 const isCurrent = idx === currentIndex;
                 const isAnswered = userAnswers[idx] !== null;
@@ -687,7 +527,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                     key={q.id}
                     type="button"
                     onClick={() => handleJumpToQuestion(idx)}
-                    className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border text-xs font-heading transition-all cursor-pointer flex items-center justify-center ${pillStyle}`}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border text-xs font-heading transition-all cursor-pointer flex items-center justify-center ${pillStyle}`}
                     title={`Câu ${q.id} (${q.part})`}
                   >
                     {q.id}
@@ -714,29 +554,6 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 Câu {currentIndex + 1} / {totalQuestions}
               </span>
             </div>
-
-            {/* Context / Passage (if present in Part 3, 4, 6, 7) */}
-            {currentQ.passageTitle && (
-              <div className="p-3 bg-sky-50 rounded-xl border border-sky-200 text-sky-950 font-bold text-xs">
-                📌 {currentQ.passageTitle}
-              </div>
-            )}
-
-            {/* Part 1: Photograph Image Display */}
-            {currentQ.part.includes("Part 1") && currentQ.image && (
-              <div className="space-y-3">
-                <div className="max-w-md mx-auto rounded-2xl overflow-hidden border-2 border-neutral-300 shadow-md">
-                  <img
-                    src={getAssetUrl(currentQ.image)}
-                    alt="TOEIC Part 1 Photograph"
-                    className="w-full h-auto object-cover max-h-72"
-                  />
-                </div>
-                <p className="text-center text-xs text-neutral-600 italic">
-                  * Nghe audio miêu tả bức tranh và chọn phương án đúng nhất (A, B, C, hoặc D)
-                </p>
-              </div>
-            )}
 
             {/* Part 6 & 7: Reading Passage Text */}
             {currentQ.passage && (
@@ -782,14 +599,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                       >
                         {letter}
                       </span>
-                      {/* For Part 1 and Part 2, DO NOT show option text, only letter. For others, show text! */}
-                      {currentQ.part.includes("Part 1") || currentQ.part.includes("Part 2") ? (
-                        <span className="font-bold text-neutral-900">
-                          Lựa chọn ({letter})
-                        </span>
-                      ) : (
-                        <span className="font-medium text-neutral-900">{option}</span>
-                      )}
+                      <span className="font-medium text-neutral-900">{option}</span>
                     </div>
 
                     {isSelected && (
@@ -884,7 +694,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           {/* Header Badge */}
           <div className="text-center space-y-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-900 font-extrabold text-xs uppercase tracking-wider rounded-full border border-emerald-300">
-              <span>✓</span> Hoàn Thành TOEIC Mini Placement Test
+              <span>✓</span> Hoàn Thành TOEIC Reading Placement Test
             </span>
             <h3 className="text-2xl sm:text-3xl font-heading font-black text-neutral-950">
               Bảng Đánh Giá Năng Lực & Phân Tích Lộ Trình
@@ -898,7 +708,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
             <div className="p-6 bg-neutral-50 rounded-2xl border border-neutral-200 text-center space-y-1 shadow-xs">
               <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-700">
-                Điểm Trắc Nghiệm
+                Điểm Trắc Nghiệm Reading
               </span>
               <div className="text-4xl sm:text-5xl font-heading font-black text-amber-600">
                 {testResults.score} <span className="text-xl text-neutral-500">/ {totalQuestions}</span>
@@ -939,35 +749,11 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
             </p>
           </div>
 
-          {/* Download Word DOCX Transcript CTA */}
-          <div className="max-w-2xl mx-auto p-4 bg-sky-50 border-2 border-sky-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-xl shrink-0">
-                📄
-              </div>
-              <div>
-                <h5 className="font-heading font-black text-xs sm:text-sm text-sky-950">
-                  Tải Bản Word Transcript & Đáp Án Giải Thích Chi Tiết
-                </h5>
-                <p className="text-[11px] text-sky-800">
-                  Bao gồm lời thoại song ngữ Part 1 - 4 và phân tích bẫy đề thi (.docx)
-                </p>
-              </div>
-            </div>
-            <a
-              href={getAssetUrl("/TOEIC_Placement_Test_Listening_Transcript.docx")}
-              download="TOEIC_Placement_Test_Listening_Transcript.docx"
-              className="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-sm transition whitespace-nowrap"
-            >
-              Tải File Word ↓
-            </a>
-          </div>
-
           {/* Question Review Section with Filter */}
           <div className="max-w-3xl mx-auto space-y-4 pt-4 border-t border-neutral-200">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h4 className="font-heading font-black text-neutral-950 text-base">
-                Chi Tiết Đáp Án & Lời Giải 15 Câu
+                Chi Tiết Đáp Án & Lời Giải {totalQuestions} Câu
               </h4>
               <div className="flex items-center gap-1.5 text-xs">
                 <button
@@ -979,7 +765,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                       : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
                   }`}
                 >
-                  Tất cả (15)
+                  Tất cả ({totalQuestions})
                 </button>
                 <button
                   type="button"
@@ -1015,8 +801,6 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                   return true;
                 })
                 .map((r) => {
-                  const qData = MINI_PLACEMENT_TEST_QUESTIONS[r.qNum - 1];
-
                   return (
                     <div
                       key={r.qNum}
@@ -1054,32 +838,9 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                         </div>
                       </div>
 
-                      {/* Photo if Part 1 */}
-                      {qData.image && (
-                        <div className="max-w-xs mx-auto rounded-xl overflow-hidden border border-neutral-300">
-                          <img
-                            src={getAssetUrl(qData.image)}
-                            alt="Question 1 Photo"
-                            className="w-full h-auto object-cover"
-                          />
-                        </div>
-                      )}
-
                       <p className="text-xs sm:text-sm font-semibold text-neutral-900">
                         {r.question}
                       </p>
-
-                      {/* Transcript Revealer (Now revealed after test completion!) */}
-                      {r.transcript && (
-                        <div className="p-3 bg-white/90 rounded-xl border border-neutral-200 text-xs text-neutral-800 space-y-1">
-                          <span className="font-bold text-sky-800 block">
-                            🎧 Audio Transcript & Nội dung nghe:
-                          </span>
-                          <p className="italic text-neutral-700 font-serif leading-relaxed">
-                            "{r.transcript}"
-                          </p>
-                        </div>
-                      )}
 
                       {/* Explanation */}
                       <div className="p-3 bg-amber-50/90 rounded-xl border border-amber-200 text-xs text-neutral-900 space-y-1">
@@ -1121,7 +882,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 setTestResults(null);
                 setCurrentIndex(0);
                 setUserAnswers(Array(totalQuestions).fill(null));
-                setTimeLeft(600);
+                setTimeLeft(420);
               }}
               className="py-4 px-5 border border-neutral-300 text-neutral-800 hover:bg-neutral-100 font-bold text-xs rounded-xl transition cursor-pointer"
             >

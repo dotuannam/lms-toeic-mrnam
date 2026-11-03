@@ -95,27 +95,16 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
         <div className="max-w-4xl mx-auto text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-400/40 rounded-full text-xs font-mono font-black text-amber-900 uppercase tracking-widest">
             <span>🎯</span>
-            <span>BÀI TEST XẾP LỚP 10 PHÚT • 15 CÂU 7 PARTS</span>
+            <span>BÀI TEST XẾP LỚP 7 PHÚT • TOEIC READING (PART 5 - 7)</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-serif font-bold text-neutral-950 tracking-tight">
-            TOEIC Mini Placement Test
+            TOEIC Reading Placement Test
           </h1>
 
           <p className="text-xs sm:text-sm text-neutral-700 font-medium max-w-2xl mx-auto leading-relaxed">
-            Đánh giá chính xác phản xạ <strong>Nghe (Part 1 - 4)</strong> và tư duy <strong>Đọc hiểu (Part 5 - 7)</strong> theo chuẩn định dạng ETS. Sau khi nộp bài, hệ thống sẽ tự động chấm điểm, ước tính cấp độ và gửi kết quả chi tiết tới Thầy Đỗ Tuấn Nam.
+            Đánh giá chính xác kiến thức <strong>Từ loại, Ngữ pháp nâng cao (Part 5)</strong> và kỹ năng <strong>Đọc hiểu văn bản (Part 6, Part 7)</strong> theo chuẩn định dạng ETS. Sau khi nộp bài, hệ thống sẽ tự động chấm điểm, ước tính cấp độ và gửi kết quả chi tiết tới Thầy Đỗ Tuấn Nam.
           </p>
-
-          {/* Official Audio Placeholder Notice */}
-          <div className="p-3 bg-amber-50/90 border border-amber-300 rounded-2xl max-w-2xl mx-auto text-left flex items-start gap-3 shadow-xs">
-            <span className="text-lg text-amber-600 shrink-0 mt-0.5">🎙️</span>
-            <div className="text-xs text-neutral-800 leading-relaxed">
-              <strong className="text-amber-950 font-heading uppercase tracking-wide block">
-                Thông báo âm thanh phòng thi:
-              </strong>
-              Bài thi hiện đang sử dụng audio phòng thi mẫu (Section 1). Bản thu âm studio chính thức từ Thầy Nam sẽ được cập nhật sớm trong đợt phát hành tới. Bạn hãy đeo tai nghe để làm bài đạt kết quả tốt nhất.
-            </div>
-          </div>
         </div>
       </section>
 

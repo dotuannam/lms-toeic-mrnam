@@ -62,8 +62,7 @@ export const buildPlacementTestEmbed = (log) => {
 
   const results = meta.results || [];
   if (results.length > 0) {
-    const listeningLines = results
-      .filter((r) => r.qNum <= 8)
+    const lines = results
       .map((r) => {
         const icon = r.isCorrect ? "✅" : "❌";
         const answerInfo = r.isCorrect
@@ -73,29 +72,10 @@ export const buildPlacementTestEmbed = (log) => {
       })
       .join("\n");
 
-    const readingLines = results
-      .filter((r) => r.qNum > 8)
-      .map((r) => {
-        const icon = r.isCorrect ? "✅" : "❌";
-        const answerInfo = r.isCorrect
-          ? `[${r.userChoice}] (Đúng)`
-          : `[${r.userChoice || "Trống"}] (Sai - ĐA: ${r.correctChoice})`;
-        return `${icon} **Câu ${r.qNum}** (${r.part.split(":")[0]}): ${answerInfo}`;
-      })
-      .join("\n");
-
-    if (listeningLines) {
-      embed.addFields({
-        name: "🎧 Section 1: Listening (Câu 1 - 8)",
-        value: listeningLines,
-      });
-    }
-    if (readingLines) {
-      embed.addFields({
-        name: "📖 Section 2: Reading (Câu 9 - 15)",
-        value: readingLines,
-      });
-    }
+    embed.addFields({
+      name: `📖 Chi tiết bài làm: Reading (${results.length} câu)`,
+      value: lines,
+    });
   }
 
   return embed;
