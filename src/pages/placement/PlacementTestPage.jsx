@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { MiniPlacementTest } from "../../components/landing/MiniPlacementTest";
 import { TEACHER_PROFILE } from "../../data/portfolioData";
+import { PrivacyPolicyModal } from "../../components/common/PrivacyPolicyModal";
 
 export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const getBasePath = () => {
     if (typeof window === "undefined") return "";
     return window.location.pathname.startsWith("/lms-toeic-mrnam") ? "/lms-toeic-mrnam" : "";
@@ -123,7 +125,7 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
 
       {/* 4. FOOTER */}
       <footer className="bg-white border-t border-neutral-200/90 py-6 text-center text-xs text-neutral-600 space-y-2">
-        <div className="flex items-center justify-center gap-3 font-semibold text-neutral-700">
+        <div className="flex flex-wrap items-center justify-center gap-3 font-semibold text-neutral-700">
           <button
             type="button"
             onClick={handleBack}
@@ -135,11 +137,25 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
           <span>Thầy Đỗ Tuấn Nam - 077 345 2809</span>
           <span>•</span>
           <span>Email: dotuannamwork2809@gmail.com</span>
+          <span>•</span>
+          <button
+            type="button"
+            onClick={() => setShowPrivacyModal(true)}
+            className="text-amber-800 hover:text-amber-950 underline font-bold cursor-pointer"
+          >
+            Chính Sách Bảo Mật (Luật 91/2025/QH15)
+          </button>
         </div>
         <p className="text-[11px] text-neutral-500 font-medium">
           © 2026 {TEACHER_PROFILE.brandName || "TOEIC MR.NAM"}. Cổng Đánh Giá Năng Lực Trực Tuyến & Luyện Thi TOEIC Chuẩn ETS.
         </p>
       </footer>
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
     </div>
   );
 };

@@ -14,6 +14,7 @@ import {
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { sendEmailNotification } from "../../services/api";
+import { PrivacyPolicyModal } from "../common/PrivacyPolicyModal";
 
 // =========================================================================
 // CLEAN VECTOR SVG ICONS (PURE SVGs - NO EMOJIS FOR BESPOKE AESTHETIC)
@@ -307,6 +308,8 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
   });
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingConsent, setBookingConsent] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // Sync test result from localStorage on mount or storage update
   useEffect(() => {
@@ -474,6 +477,10 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
     e.preventDefault();
     if (!bookingData.name.trim() || !bookingData.phone.trim() || !bookingData.email.trim()) {
       alert("Vui lòng nhập đầy đủ Họ tên, Số điện thoại và Email!");
+      return;
+    }
+    if (!bookingConsent) {
+      alert("Vui lòng tích chọn đồng ý với điều khoản bảo vệ dữ liệu cá nhân (Luật 91/2025/QH15) trước khi gửi đăng ký tư vấn!");
       return;
     }
     setBookingLoading(true);
@@ -1604,6 +1611,31 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                       />
                     </div>
 
+                    {/* Consent Checkbox compliant with Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 */}
+                    <div className="p-3.5 bg-amber-50/80 border border-amber-300 rounded-2xl space-y-1.5">
+                      <label className="flex items-start gap-3 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={bookingConsent}
+                          onChange={(e) => setBookingConsent(e.target.checked)}
+                          className="mt-0.5 w-4 h-4 text-amber-600 border-neutral-300 rounded focus:ring-amber-500 cursor-pointer shrink-0"
+                        />
+                        <span className="text-xs text-neutral-900 leading-relaxed font-medium">
+                          Tôi đồng ý cung cấp thông tin liên hệ để Thầy Đỗ Tuấn Nam tư vấn lộ trình học TOEIC (tuân thủ <strong>Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15</strong>).
+                        </span>
+                      </label>
+                      <div className="text-[11px] text-neutral-600 pl-7 flex flex-wrap items-center gap-2">
+                        <span>🔒 Cam kết bảo mật tuyệt đối, không chia sẻ cho bên thứ ba.</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowPrivacyModal(true)}
+                          className="text-amber-800 underline font-bold hover:text-amber-950 cursor-pointer"
+                        >
+                          Xem chính sách bảo mật
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="pt-2">
                       <button
                         type="submit"
@@ -1881,6 +1913,12 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                   In Sơ Yếu Lý Lịch (Print)
                 </button>
               )}
+              <button
+                onClick={() => setShowPrivacyModal(true)}
+                className="hover:text-amber-300 text-neutral-300 transition cursor-pointer"
+              >
+                Chính sách bảo mật
+              </button>
               <button
                 onClick={() => setShowLoginModal(true)}
                 className="text-amber-400 hover:text-amber-300 transition cursor-pointer font-bold"
@@ -2229,6 +2267,12 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
           </div>
         </div>
       )}
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
     </div>
   );
 };

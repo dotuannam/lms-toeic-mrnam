@@ -9,6 +9,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { logActivity, ACTION_TYPES } from "../../services/auditLogService";
 import { sendEmailNotification } from "../../services/api";
+import { PrivacyPolicyModal } from "../common/PrivacyPolicyModal";
 
 // Helper to resolve asset paths for both Firebase root and GitHub Pages repository subpath
 export const getAssetUrl = (path) => {
@@ -42,6 +43,8 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     targetGoal: TARGET_GOAL_OPTIONS[1],
   });
   const [infoError, setInfoError] = useState("");
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // Quiz Navigation & Section Switcher ("listening" | "reading")
   const totalQuestions = MINI_PLACEMENT_TEST_QUESTIONS.length; // 17
@@ -162,6 +165,10 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     }
     if (!candidateInfo.phone.trim()) {
       setInfoError("Vui lòng nhập số điện thoại (Zalo) để nhận kết quả đánh giá!");
+      return;
+    }
+    if (!consentGiven) {
+      setInfoError("Vui lòng tích chọn đồng ý với điều khoản bảo vệ dữ liệu cá nhân (Luật 91/2025/QH15) trước khi bắt đầu bài thi!");
       return;
     }
     setInfoError("");
@@ -537,6 +544,34 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Consent Checkbox compliant with Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 */}
+              <div className="p-3.5 bg-amber-50/80 border border-amber-300 rounded-2xl space-y-2">
+                <label className="flex items-start gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={consentGiven}
+                    onChange={(e) => {
+                      setConsentGiven(e.target.checked);
+                      if (e.target.checked && infoError.includes("đồng ý")) setInfoError("");
+                    }}
+                    className="mt-0.5 w-4 h-4 text-amber-600 border-neutral-300 rounded-md focus:ring-amber-500 cursor-pointer shrink-0"
+                  />
+                  <span className="text-xs text-neutral-800 leading-relaxed font-medium">
+                    Tôi đồng ý cung cấp thông tin để phục vụ chấm điểm và nhận phân tích lộ trình học TOEIC từ Thầy Đỗ Tuấn Nam (tuân thủ <strong>Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15</strong>).
+                  </span>
+                </label>
+                <div className="text-[11px] text-neutral-600 pl-7 flex flex-wrap items-center gap-2">
+                  <span>🔒 Thông tin được bảo mật tuyệt đối, không chia sẻ cho bên thứ ba.</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowPrivacyModal(true)}
+                    className="text-amber-800 underline font-bold hover:text-amber-900 cursor-pointer"
+                  >
+                    Xem chính sách bảo mật
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1263,6 +1298,12 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           </div>
         </div>
       )}
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
     </div>
   );
 };
