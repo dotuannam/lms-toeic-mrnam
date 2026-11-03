@@ -22,7 +22,7 @@ export const getAssetUrl = (path) => {
   return base ? `${base}/${clean}` : `/${clean}`;
 };
 
-// Official Audio File Path (Drop any new studio recording to public/audio/ to update)
+// Official Audio File Path (52-second cut)
 export const OFFICIAL_AUDIO_SRC = "/audio/TOEIC_Placement_Test_Listening_Full.wav";
 
 const TARGET_GOAL_OPTIONS = [
@@ -43,13 +43,16 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
   });
   const [infoError, setInfoError] = useState("");
 
-  // Quiz Navigation & State (17 questions)
-  const totalQuestions = MINI_PLACEMENT_TEST_QUESTIONS.length;
-  const [currentIndex, setCurrentIndex] = useState(0);
-  // Each answer: { choiceIdx: number | null, text: string }
+  // Quiz Navigation & Section Switcher ("listening" | "reading")
+  const totalQuestions = MINI_PLACEMENT_TEST_QUESTIONS.length; // 17
+  const [activeSection, setActiveSection] = useState("listening"); // "listening" | "reading"
+  const [currentReadingIndex, setCurrentReadingIndex] = useState(10); // Index 10 to 16 for Reading
+
+  // Independent array of 17 answers
   const [userAnswers, setUserAnswers] = useState(() =>
-    Array(totalQuestions).fill({ choiceIdx: null, text: "" })
+    Array.from({ length: totalQuestions }, () => ({ choiceIdx: null, text: "" }))
   );
+
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes (600s)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -57,16 +60,13 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [reviewFilter, setReviewFilter] = useState("all"); // 'all' | 'incorrect' | 'correct'
 
-  // Audio Player State for Section 1 (Listening Q1 - 10)
+  // Audio Player State: Khóa tua sau khi bấm play
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false); // Once played, seeking is locked!
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(52); // Exactly 52 seconds audio
-  const [playbackRate, setPlaybackRate] = useState(1);
-  const [audioError, setAudioError] = useState(false);
-
-  const currentQ = MINI_PLACEMENT_TEST_QUESTIONS[currentIndex] || MINI_PLACEMENT_TEST_QUESTIONS[0];
-  const isListeningSection = currentQ.section === "listening";
+  const [duration, setDuration] = useState(52); // Exact 52 seconds audio
+  const lastAllowedTimeRef = useRef(0);
 
   // Countdown Timer
   useEffect(() => {
@@ -84,12 +84,15 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     return () => clearInterval(timer);
   }, [hasStarted, isCompleted, timeLeft]);
 
-  // Audio Event Listeners
+  // Audio Event Listeners (Enforcing lock-seeking after play)
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleTimeUpdate = () => {
+      lastAllowedTimeRef.current = audio.currentTime;
+      setCurrentTime(audio.currentTime);
+    };
     const handleLoadedMetadata = () => {
       if (audio.duration && !isNaN(audio.duration)) {
         setDuration(audio.duration);
@@ -97,10 +100,15 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     };
     const handleEnded = () => setIsPlaying(false);
     const handlePause = () => setIsPlaying(false);
-    const handlePlay = () => setIsPlaying(true);
-    const handleError = () => {
-      setAudioError(true);
-      setIsPlaying(false);
+    const handlePlay = () => {
+      setIsPlaying(true);
+      setHasPlayed(true);
+    };
+    const handleSeeking = () => {
+      // Khóa tua: if user attempts to seek forward or back after play, snap back
+      if (hasPlayed && Math.abs(audio.currentTime - lastAllowedTimeRef.current) > 1) {
+        audio.currentTime = lastAllowedTimeRef.current;
+      }
     };
 
     audio.addEventListener("timeupdate", handleTimeUpdate);
@@ -108,7 +116,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("pause", handlePause);
     audio.addEventListener("play", handlePlay);
-    audio.addEventListener("error", handleError);
+    audio.addEventListener("seeking", handleSeeking);
 
     return () => {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
@@ -116,33 +124,26 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("play", handlePlay);
-      audio.removeEventListener("error", handleError);
+      audio.removeEventListener("seeking", handleSeeking);
     };
-  }, [hasStarted]);
+  }, [hasStarted, hasPlayed]);
 
   const toggleAudio = () => {
     if (!audioRef.current) return;
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play().catch((e) => {
-        console.warn("[Audio] Audio source pending or playback failed:", e);
-        setAudioError(true);
+      // If audio already reached the end, restart from the beginning cleanly
+      if (audioRef.current.currentTime >= (duration || 52) - 0.5) {
+        lastAllowedTimeRef.current = 0;
+        audioRef.current.currentTime = 0;
+      }
+      audioRef.current.play().then(() => {
+        setHasPlayed(true);
+      }).catch((e) => {
+        console.warn("[Audio] Playback notice:", e);
       });
     }
-  };
-
-  const handleSeekAudio = (e) => {
-    if (!audioRef.current) return;
-    const seekTime = parseFloat(e.target.value);
-    audioRef.current.currentTime = seekTime;
-    setCurrentTime(seekTime);
-  };
-
-  const handleRateChange = (rate) => {
-    if (!audioRef.current) return;
-    audioRef.current.playbackRate = rate;
-    setPlaybackRate(rate);
   };
 
   // Format time mm:ss
@@ -165,52 +166,38 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     }
     setInfoError("");
     setHasStarted(true);
-    setCurrentIndex(0);
+    setActiveSection("listening");
+    setCurrentReadingIndex(10);
     setTimeLeft(600);
-    setUserAnswers(Array(totalQuestions).fill({ choiceIdx: null, text: "" }));
+    setUserAnswers(Array.from({ length: totalQuestions }, () => ({ choiceIdx: null, text: "" })));
     setIsCompleted(false);
     setTestResults(null);
+    setHasPlayed(false);
   };
 
-  // Select Option Handler (clicking A, B, C, D)
-  const handleSelectOption = (optIdx) => {
+  // Handle direct text typing in Listening blanks (0 to 9)
+  const handleListeningInputChange = (blankIdx, value) => {
     setUserAnswers((prev) => {
       const updated = [...prev];
-      const optText = currentQ.options[optIdx]
-        ? currentQ.options[optIdx].replace(/^\([A-D]\)\s*/, "").trim()
-        : "";
-      updated[currentIndex] = {
+      updated[blankIdx] = {
+        choiceIdx: null,
+        text: value,
+      };
+      return updated;
+    });
+  };
+
+  // Handle option selection for Reading questions (10 to 16)
+  const handleReadingSelectOption = (optIdx) => {
+    setUserAnswers((prev) => {
+      const updated = [...prev];
+      const q = MINI_PLACEMENT_TEST_QUESTIONS[currentReadingIndex];
+      updated[currentReadingIndex] = {
         choiceIdx: optIdx,
-        text: currentQ.targetWord || optText,
+        text: q?.options?.[optIdx] || "",
       };
       return updated;
     });
-  };
-
-  // Text Input Handler (typing for Cloze blank)
-  const handleTextInputChange = (text) => {
-    setUserAnswers((prev) => {
-      const updated = [...prev];
-      // Check if typed text matches any option
-      const cleanTyped = text.trim().toLowerCase();
-      let matchedOptIdx = null;
-      if (currentQ.options) {
-        currentQ.options.forEach((opt, idx) => {
-          const raw = opt.replace(/^\([A-D]\)\s*/, "").trim().toLowerCase();
-          if (raw === cleanTyped) matchedOptIdx = idx;
-        });
-      }
-      updated[currentIndex] = {
-        choiceIdx: matchedOptIdx,
-        text,
-      };
-      return updated;
-    });
-  };
-
-  // Quick Navigation to Question
-  const handleJumpToQuestion = (idx) => {
-    setCurrentIndex(idx);
   };
 
   // Calculate & Submit Test
@@ -230,9 +217,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
 
       if (q.section === "listening" && q.targetWord) {
         const typed = (ansObj.text || "").trim().toLowerCase();
-        const isTypedMatch = typed === q.targetWord.toLowerCase();
-        const isChoiceMatch = ansObj.choiceIdx === q.answer;
-        isCorrect = isTypedMatch || isChoiceMatch;
+        isCorrect = Boolean(typed && typed === q.targetWord.toLowerCase());
       } else {
         isCorrect = ansObj.choiceIdx === q.answer;
       }
@@ -240,20 +225,17 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
       if (isCorrect) correctCount++;
 
       let userChoiceStr = "Chưa làm";
-      if (ansObj.text && ansObj.text.trim()) {
-        userChoiceStr = ansObj.text.trim();
-        if (ansObj.choiceIdx !== null && ansObj.choiceIdx !== undefined) {
-          userChoiceStr += ` (${String.fromCharCode(65 + ansObj.choiceIdx)})`;
-        }
+      if (q.section === "listening") {
+        userChoiceStr = ansObj.text?.trim() || "Chưa điền";
       } else if (ansObj.choiceIdx !== null && ansObj.choiceIdx !== undefined) {
-        userChoiceStr = String.fromCharCode(65 + ansObj.choiceIdx);
+        userChoiceStr = `${String.fromCharCode(65 + ansObj.choiceIdx)} - ${q.options[ansObj.choiceIdx] || ""}`;
       }
 
       let correctChoiceStr = "";
       if (q.targetWord) {
         correctChoiceStr = `${q.targetWord} (${q.meaning || ""})`;
       } else {
-        correctChoiceStr = String.fromCharCode(65 + q.answer);
+        correctChoiceStr = `${String.fromCharCode(65 + q.answer)} - ${q.options[q.answer] || ""}`;
       }
 
       return {
@@ -424,9 +406,17 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     setIsCompleted(true);
   };
 
-  const answeredCount = userAnswers.filter(
-    (ans) => ans && (Boolean(ans.text?.trim()) || ans.choiceIdx !== null)
-  ).length;
+  // Progress counters
+  const answeredListeningCount = userAnswers
+    .slice(0, 10)
+    .filter((ans) => ans && ans.text && ans.text.trim().length > 0).length;
+
+  const answeredReadingCount = userAnswers
+    .slice(10, 17)
+    .filter((ans) => ans && ans.choiceIdx !== null && ans.choiceIdx !== undefined).length;
+
+  const totalAnsweredCount = answeredListeningCount + answeredReadingCount;
+  const currentReadingQ = MINI_PLACEMENT_TEST_QUESTIONS[currentReadingIndex];
 
   return (
     <div
@@ -437,14 +427,14 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
         <div className="p-6 sm:p-8 md:p-12 max-w-2xl mx-auto space-y-8">
           <div className="text-center space-y-3">
             <span className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-full text-xs font-heading font-black uppercase tracking-wider">
-              <span>⚡</span> Khảo Sát Toàn Diện 2 Kỹ Năng
+              <span>⚡</span> Khảo Sát Năng Lực Toàn Diện
             </span>
             <h3 className="text-2xl sm:text-3xl font-serif font-black text-neutral-950 tracking-tight">
               BÀI TEST XẾP LỚP 10 PHÚT
             </h3>
             <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed">
-              Khảo sát toàn diện <strong>Kỹ năng Nghe điền từ công sở (Part 3 Cloze - 10 câu)</strong> và{" "}
-              <strong>Đọc hiểu & Ngữ pháp nâng cao (Part 5 - 7: 7 câu)</strong>. Hệ thống tự động chấm điểm tức thì, xác định lỗ hổng kiến thức và gợi ý lộ trình bứt phá điểm số cùng Thầy Đỗ Tuấn Nam.
+              Khảo sát 2 kỹ năng: <strong>Nghe điền từ trực tiếp (Part 3 Cloze - 10 chỗ trống)</strong> và{" "}
+              <strong>Đọc hiểu & Ngữ pháp (Part 5 - 7: 7 câu)</strong>. Hệ thống tự động chấm điểm tức thì và gợi ý lộ trình bứt phá điểm số cùng Thầy Đỗ Tuấn Nam.
             </p>
 
             {/* Disclaimer Callout */}
@@ -588,9 +578,9 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
 
             <div className="flex items-center gap-4 text-xs">
               <div className="hidden sm:block text-right">
-                <span className="text-neutral-400 block font-semibold">Tiến độ bài làm</span>
+                <span className="text-neutral-400 block font-semibold">Tiến độ hoàn thành</span>
                 <span className="font-bold text-emerald-400">
-                  {answeredCount} / {totalQuestions} câu đã làm
+                  {totalAnsweredCount} / {totalQuestions} câu đã làm
                 </span>
               </div>
 
@@ -604,402 +594,383 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
             </div>
           </div>
 
-          {/* Section 1: Audio Player & Notice (When taking Listening Section) */}
-          {isListeningSection && (
-            <div className="bg-neutral-900 text-white p-4 sm:p-5 rounded-2xl border border-amber-500/40 space-y-3 shadow-md">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-md">
-                    🎧 Listening Audio
-                  </span>
-                  <span className="text-xs text-neutral-300 font-semibold hidden sm:inline">
-                    Part 3: Short Conversations (Đoạn đối thoại văn phòng)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>/</span>
-                  <span>{duration ? formatTime(duration) : "--:--"}</span>
-                </div>
-              </div>
+          {/* Section Navigation Tabs */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 pb-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveSection("listening")}
+                className={`px-4 py-2.5 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2 ${
+                  activeSection === "listening"
+                    ? "bg-amber-500 text-slate-950 shadow-md ring-2 ring-amber-300"
+                    : "bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
+                }`}
+              >
+                <span>🎧 Phần 1: Nghe Điền Từ</span>
+                <span className="px-1.5 py-0.5 rounded-md bg-black/10 text-[10px] font-mono">
+                  {answeredListeningCount}/10
+                </span>
+              </button>
 
-              {/* Hidden HTML5 Audio Element */}
-              <audio
-                ref={audioRef}
-                src={getAssetUrl(OFFICIAL_AUDIO_SRC)}
-                preload="metadata"
-              />
-
-              {/* Notice regarding Audio Recording */}
-              <div className="px-3.5 py-2.5 bg-amber-500/15 border border-amber-400/40 rounded-xl text-xs text-amber-200 font-medium flex items-start gap-2.5">
-                <span className="text-amber-400 shrink-0 mt-0.5 text-base">🎧</span>
-                <div className="leading-relaxed">
-                  <strong>Audio đoạn đối thoại (52 giây):</strong> Bấm nút <em>▶ Bật Âm Thanh Nghe</em> để lắng nghe cuộc trò chuyện giữa hai nhân vật và điền từ thích hợp vào 10 chỗ trống.
-                  <span className="block mt-1 text-[11px] text-amber-300 font-normal">
-                    ⚠️ <em>Chú thích: Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.</em>
-                  </span>
-                </div>
-              </div>
-
-              {/* Player Controls Bar */}
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <button
-                  type="button"
-                  onClick={toggleAudio}
-                  className={`w-full sm:w-auto px-5 py-2 rounded-xl font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm ${
-                    isPlaying
-                      ? "bg-amber-600 hover:bg-amber-700 text-white"
-                      : "bg-neutral-800 hover:bg-neutral-700 text-neutral-200"
-                  }`}
-                >
-                  <span>{isPlaying ? "⏸ Tạm Dừng" : "▶ Bật Âm Thanh Nghe"}</span>
-                </button>
-
-                {/* Progress bar slider */}
-                <input
-                  type="range"
-                  min="0"
-                  max={duration || 100}
-                  step="0.1"
-                  value={currentTime}
-                  onChange={handleSeekAudio}
-                  className="w-full accent-amber-500 cursor-pointer h-2 bg-neutral-800 rounded-lg"
-                />
-
-                {/* Playback speed selector */}
-                <div className="flex items-center gap-1 shrink-0 text-xs">
-                  <span className="text-neutral-400 mr-1 text-[11px] font-semibold">Tốc độ:</span>
-                  {[1, 1.25].map((rate) => (
-                    <button
-                      key={rate}
-                      type="button"
-                      onClick={() => handleRateChange(rate)}
-                      className={`px-2.5 py-1 rounded-lg font-mono font-bold transition cursor-pointer ${
-                        playbackRate === rate
-                          ? "bg-amber-500 text-slate-950"
-                          : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
-                      }`}
-                    >
-                      {rate}x
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Question Jump Palette (1 to 17 pills with section tags) */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-neutral-600 font-semibold">
-              <span>Bảng câu hỏi ({answeredCount}/{totalQuestions} đã làm):</span>
-              <span className="text-[11px] text-neutral-500">
-                Click vào số câu để chuyển nhanh
-              </span>
+              <button
+                type="button"
+                onClick={() => setActiveSection("reading")}
+                className={`px-4 py-2.5 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2 ${
+                  activeSection === "reading"
+                    ? "bg-amber-500 text-slate-950 shadow-md ring-2 ring-amber-300"
+                    : "bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
+                }`}
+              >
+                <span>📖 Phần 2: Đọc Hiểu & Ngữ Pháp</span>
+                <span className="px-1.5 py-0.5 rounded-md bg-black/10 text-[10px] font-mono">
+                  {answeredReadingCount}/7
+                </span>
+              </button>
             </div>
 
-            {/* Section 1 Listening Pills (1 - 10) */}
-            <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-200 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-heading font-black uppercase text-amber-800 tracking-wider">
-                  🎧 Phần 1: Nghe Điền Từ (Câu 1 — 10)
-                </span>
-                <span className="text-[10px] text-neutral-500">
-                  {userAnswers.slice(0, 10).filter((a) => a && (a.text?.trim() || a.choiceIdx !== null)).length}/10 đã làm
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {MINI_PLACEMENT_TEST_QUESTIONS.slice(0, 10).map((q, idx) => {
-                  const isCurrent = idx === currentIndex;
-                  const ans = userAnswers[idx];
-                  const isAnswered = ans && (Boolean(ans.text?.trim()) || ans.choiceIdx !== null);
-
-                  let pillStyle = "bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100";
-                  if (isAnswered) {
-                    pillStyle = "bg-emerald-100 text-emerald-900 border-emerald-400 font-bold";
-                  }
-                  if (isCurrent) {
-                    pillStyle =
-                      "bg-amber-500 text-slate-950 border-amber-600 font-black shadow-md ring-2 ring-amber-300";
-                  }
-
-                  return (
-                    <button
-                      key={q.id}
-                      type="button"
-                      onClick={() => handleJumpToQuestion(idx)}
-                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border text-xs font-heading transition-all cursor-pointer flex items-center justify-center ${pillStyle}`}
-                      title={`Câu ${q.id}: Chỗ trống (${q.blankNumber})`}
-                    >
-                      {q.id}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Section 2 Reading Pills (11 - 17) */}
-            <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-200 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-heading font-black uppercase text-sky-800 tracking-wider">
-                  📖 Phần 2: Đọc Hiểu & Ngữ Pháp (Câu 11 — 17)
-                </span>
-                <span className="text-[10px] text-neutral-500">
-                  {userAnswers.slice(10, 17).filter((a) => a && (a.text?.trim() || a.choiceIdx !== null)).length}/7 đã làm
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {MINI_PLACEMENT_TEST_QUESTIONS.slice(10, 17).map((q, qSubIdx) => {
-                  const idx = 10 + qSubIdx;
-                  const isCurrent = idx === currentIndex;
-                  const ans = userAnswers[idx];
-                  const isAnswered = ans && (Boolean(ans.text?.trim()) || ans.choiceIdx !== null);
-
-                  let pillStyle = "bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100";
-                  if (isAnswered) {
-                    pillStyle = "bg-emerald-100 text-emerald-900 border-emerald-400 font-bold";
-                  }
-                  if (isCurrent) {
-                    pillStyle =
-                      "bg-amber-500 text-slate-950 border-amber-600 font-black shadow-md ring-2 ring-amber-300";
-                  }
-
-                  return (
-                    <button
-                      key={q.id}
-                      type="button"
-                      onClick={() => handleJumpToQuestion(idx)}
-                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border text-xs font-heading transition-all cursor-pointer flex items-center justify-center ${pillStyle}`}
-                      title={`Câu ${q.id} (${q.part})`}
-                    >
-                      {q.id}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <span className="text-xs text-neutral-500 font-medium hidden sm:inline">
+              Tổng số: {totalAnsweredCount}/{totalQuestions} câu
+            </span>
           </div>
 
-          {/* LISTENING CONVERSATION BOX (Displayed during Section 1 Listening) */}
-          {isListeningSection && (
-            <div className="bg-gradient-to-br from-amber-50/40 via-white to-amber-50/20 border-2 border-amber-200/90 rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs">
-              <div className="flex items-center justify-between border-b border-amber-200/80 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">💬</span>
-                  <h4 className="font-heading font-black text-sm text-neutral-950 uppercase tracking-wider">
-                    Đoạn Đối Thoại Hội Thoại Part 3 (Click vào chỗ trống để chuyển câu)
-                  </h4>
+          {/* =========================================================================
+              SECTION 1: LISTENING CLOZE (AUDIO WITH LOCKED SEEKING + INLINE INPUTS)
+              ========================================================================= */}
+          {activeSection === "listening" && (
+            <div className="space-y-6">
+              {/* Audio Player Card with LOCKED SEEKING (Khóa tua sau khi bấm Play) */}
+              <div className="bg-neutral-900 text-white p-4 sm:p-5 rounded-2xl border border-amber-500/40 space-y-3 shadow-md">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-md">
+                      🎧 Listening Audio
+                    </span>
+                    <span className="text-xs text-neutral-300 font-semibold">
+                      Part 3: Đoạn Đối Thoại Hội Thoại (52 Giây)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>/</span>
+                    <span>{duration ? formatTime(duration) : "00:52"}</span>
+                  </div>
                 </div>
-                <span className="text-[11px] font-bold text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-full border border-amber-300">
-                  10 Chỗ Trống
-                </span>
+
+                {/* Hidden HTML5 Audio Element */}
+                <audio
+                  ref={audioRef}
+                  src={getAssetUrl(OFFICIAL_AUDIO_SRC)}
+                  preload="metadata"
+                />
+
+                {/* Notice: Audio Info & Locked Seeking Disclaimer */}
+                <div className="px-3.5 py-2.5 bg-amber-500/15 border border-amber-400/40 rounded-xl text-xs text-amber-200 font-medium flex items-start gap-2.5">
+                  <span className="text-amber-400 shrink-0 mt-0.5 text-base">ℹ️</span>
+                  <div className="leading-relaxed space-y-1">
+                    <p>
+                      <strong>Hướng dẫn:</strong> Bấm nút <em>▶ Bật Âm Thanh Nghe</em> để bắt đầu bài nghe 52 giây. Bạn hãy gõ trực tiếp từ nghe được vào các ô chỗ trống tương ứng bên dưới.
+                    </p>
+                    <p className="text-[11px] text-amber-300 font-normal">
+                      ⚠️ <em>Lưu ý: Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn. Tính năng tua âm thanh sẽ được tự động khóa sau khi phát.</em>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Player Controls Bar */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={toggleAudio}
+                    className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm shrink-0 ${
+                      isPlaying
+                        ? "bg-amber-600 hover:bg-amber-700 text-white"
+                        : "bg-neutral-800 hover:bg-neutral-700 text-neutral-100"
+                    }`}
+                  >
+                    <span>{isPlaying ? "⏸ Tạm Dừng" : "▶ Bật Âm Thanh Nghe"}</span>
+                  </button>
+
+                  {/* Non-scrubbable Visual Progress Bar (KHÓA TUA TUYỆT ĐỐI) */}
+                  <div className="w-full flex items-center gap-3">
+                    <div
+                      className="flex-1 h-3 bg-neutral-800 rounded-full overflow-hidden p-0.5 border border-neutral-700/80 relative select-none"
+                      title={hasPlayed ? "Tính năng tua audio đã bị khóa trong bài kiểm tra" : "Tiến độ bài nghe"}
+                    >
+                      <div
+                        className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-150 ease-linear"
+                        style={{ width: `${Math.min(100, (currentTime / (duration || 52)) * 100)}%` }}
+                      />
+                    </div>
+                    {hasPlayed && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-400 shrink-0 bg-neutral-800 px-2.5 py-1 rounded-md border border-neutral-700">
+                        🔒 Khóa tua
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {/* Dialogue Transcript with interactive blanks */}
-              <div className="space-y-2.5 font-sans text-xs sm:text-sm text-neutral-900 leading-relaxed">
-                {PLACEMENT_LISTENING_CONVERSATION.map((item) => {
-                  const targetQIdx = item.blankNum - 1;
-                  const isCurrent = targetQIdx === currentIndex;
-                  const ans = userAnswers[targetQIdx];
-                  const filledText = ans?.text?.trim() || "";
-
-                  return (
-                    <div
-                      key={item.blankNum}
-                      className={`p-2.5 rounded-xl transition-all ${
-                        isCurrent
-                          ? "bg-amber-100/80 border border-amber-300 ring-1 ring-amber-300"
-                          : "hover:bg-neutral-100/80"
-                      }`}
-                    >
-                      <span className="font-heading font-black text-neutral-950 mr-2 text-xs px-2 py-0.5 bg-neutral-200 rounded-md">
-                        {item.speaker}:
-                      </span>
-                      <span>
-                        {item.text.split(`(${item.blankNum}) ________`).map((part, pIdx, arr) => (
-                          <React.Fragment key={pIdx}>
-                            {part}
-                            {pIdx < arr.length - 1 && (
-                              <button
-                                type="button"
-                                onClick={() => handleJumpToQuestion(targetQIdx)}
-                                className={`inline-flex items-center px-2 py-0.5 mx-1 rounded-lg font-mono text-xs font-bold border transition cursor-pointer ${
-                                  isCurrent
-                                    ? "bg-amber-500 text-slate-950 border-amber-600 shadow-xs ring-2 ring-amber-300"
-                                    : filledText
-                                    ? "bg-emerald-100 text-emerald-900 border-emerald-400"
-                                    : "bg-white text-neutral-700 border-neutral-300 hover:border-amber-400"
-                                }`}
-                              >
-                                ({item.blankNum}) {filledText || "________"}
-                              </button>
-                            )}
-                          </React.Fragment>
-                        ))}
-                      </span>
+              {/* LISTENING CONVERSATION BOX WITH DIRECT INLINE INPUTS */}
+              <div className="bg-gradient-to-br from-amber-50/50 via-white to-amber-50/30 border-2 border-amber-300 rounded-3xl p-5 sm:p-7 space-y-5 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">💬</span>
+                    <div>
+                      <h4 className="font-heading font-black text-sm sm:text-base text-neutral-950 uppercase tracking-wide">
+                        Đoạn Đối Thoại Hội Thoại — Điền Từ Trực Tiếp Vào 10 Chỗ Trống
+                      </h4>
+                      <p className="text-xs text-neutral-600">
+                        Gõ từ tiếng Anh bạn nghe được vào ô tương ứng trong từng câu thoại (có thể nhấn phím <strong>Tab</strong> để chuyển nhanh sang chỗ trống tiếp theo):
+                      </p>
                     </div>
-                  );
-                })}
+                  </div>
+                  <span className="text-xs font-bold text-amber-900 bg-amber-100 px-3 py-1 rounded-full border border-amber-300 shrink-0">
+                    Đã điền: {answeredListeningCount} / 10 từ
+                  </span>
+                </div>
+
+                {/* 10 Dialogue Lines with Inline Text Input Fields */}
+                <div className="space-y-3.5 font-sans text-xs sm:text-sm text-neutral-900 leading-loose">
+                  {PLACEMENT_LISTENING_CONVERSATION.map((item) => {
+                    const blankIdx = item.blankNum - 1;
+                    const parts = item.text.split(`(${item.blankNum}) ________`);
+                    const val = userAnswers[blankIdx]?.text || "";
+
+                    return (
+                      <div
+                        key={item.blankNum}
+                        className="p-3.5 sm:p-4 rounded-2xl bg-white border border-neutral-200/90 shadow-xs hover:border-amber-300 transition-all flex flex-col sm:flex-row items-start gap-2.5 sm:gap-3"
+                      >
+                        <div className="shrink-0 flex items-center gap-1.5 mt-0.5">
+                          <span className="font-heading font-black text-xs px-2.5 py-1 bg-neutral-900 text-amber-400 rounded-lg">
+                            {item.speakerName}
+                          </span>
+                        </div>
+
+                        <div className="flex-1 leading-loose text-neutral-900 font-medium">
+                          <span>{parts[0]}</span>
+                          <span className="inline-flex items-center mx-1.5 align-baseline">
+                            <span className="text-xs font-mono font-bold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-l-xl border-y border-l border-amber-300 select-none">
+                              ({item.blankNum})
+                            </span>
+                            <input
+                              type="text"
+                              id={`blank-input-${item.blankNum}`}
+                              placeholder="gõ từ nghe được..."
+                              value={val}
+                              autoComplete="off"
+                              spellCheck="false"
+                              autoCorrect="off"
+                              autoCapitalize="none"
+                              onChange={(e) => handleListeningInputChange(blankIdx, e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && item.blankNum < 10) {
+                                  const nextInput = document.getElementById(`blank-input-${item.blankNum + 1}`);
+                                  if (nextInput) nextInput.focus();
+                                }
+                              }}
+                              className={`w-36 sm:w-48 px-3 py-1 text-xs sm:text-sm font-bold text-neutral-950 bg-white border-y border-r rounded-r-xl outline-hidden transition shadow-xs text-center focus:ring-2 focus:ring-amber-400 ${
+                                val.trim()
+                                  ? "border-emerald-500 bg-emerald-50/50 text-emerald-950 font-mono"
+                                  : "border-amber-400 focus:border-amber-600"
+                              }`}
+                            />
+                          </span>
+                          <span>{parts[1]}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Navigation CTA: Proceed to Section 2 Reading */}
+                <div className="pt-4 border-t border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <span className="text-xs text-neutral-600 font-medium">
+                    * Bạn có thể quay lại sửa các từ nghe bất kỳ lúc nào trước khi nộp bài.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveSection("reading");
+                      setCurrentReadingIndex(10);
+                    }}
+                    className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <span>Chuyển Sang Phần 2: Đọc Hiểu (Câu 11 — 17)</span>
+                    <span className="text-base">→</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Current Question Main Display Box */}
-          <div className="border-2 border-neutral-200 rounded-3xl p-5 sm:p-7 space-y-6 bg-white shadow-xs">
-            {/* Question Part Badge & Category */}
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 pb-3">
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-neutral-900 text-white font-heading font-black text-xs uppercase tracking-wider rounded-lg">
-                  {currentQ.part}
-                </span>
-                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
-                  {currentQ.tier}
-                </span>
-                {currentQ.blankNumber && (
-                  <span className="text-xs font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    Chỗ trống ({currentQ.blankNumber})
+          {/* =========================================================================
+              SECTION 2: READING COMPREHENSION (QUESTIONS 11 — 17: PART 5, 6, 7)
+              ========================================================================= */}
+          {activeSection === "reading" && (
+            <div className="space-y-6">
+              {/* Reading Questions Jump Palette (11 to 17) */}
+              <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-200 space-y-2">
+                <div className="flex items-center justify-between text-xs text-neutral-700 font-bold">
+                  <span>Phần 2: Đọc Hiểu & Ngữ Pháp (Câu 11 — 17):</span>
+                  <span className="text-neutral-500 font-normal">
+                    {answeredReadingCount}/7 câu đã chọn
                   </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {MINI_PLACEMENT_TEST_QUESTIONS.slice(10, 17).map((q, qSubIdx) => {
+                    const qIdx = 10 + qSubIdx;
+                    const isCurrent = qIdx === currentReadingIndex;
+                    const isAnswered =
+                      userAnswers[qIdx]?.choiceIdx !== null &&
+                      userAnswers[qIdx]?.choiceIdx !== undefined;
+
+                    let pillStyle = "bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100";
+                    if (isAnswered) {
+                      pillStyle = "bg-emerald-100 text-emerald-900 border-emerald-400 font-bold";
+                    }
+                    if (isCurrent) {
+                      pillStyle =
+                        "bg-amber-500 text-slate-950 border-amber-600 font-black shadow-md ring-2 ring-amber-300";
+                    }
+
+                    return (
+                      <button
+                        key={q.id}
+                        type="button"
+                        onClick={() => setCurrentReadingIndex(qIdx)}
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border text-xs font-heading transition-all cursor-pointer flex items-center justify-center ${pillStyle}`}
+                        title={`Câu ${q.id} (${q.part})`}
+                      >
+                        {q.id}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Current Reading Question Card */}
+              <div className="border-2 border-neutral-200 rounded-3xl p-5 sm:p-7 space-y-6 bg-white shadow-xs">
+                {/* Header: Part badge & Question Number */}
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-neutral-900 text-white font-heading font-black text-xs uppercase tracking-wider rounded-lg">
+                      {currentReadingQ.part}
+                    </span>
+                    <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                      {currentReadingQ.tier}
+                    </span>
+                  </div>
+
+                  <span className="text-xs text-neutral-600 font-mono font-bold">
+                    Câu {currentReadingIndex + 1} / {totalQuestions}
+                  </span>
+                </div>
+
+                {/* Part 6 & 7: Reading Passage Text */}
+                {currentReadingQ.passage && (
+                  <div className="p-5 bg-neutral-50 rounded-2xl border border-neutral-300 font-mono text-xs sm:text-sm text-neutral-900 leading-relaxed whitespace-pre-wrap max-h-72 overflow-y-auto">
+                    {currentReadingQ.passage}
+                  </div>
                 )}
-              </div>
 
-              <span className="text-xs text-neutral-600 font-mono font-bold">
-                Câu {currentIndex + 1} / {totalQuestions}
-              </span>
-            </div>
+                {/* Question Stem */}
+                <div className="p-4 bg-neutral-50/80 rounded-2xl border border-neutral-200">
+                  <p className="font-heading font-bold text-neutral-950 text-sm sm:text-base leading-relaxed">
+                    {currentReadingQ.question}
+                  </p>
+                </div>
 
-            {/* Part 6 & 7: Reading Passage Text */}
-            {currentQ.passage && (
-              <div className="p-5 bg-neutral-50 rounded-2xl border border-neutral-300 font-mono text-xs sm:text-sm text-neutral-900 leading-relaxed whitespace-pre-wrap max-h-72 overflow-y-auto">
-                {currentQ.passage}
-              </div>
-            )}
+                {/* Multiple-Choice Options */}
+                <div className="space-y-3">
+                  <div className="text-xs font-bold text-neutral-600 uppercase tracking-wider">
+                    Chọn đáp án đúng (A, B, C, D):
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {currentReadingQ.options.map((option, optIdx) => {
+                      const letter = String.fromCharCode(65 + optIdx);
+                      const isSelected = userAnswers[currentReadingIndex]?.choiceIdx === optIdx;
 
-            {/* Context Sentence (for Listening Cloze) */}
-            {currentQ.contextSentence && (
-              <div className="p-4 bg-amber-50/80 rounded-2xl border border-amber-200 space-y-1">
-                <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">
-                  Ngữ cảnh câu thoại ({currentQ.speaker}):
-                </span>
-                <p className="font-heading font-semibold text-neutral-950 text-sm sm:text-base leading-relaxed italic">
-                  "{currentQ.contextSentence}"
-                </p>
-              </div>
-            )}
+                      let optClass =
+                        "bg-white border-2 border-neutral-200 hover:border-amber-400 hover:bg-amber-50/30 text-neutral-900";
+                      if (isSelected) {
+                        optClass =
+                          "bg-amber-50 border-2 border-amber-500 text-amber-950 font-bold shadow-xs";
+                      }
 
-            {/* Question Stem */}
-            <div className="p-4 bg-neutral-50/80 rounded-2xl border border-neutral-200">
-              <p className="font-heading font-bold text-neutral-950 text-sm sm:text-base leading-relaxed">
-                {currentQ.question}
-              </p>
-            </div>
+                      return (
+                        <button
+                          key={optIdx}
+                          type="button"
+                          onClick={() => handleReadingSelectOption(optIdx)}
+                          className={`w-full text-left p-4 rounded-xl border text-sm transition-all flex items-center justify-between cursor-pointer ${optClass}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={`w-8 h-8 rounded-lg flex items-center justify-center font-mono font-black text-xs ${
+                                isSelected
+                                  ? "bg-amber-500 text-slate-950 shadow-xs"
+                                  : "bg-neutral-200 text-neutral-800"
+                              }`}
+                            >
+                              {letter}
+                            </span>
+                            <span className="font-medium text-neutral-900">{option}</span>
+                          </div>
 
-            {/* If Listening: Direct Text Input Field */}
-            {isListeningSection && (
-              <div className="p-4 bg-white rounded-2xl border-2 border-neutral-200 space-y-2">
-                <label className="block text-xs font-bold text-neutral-800 uppercase tracking-wider">
-                  ✍️ Nhập từ bạn nghe được vào chỗ trống ({currentQ.blankNumber}):
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder={`Nhập từ tiếng Anh cho chỗ trống (${currentQ.blankNumber})...`}
-                    value={userAnswers[currentIndex]?.text || ""}
-                    onChange={(e) => handleTextInputChange(e.target.value)}
-                    className="flex-1 px-4 py-3 bg-neutral-50 border border-neutral-300 rounded-xl text-sm font-semibold text-neutral-900 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-hidden transition"
-                  />
-                  {userAnswers[currentIndex]?.text && (
+                          {isSelected && (
+                            <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-xs font-bold shrink-0">
+                              ✓
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Previous / Next Controls */}
+                <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
+                  {currentReadingIndex === 10 ? (
                     <button
                       type="button"
-                      onClick={() => handleTextInputChange("")}
-                      className="px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-xl text-xs font-bold transition cursor-pointer"
+                      onClick={() => setActiveSection("listening")}
+                      className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
                     >
-                      Xóa
+                      ← Về Phần 1: Nghe Điền Từ
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentReadingIndex((prev) => Math.max(10, prev - 1))}
+                      className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
+                    >
+                      ← Câu Trước
+                    </button>
+                  )}
+
+                  {currentReadingIndex < totalQuestions - 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentReadingIndex((prev) => Math.min(totalQuestions - 1, prev + 1))}
+                      className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl transition cursor-pointer shadow-sm"
+                    >
+                      Câu Tiếp Theo →
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmModal(true)}
+                      className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition cursor-pointer"
+                    >
+                      Xem Lại & Nộp Bài →
                     </button>
                   )}
                 </div>
-                <p className="text-[11px] text-neutral-500 italic">
-                  * Mẹo: Bạn có thể tự gõ từ tiếng Anh nghe được, hoặc chọn nhanh 1 trong 4 đáp án bên dưới.
-                </p>
-              </div>
-            )}
-
-            {/* Options Selection (Available for both Listening and Reading) */}
-            <div className="space-y-3">
-              <div className="text-xs font-bold text-neutral-600 uppercase tracking-wider">
-                {isListeningSection ? "Hoặc chọn nhanh từ gợi ý:" : "Chọn đáp án đúng:"}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {currentQ.options.map((option, optIdx) => {
-                  const letter = String.fromCharCode(65 + optIdx);
-                  const isSelected = userAnswers[currentIndex]?.choiceIdx === optIdx;
-
-                  let optClass =
-                    "bg-white border-2 border-neutral-200 hover:border-amber-400 hover:bg-amber-50/30 text-neutral-900";
-                  if (isSelected) {
-                    optClass =
-                      "bg-amber-50 border-2 border-amber-500 text-amber-950 font-bold shadow-xs";
-                  }
-
-                  return (
-                    <button
-                      key={optIdx}
-                      type="button"
-                      onClick={() => handleSelectOption(optIdx)}
-                      className={`w-full text-left p-4 rounded-xl border text-sm transition-all flex items-center justify-between cursor-pointer ${optClass}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center font-mono font-black text-xs ${
-                            isSelected
-                              ? "bg-amber-500 text-slate-950 shadow-xs"
-                              : "bg-neutral-200 text-neutral-800"
-                          }`}
-                        >
-                          {letter}
-                        </span>
-                        <span className="font-medium text-neutral-900">{option}</span>
-                      </div>
-
-                      {isSelected && (
-                        <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-xs font-bold shrink-0">
-                          ✓
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
               </div>
             </div>
-
-            {/* Previous / Next Controls */}
-            <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
-              <button
-                type="button"
-                disabled={currentIndex === 0}
-                onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed text-neutral-800 font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
-              >
-                ← Câu Trước
-              </button>
-
-              {currentIndex < totalQuestions - 1 ? (
-                <button
-                  type="button"
-                  onClick={() => setCurrentIndex((prev) => Math.min(totalQuestions - 1, prev + 1))}
-                  className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl transition cursor-pointer shadow-sm"
-                >
-                  Câu Tiếp Theo →
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmModal(true)}
-                  className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition cursor-pointer"
-                >
-                  Xem Lại & Nộp Bài →
-                </button>
-              )}
-            </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -1016,10 +987,10 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 Xác Nhận Nộp Bài Thi
               </h4>
               <p className="text-sm text-neutral-700">
-                Bạn đã hoàn thành <strong>{answeredCount}</strong> / {totalQuestions} câu hỏi.
-                {answeredCount < totalQuestions && (
+                Bạn đã hoàn thành <strong>{totalAnsweredCount}</strong> / {totalQuestions} câu hỏi.
+                {totalAnsweredCount < totalQuestions && (
                   <span className="block mt-1 text-rose-700 font-bold text-xs">
-                    ⚠️ Còn {totalQuestions - answeredCount} câu chưa điền hoặc chưa chọn đáp án. Các câu chưa làm sẽ tính là 0 điểm.
+                    ⚠️ Còn {totalQuestions - totalAnsweredCount} câu chưa điền hoặc chưa chọn đáp án. Các câu chưa làm sẽ tính là 0 điểm.
                   </span>
                 )}
               </p>
@@ -1279,9 +1250,11 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 setHasStarted(false);
                 setIsCompleted(false);
                 setTestResults(null);
-                setCurrentIndex(0);
-                setUserAnswers(Array(totalQuestions).fill({ choiceIdx: null, text: "" }));
+                setActiveSection("listening");
+                setCurrentReadingIndex(10);
+                setUserAnswers(Array.from({ length: totalQuestions }, () => ({ choiceIdx: null, text: "" })));
                 setTimeLeft(600);
+                setHasPlayed(false);
               }}
               className="py-4 px-5 border border-neutral-300 text-neutral-800 hover:bg-neutral-100 font-bold text-xs rounded-xl transition cursor-pointer"
             >
