@@ -543,7 +543,7 @@ export const saveAnnouncementConfig = async (configData) => {
 // =========================================================================
 export const DEFAULT_CLASSROOM_RULES = {
   title: "Quy Định & Nội Quy Lớp Học",
-  subtitle: "Áp dụng cho toàn bộ học viên các khóa học TOEIC Thầy Đỗ Tuấn Nam",
+  subtitle: "Áp dụng cho toàn bộ học viên các khóa học TOEIC Mr. Đỗ Tuấn Nam",
   lastUpdated: "2026-10-29",
   sections: [
     {
@@ -583,7 +583,7 @@ export const DEFAULT_CLASSROOM_RULES = {
       rules: [
         "Học phí hoàn thành theo đúng thời hạn và chính sách đăng ký khóa học.",
         "Học viên có nhu cầu bảo lưu (do công tác xa, vấn đề sức khỏe) được bảo lưu kết quả và chuyển sang lớp tương đương trong vòng 06 tháng.",
-        "Mọi thắc mắc hoặc khó khăn trong quá trình học tập, học viên liên hệ trực tiếp Hotline/Zalo của Thầy Đỗ Tuấn Nam để được hỗ trợ kịp thời."
+        "Mọi thắc mắc hoặc khó khăn trong quá trình học tập, học viên liên hệ trực tiếp Hotline/Zalo của Mr. Đỗ Tuấn Nam để được hỗ trợ kịp thời."
       ]
     }
   ]
@@ -669,10 +669,10 @@ export const saveClassroomRules = async (rulesData) => {
 // =========================================================================
 export const DEFAULT_LANDING_PAGE_CONTENT = {
   hero: {
-    badge: "⭐ Thạc sĩ Ngôn ngữ Anh • TOEIC 980 / 990 IIG Vietnam",
+    badge: "⭐ Thạc sĩ Ngôn ngữ Anh • TOEIC Trainer • TOEIC 980 / 990",
     headline: "Chinh Phục TOEIC Bằng Phương Pháp Khoa Học & Trải Nghiệm Thực Chiến.",
     subHeadline:
-      "Đồng hành cùng Thầy Đỗ Tuấn Nam chinh phục TOEIC 750+ với lộ trình cá nhân hóa, phương pháp sư phạm hiện đại và nền tảng LMS tiên tiến.",
+      "Đồng hành cùng Mr. Đỗ Tuấn Nam (Thạc sĩ Ngôn ngữ Anh) chinh phục TOEIC 750+ với lộ trình cá nhân hóa, phương pháp sư phạm ứng dụng và nền tảng LMS tiên tiến.",
     primaryCta: "Làm Mini Test 3 Phút →",
     secondaryCta: "Hẹn Lịch Tư Vấn 1-1",
     commitments: [

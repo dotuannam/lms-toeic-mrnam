@@ -52,7 +52,7 @@ export const PrivacyPolicyModal = ({ isOpen, onClose }) => {
           {/* Executive Summary Callout */}
           <div className="p-4 bg-amber-50 rounded-2xl border border-amber-300/80 text-amber-950 space-y-1">
             <span className="font-extrabold uppercase tracking-wide text-xs block text-amber-900">
-              📌 Tôn chỉ bảo mật của {TEACHER_PROFILE.name || "Thầy Đỗ Tuấn Nam"}:
+              📌 Tôn chỉ bảo mật của {TEACHER_PROFILE.shortName || "Mr. Đỗ Tuấn Nam"}:
             </span>
             <p className="font-medium text-xs">
               Chúng tôi tôn trọng tuyệt đối quyền riêng tư và cam kết bảo vệ dữ liệu cá nhân của học viên theo đúng quy định của pháp luật Việt Nam. Dữ liệu chỉ được thu thập trên cơ sở <strong>sự đồng ý tự nguyện (opt-in)</strong> và chỉ phục vụ việc đánh giá năng lực, gửi kết quả bài thi và tư vấn lộ trình học TOEIC.
@@ -66,7 +66,7 @@ export const PrivacyPolicyModal = ({ isOpen, onClose }) => {
               <span>Đơn Vị Thu Thập & Xử Lý Dữ Liệu</span>
             </h4>
             <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-200 text-neutral-700 space-y-1">
-              <p><strong>Người phụ trách:</strong> {TEACHER_PROFILE.name || "Thầy Đỗ Tuấn Nam"}</p>
+              <p><strong>Người phụ trách:</strong> {TEACHER_PROFILE.shortName || "Mr. Đỗ Tuấn Nam"}</p>
               <p><strong>Hotline / Zalo:</strong> {TEACHER_PROFILE.phone || "077 345 2809"}</p>
               <p><strong>Email chính thức:</strong> {TEACHER_PROFILE.email || "dotuannamwork2809@gmail.com"}</p>
               <p><strong>Địa chỉ hoạt động:</strong> {TEACHER_PROFILE.address || "Thành phố Hồ Chí Minh, Việt Nam"}</p>

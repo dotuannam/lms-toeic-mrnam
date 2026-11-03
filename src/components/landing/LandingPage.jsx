@@ -236,7 +236,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
   };
   const stats = content.stats && content.stats.length > 0 ? content.stats : IMPACT_STATS;
 
-  // Tự động đồng bộ số lượng học viên và điểm thi từ stats hoặc profile của Thầy
+  // Tự động đồng bộ số lượng học viên và điểm thi từ stats hoặc profile của Mr. Nam
   const studentsStat =
     teacher.totalStudents ||
     stats.find(
@@ -502,7 +502,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
       // 1. Lưu bản ghi vào Firestore Database
       await addDoc(collection(db, "consultation_bookings"), payload);
 
-      // 2. Tự động gửi Email thông báo về Gmail của Thầy Nam (dotuannamwork2809@gmail.com)
+      // 2. Tự động gửi Email thông báo về Gmail của Mr. Nam (dotuannamwork2809@gmail.com)
       const adminRecipient =
         content.contactInfo?.email ||
         centerConfig?.adminEmail ||
@@ -529,7 +529,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
           
           <div style="padding: 28px 32px; background: #ffffff;">
             <p style="font-size: 14px; color: #292524; line-height: 1.6; margin-top: 0;">
-              Kính gửi <strong>Thầy Đỗ Tuấn Nam</strong>,<br>
+              Kính gửi <strong>Mr. Đỗ Tuấn Nam</strong>,<br>
               Hệ thống vừa ghi nhận một học viên mới đăng ký tư vấn lộ trình học TOEIC trên Landing Page:
             </p>
             
@@ -565,7 +565,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
             </table>
 
             <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 14px; padding: 14px 18px; margin-top: 18px; font-size: 12px; color: #92400e; line-height: 1.5;">
-              <strong>Hướng dẫn xử lý:</strong> Thầy chỉ cần mở ứng dụng <strong>Zalo</strong>, tìm kiếm số điện thoại <strong>${payload.phone}</strong> và gửi lời chào để bắt đầu tư vấn lộ trình học cho học viên.
+              <strong>Hướng dẫn xử lý:</strong> Mr. Nam chỉ cần mở ứng dụng <strong>Zalo</strong>, tìm kiếm số điện thoại <strong>${payload.phone}</strong> và gửi lời chào để bắt đầu tư vấn lộ trình học cho học viên.
             </div>
           </div>
 
@@ -760,10 +760,10 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
             </div>
             <div>
               <span className="font-heading font-black text-base sm:text-lg tracking-tight block text-neutral-900">
-                {teacher.name}
+                Mr. {teacher.name}
               </span>
-              <span className="text-[10px] sm:text-[11px] font-mono text-neutral-700 font-bold uppercase tracking-wider block">
-                English Teacher & TOEIC Specialist
+              <span className="text-[10px] sm:text-[11px] font-mono text-amber-800 font-black uppercase tracking-wider block">
+                🎓 Thạc sĩ Ngôn ngữ Anh • TOEIC Trainer
               </span>
             </div>
           </div>
@@ -943,15 +943,16 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#1A1A1A] to-neutral-700 text-white flex items-center justify-center font-serif text-2xl font-bold shadow-md shrink-0">
                       ĐN
                     </div>
-                    <div>
+                    <div className="space-y-1">
                       <h3 className="font-serif font-bold text-xl text-neutral-950">
-                        {teacher.name}
+                        Mr. {teacher.name}
                       </h3>
-                      <p className="text-xs text-amber-900 font-bold mt-0.5">
-                        Thạc sĩ Ngôn ngữ Anh (Saigon University)
-                      </p>
-                      <p className="text-[11px] text-neutral-700 font-semibold">
-                        TOEIC 980/990 • TESOL Certified
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-500/15 border border-amber-400/60 rounded-lg text-amber-950 text-xs font-black font-heading shadow-2xs">
+                        <span>🎓</span>
+                        <span>Thạc sĩ Ngôn ngữ Anh</span>
+                      </div>
+                      <p className="text-[11px] text-neutral-700 font-bold tracking-tight">
+                        Saigon University • TOEIC Trainer (980/990) • TESOL
                       </p>
                     </div>
                   </div>
@@ -1093,27 +1094,42 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                   </h3>
 
                   <div className="space-y-4">
-                    {education.map((edu, idx) => (
-                      <div
-                        key={idx}
-                        className="p-6 bg-white rounded-2xl border border-neutral-200 shadow-xs space-y-2.5"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <h4 className="font-serif font-bold text-base text-neutral-950">
-                            {edu.degree}
-                          </h4>
-                          <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-neutral-200 text-neutral-900 font-bold shrink-0">
-                            {edu.period}
-                          </span>
+                    {education.map((edu, idx) => {
+                      const isMaster = (edu.degree || "").includes("Thạc sĩ") || idx === 0;
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-6 rounded-2xl shadow-xs space-y-2.5 transition-all ${
+                            isMaster
+                              ? "bg-gradient-to-br from-amber-50/90 via-white to-amber-50/40 border-2 border-amber-400 shadow-md ring-2 ring-amber-300/40"
+                              : "bg-white border border-neutral-200"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="space-y-1">
+                              {isMaster && (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-heading font-black text-[10px] uppercase tracking-wider shadow-2xs">
+                                  <span>🎓</span>
+                                  <span>Văn Bằng Cao Học Chính Quy Tiêu Biểu</span>
+                                </span>
+                              )}
+                              <h4 className="font-serif font-bold text-base sm:text-lg text-neutral-950">
+                                {edu.degree}
+                              </h4>
+                            </div>
+                            <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-neutral-200 text-neutral-900 font-bold shrink-0">
+                              {edu.period}
+                            </span>
+                          </div>
+                          <p className="text-xs font-black text-amber-950">
+                            {edu.institution}
+                          </p>
+                          <p className="text-xs text-neutral-800 font-medium leading-relaxed">
+                            {edu.details}
+                          </p>
                         </div>
-                        <p className="text-xs font-bold text-amber-950">
-                          {edu.institution}
-                        </p>
-                        <p className="text-xs text-neutral-800 font-medium leading-relaxed">
-                          {edu.details}
-                        </p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1367,7 +1383,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                           Khảo Sát Năng Lực Nghe & Đọc Hiểu Trong 10 Phút
                         </h3>
                         <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-normal">
-                          Bài test gồm <strong>17 câu chuẩn hóa bao quát 2 kỹ năng cốt lõi</strong>: Phần Nghe điền từ Part 3 Cloze (10 câu từ vựng công sở) và Phần Đọc hiểu chuẩn ETS (7 câu Part 5, 6, 7). Hệ thống tự động phân loại trình độ của bạn vào 3 cấp độ: <strong>Foundation (&lt; 450)</strong>, <strong>550+</strong>, hoặc <strong>650+</strong> và gửi báo cáo phân tích trực tiếp cho Thầy Đỗ Tuấn Nam.
+                          Bài test gồm <strong>17 câu chuẩn hóa bao quát 2 kỹ năng cốt lõi</strong>: Phần Nghe điền từ Part 3 Cloze (10 câu từ vựng công sở) và Phần Đọc hiểu chuẩn ETS (7 câu Part 5, 6, 7). Hệ thống tự động phân loại trình độ của bạn vào 3 cấp độ: <strong>Foundation (&lt; 450)</strong>, <strong>550+</strong>, hoặc <strong>650+</strong> và gửi báo cáo phân tích trực tiếp cho Mr. Đỗ Tuấn Nam.
                         </p>
                         <div className="p-2.5 bg-amber-500/10 border border-amber-400/30 rounded-xl text-xs text-amber-300/90 font-medium flex items-center gap-2">
                           <span>ℹ️</span>
@@ -1469,7 +1485,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
             refObj: bookingRef,
             icon: <IconMessageSquare className="w-6 h-6 text-amber-900" />,
             badge: "Tư Vấn 1-1 Miễn Phí",
-            title: "Đăng Ký Tư Vấn Lộ Trình 1-1 Cùng Thầy Đỗ Tuấn Nam",
+            title: "Đăng Ký Tư Vấn Lộ Trình 1-1 Cùng Mr. Đỗ Tuấn Nam",
             summary: "15 phút trao đổi trực tiếp qua Zalo để đánh giá điểm yếu và xác định lộ trình tăng điểm tối ưu",
           })}
 
@@ -1481,7 +1497,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                     Định Hình Lộ Trình 1-1
                   </span>
                   <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
-                    Đăng Ký Tư Vấn Cùng Thầy Đỗ Tuấn Nam
+                    Đăng Ký Tư Vấn Cùng Mr. Đỗ Tuấn Nam
                   </h2>
                   <p className="text-sm text-neutral-800 font-medium max-w-lg mx-auto">
                     15 phút trao đổi trực tiếp để giải đáp hiện trạng mất gốc, đánh giá điểm yếu và xác định lộ trình tăng điểm tối ưu nhất cho riêng bạn.
@@ -1513,7 +1529,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                       Đăng Ký Tư Vấn Thành Công!
                     </h3>
                     <p className="text-sm text-emerald-950 font-medium max-w-md mx-auto leading-relaxed">
-                      Cảm ơn bạn, <strong>{bookingData.name}</strong>. Yêu cầu tư vấn khóa học <strong>{bookingData.program}</strong> đã được ghi nhận. Thầy Nam sẽ trực tiếp nhắn tin qua <strong>Zalo</strong> theo số điện thoại <strong>{bookingData.phone}</strong> trong thời gian sớm nhất!
+                      Cảm ơn bạn, <strong>{bookingData.name}</strong>. Yêu cầu tư vấn khóa học <strong>{bookingData.program}</strong> đã được ghi nhận. Mr. Nam sẽ trực tiếp nhắn tin qua <strong>Zalo</strong> theo số điện thoại <strong>{bookingData.phone}</strong> trong thời gian sớm nhất!
                     </p>
                     <button
                       onClick={() => setBookingSuccess(false)}
@@ -1593,7 +1609,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                       <div className="space-y-1 leading-relaxed">
                         <span className="font-extrabold text-amber-950 block text-xs">Hình thức tư vấn trực tiếp:</span>
                         <p className="text-amber-900 text-xs font-medium">
-                          Mặc định Thầy Đỗ Tuấn Nam sẽ chủ động nhắn tin trực tiếp qua <strong>Zalo</strong> theo số điện thoại bạn đăng ký ở trên để giải đáp thắc mắc và tư vấn lộ trình học phù hợp nhất.
+                          Mặc định Mr. Đỗ Tuấn Nam sẽ chủ động nhắn tin trực tiếp qua <strong>Zalo</strong> theo số điện thoại bạn đăng ký ở trên để giải đáp thắc mắc và tư vấn lộ trình học phù hợp nhất.
                         </p>
                       </div>
                     </div>
@@ -1621,7 +1637,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                           className="mt-0.5 w-4 h-4 text-amber-600 border-neutral-300 rounded focus:ring-amber-500 cursor-pointer shrink-0"
                         />
                         <span className="text-xs text-neutral-900 leading-relaxed font-medium">
-                          Tôi đồng ý cung cấp thông tin liên hệ để Thầy Đỗ Tuấn Nam tư vấn lộ trình học TOEIC (tuân thủ <strong>Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15</strong>).
+                          Tôi đồng ý cung cấp thông tin liên hệ để Mr. Đỗ Tuấn Nam tư vấn lộ trình học TOEIC (tuân thủ <strong>Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15</strong>).
                         </span>
                       </label>
                       <div className="text-[11px] text-neutral-600 pl-7 flex flex-wrap items-center gap-2">
@@ -1681,7 +1697,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                   Học Viên Thành Tựu
                 </h2>
                 <p className="text-sm text-neutral-800 font-medium">
-                  Những trải nghiệm thực tế từ các bạn học viên đã cùng Thầy Nam bứt phá ngoạn mục điểm số TOEIC.
+                  Những trải nghiệm thực tế từ các bạn học viên đã cùng Mr. Nam bứt phá ngoạn mục điểm số TOEIC.
                 </p>
               </div>
 
@@ -1750,7 +1766,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                       Kết Nối Học Tập
                     </span>
                     <h2 className="text-3xl font-serif font-bold text-neutral-950">
-                      Gửi Lời Nhắn Cho Thầy Nam
+                      Gửi Lời Nhắn Cho Mr. Nam
                     </h2>
                     <p className="text-xs sm:text-sm text-neutral-800 font-medium leading-relaxed">
                       {teacher.contactQuote}
@@ -1837,7 +1853,7 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                       {contactSuccess && (
                         <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs rounded-xl font-bold flex items-center gap-2">
                           <IconCheck className="w-4 h-4 text-emerald-700" />
-                          <span>Gửi tin nhắn thành công! Thầy Nam sẽ sớm phản hồi qua email bạn đã cung cấp.</span>
+                          <span>Gửi tin nhắn thành công! Mr. Nam sẽ sớm phản hồi qua email bạn đã cung cấp.</span>
                         </div>
                       )}
 
@@ -1872,10 +1888,10 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
               </div>
               <div>
                 <span className="font-heading font-black text-base text-white block">
-                  {teacher.name}
+                  Mr. {teacher.name}
                 </span>
-                <span className="text-[11px] text-neutral-300 font-medium">
-                  English Teacher & Senior TOEIC Trainer
+                <span className="text-[11px] text-amber-300 font-bold block">
+                  🎓 Thạc sĩ Ngôn ngữ Anh • TOEIC Trainer
                 </span>
               </div>
             </div>

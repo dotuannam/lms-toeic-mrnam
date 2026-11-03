@@ -40,14 +40,47 @@ export const StudentDashboard = () => {
   const [syncingClassroom, setSyncingClassroom] = useState(false);
   const [syncStatusMsg, setSyncStatusMsg] = useState(null);
 
+  // Cache key based on user identifier for Stale-While-Revalidate speed
+  const cacheKey = currentUser?.uid ? `lms_student_portal_cache_${currentUser.uid}` : null;
+
+  // 1. Instant Hydration from sessionStorage on component mount (0ms perceived speed)
   useEffect(() => {
+    if (!cacheKey || typeof window === "undefined") return;
+    try {
+      const raw = sessionStorage.getItem(cacheKey);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (cached && cached.student) {
+          setStudent(cached.student);
+          setEnrolledClasses(cached.enrolledClasses || []);
+          setActiveClass(cached.activeClass || cached.enrolledClasses?.[0] || null);
+          setTuition(cached.tuition || null);
+          setScores(cached.scores || []);
+          setAttendanceLogs(cached.attendanceLogs || []);
+          setClassroomGrades(cached.classroomGrades || []);
+          setLoading(false); // 0ms Instant View!
+        }
+      }
+    } catch (e) {
+      console.warn("Could not read student portal cache", e);
+    }
+  }, [cacheKey]);
+
+  // 2. High-speed Parallel Data Fetching & Revalidation
+  useEffect(() => {
+    let isCancelled = false;
+
     const fetchStudentData = async () => {
-      setLoading(true);
+      // If we don't already have cached data rendered, show loader
+      if (!student) {
+        setLoading(true);
+      }
+
       try {
         let studentData = null;
         let studentId = userProfile?.studentId;
 
-        // 1. Resolve student record
+        // Step 1: Resolve student record
         if (studentId) {
           const sSnap = await getDoc(doc(db, "students", studentId));
           if (sSnap.exists()) studentData = { studentId, ...sSnap.data() };
@@ -77,42 +110,61 @@ export const StudentDashboard = () => {
           }
         }
 
-        if (!studentData) {
-          setLoading(false);
+        if (isCancelled || !studentData) {
+          if (!isCancelled) setLoading(false);
           return;
         }
 
         setStudent(studentData);
 
-        // 2. Fetch all enrolled classes
+        // Step 2: Ultra-Fast Parallel Queries
         const classIds = studentData.currentClassIds || [];
+        const primaryCid = classIds[0] || null;
+
+        const [classesResult, scoreList, tuitionSnap, attSnap, cachedGrades] = await Promise.all([
+          // a. All enrolled classes in parallel
+          Promise.all(classIds.map((cid) => getDoc(doc(db, "classes", cid)).catch(() => null))),
+          // b. Score history in parallel
+          getStudentScores(studentId).catch(() => []),
+          // c. Tuition for primary class in parallel
+          primaryCid ? getDoc(doc(db, "tuitions", `${studentId}_${primaryCid}`)).catch(() => null) : Promise.resolve(null),
+          // d. Attendance for primary class in parallel
+          primaryCid ? getDocs(query(collection(db, "attendance_sessions"), where("classId", "==", primaryCid))).catch(() => null) : Promise.resolve(null),
+          // e. Cached classroom grades for primary class in parallel
+          primaryCid ? getStudentClassroomGrades({ studentId, classId: primaryCid }).catch(() => []) : Promise.resolve([])
+        ]);
+
+        if (isCancelled) return;
+
+        // Process Classes
         const loadedClasses = [];
-        for (const cid of classIds) {
-          const cSnap = await getDoc(doc(db, "classes", cid));
-          if (cSnap.exists()) {
-            loadedClasses.push({ classId: cid, ...cSnap.data() });
-          }
+        if (Array.isArray(classesResult)) {
+          classesResult.forEach((cSnap, idx) => {
+            if (cSnap && cSnap.exists && cSnap.exists()) {
+              loadedClasses.push({ classId: classIds[idx], ...cSnap.data() });
+            }
+          });
         }
         setEnrolledClasses(loadedClasses);
 
-        // Choose initial active class
         const currentSelectedClass = loadedClasses[0] || null;
         setActiveClass(currentSelectedClass);
 
-        if (currentSelectedClass) {
-          // 3. Fetch Tuition
-          const tSnap = await getDoc(
-            doc(db, "tuitions", `${studentId}_${currentSelectedClass.classId}`)
-          );
-          if (tSnap.exists()) setTuition({ tuitionId: tSnap.id, ...tSnap.data() });
+        // Process Scores
+        setScores(scoreList || []);
 
-          // 4. Fetch Attendance Sessions for this class
-          const attQ = query(
-            collection(db, "attendance_sessions"),
-            where("classId", "==", currentSelectedClass.classId)
-          );
-          const attSnap = await getDocs(attQ);
-          const studentAttLogs = [];
+        // Process Tuition
+        let loadedTuition = null;
+        if (tuitionSnap && tuitionSnap.exists && tuitionSnap.exists()) {
+          loadedTuition = { tuitionId: tuitionSnap.id, ...tuitionSnap.data() };
+          setTuition(loadedTuition);
+        } else {
+          setTuition(null);
+        }
+
+        // Process Attendance
+        const studentAttLogs = [];
+        if (attSnap && attSnap.docs) {
           attSnap.docs.forEach((d) => {
             const session = d.data();
             const record = session.records?.[studentId];
@@ -125,51 +177,82 @@ export const StudentDashboard = () => {
             }
           });
           studentAttLogs.sort((a, b) => b.date.localeCompare(a.date));
-          setAttendanceLogs(studentAttLogs);
+        }
+        setAttendanceLogs(studentAttLogs);
+
+        // Process Classroom Grades
+        let finalGrades = cachedGrades || [];
+        if (finalGrades.length > 0) {
+          setClassroomGrades(finalGrades);
         }
 
-        // 5. Fetch Score History
-        const scoreList = await getStudentScores(studentId);
-        setScores(scoreList);
+        // Unblock UI immediately - portal content is ready!
+        setLoading(false);
 
-        // 6. Fetch / Sync Google Classroom Homework & Grades
-        if (currentSelectedClass) {
+        // Update sessionStorage cache
+        if (cacheKey && typeof window !== "undefined") {
           try {
-            const cachedGrades = await getStudentClassroomGrades({
-              studentId,
-              classId: currentSelectedClass.classId,
-            });
-            if (cachedGrades && cachedGrades.length > 0) {
-              setClassroomGrades(cachedGrades);
-            } else {
-              const syncRes = await syncStudentClassroomGrades({
-                studentId,
-                studentEmail: studentData.email || currentUser?.email || "",
-                classId: currentSelectedClass.classId,
-                courseId:
-                  currentSelectedClass.integrations?.googleClassroom?.courseId ||
-                  currentSelectedClass.code ||
-                  "COURSE",
-              });
-              if (syncRes?.grades) {
-                setClassroomGrades(syncRes.grades);
-              }
-            }
-          } catch (cgErr) {
-            console.warn("Classroom grades initial load error:", cgErr);
+            sessionStorage.setItem(
+              cacheKey,
+              JSON.stringify({
+                student: studentData,
+                enrolledClasses: loadedClasses,
+                activeClass: currentSelectedClass,
+                tuition: loadedTuition,
+                scores: scoreList || [],
+                attendanceLogs: studentAttLogs,
+                classroomGrades: finalGrades,
+                timestamp: Date.now(),
+              })
+            );
+          } catch (e) {
+            // ignore quota errors
           }
+        }
+
+        // Step 3: Non-blocking Background Classroom Sync (if no cached grades)
+        if (currentSelectedClass && finalGrades.length === 0) {
+          syncStudentClassroomGrades({
+            studentId,
+            studentEmail: studentData.email || currentUser?.email || "",
+            classId: currentSelectedClass.classId,
+            courseId:
+              currentSelectedClass.integrations?.googleClassroom?.courseId ||
+              currentSelectedClass.code ||
+              "COURSE",
+          })
+            .then((syncRes) => {
+              if (syncRes?.grades && !isCancelled) {
+                setClassroomGrades(syncRes.grades);
+                if (cacheKey && typeof window !== "undefined") {
+                  try {
+                    const raw = sessionStorage.getItem(cacheKey);
+                    if (raw) {
+                      const obj = JSON.parse(raw);
+                      obj.classroomGrades = syncRes.grades;
+                      sessionStorage.setItem(cacheKey, JSON.stringify(obj));
+                    }
+                  } catch (e) {}
+                }
+              }
+            })
+            .catch((cgErr) => console.warn("Background classroom sync warning:", cgErr));
         }
       } catch (err) {
         console.error("Student portal load failed:", err);
       } finally {
-        setLoading(false);
+        if (!isCancelled) setLoading(false);
       }
     };
 
     fetchStudentData();
-  }, [currentUser, userProfile]);
 
-  // Load class-specific tuition and attendance when active class is switched
+    return () => {
+      isCancelled = true;
+    };
+  }, [currentUser, userProfile, cacheKey]);
+
+  // Load class-specific tuition and attendance when active class is switched in parallel
   const handleSelectClass = async (classId) => {
     const selected = enrolledClasses.find((c) => c.classId === classId);
     if (!selected) return;
@@ -177,54 +260,55 @@ export const StudentDashboard = () => {
 
     if (student?.studentId) {
       try {
-        const tSnap = await getDoc(doc(db, "tuitions", `${student.studentId}_${classId}`));
-        if (tSnap.exists()) setTuition({ tuitionId: tSnap.id, ...tSnap.data() });
-        else setTuition(null);
+        const studentId = student.studentId;
 
-        const attQ = query(
-          collection(db, "attendance_sessions"),
-          where("classId", "==", classId)
-        );
-        const attSnap = await getDocs(attQ);
+        // Fetch tuition, attendance, and cached grades simultaneously in parallel
+        const [tSnap, attSnap, cachedGrades] = await Promise.all([
+          getDoc(doc(db, "tuitions", `${studentId}_${classId}`)).catch(() => null),
+          getDocs(query(collection(db, "attendance_sessions"), where("classId", "==", classId))).catch(() => null),
+          getStudentClassroomGrades({ studentId, classId }).catch(() => [])
+        ]);
+
+        if (tSnap && tSnap.exists && tSnap.exists()) {
+          setTuition({ tuitionId: tSnap.id, ...tSnap.data() });
+        } else {
+          setTuition(null);
+        }
+
         const studentAttLogs = [];
-        attSnap.docs.forEach((d) => {
-          const session = d.data();
-          const record = session.records?.[student.studentId];
-          if (record) {
-            studentAttLogs.push({
-              date: session.date,
-              status: record.status,
-              note: record.note,
-            });
-          }
-        });
-        studentAttLogs.sort((a, b) => b.date.localeCompare(a.date));
+        if (attSnap && attSnap.docs) {
+          attSnap.docs.forEach((d) => {
+            const session = d.data();
+            const record = session.records?.[studentId];
+            if (record) {
+              studentAttLogs.push({
+                date: session.date,
+                status: record.status,
+                note: record.note,
+              });
+            }
+          });
+          studentAttLogs.sort((a, b) => b.date.localeCompare(a.date));
+        }
         setAttendanceLogs(studentAttLogs);
 
-        // Switch cached classroom grades
-        try {
-          const cachedGrades = await getStudentClassroomGrades({
-            studentId: student.studentId,
+        if (cachedGrades && cachedGrades.length > 0) {
+          setClassroomGrades(cachedGrades);
+        } else {
+          // background sync
+          syncStudentClassroomGrades({
+            studentId,
+            studentEmail: student.email || currentUser?.email || "",
             classId,
-          });
-          if (cachedGrades && cachedGrades.length > 0) {
-            setClassroomGrades(cachedGrades);
-          } else {
-            const syncRes = await syncStudentClassroomGrades({
-              studentId: student.studentId,
-              studentEmail: student.email || currentUser?.email || "",
-              classId,
-              courseId:
-                selected.integrations?.googleClassroom?.courseId ||
-                selected.code ||
-                "COURSE",
-            });
-            if (syncRes?.grades) {
-              setClassroomGrades(syncRes.grades);
-            }
-          }
-        } catch (cgErr) {
-          console.warn("Classroom grades switch error:", cgErr);
+            courseId:
+              selected.integrations?.googleClassroom?.courseId ||
+              selected.code ||
+              "COURSE",
+          })
+            .then((syncRes) => {
+              if (syncRes?.grades) setClassroomGrades(syncRes.grades);
+            })
+            .catch((e) => console.warn("Background classroom grades switch warning:", e));
         }
       } catch (err) {
         console.error("Error switching student class:", err);

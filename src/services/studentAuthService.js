@@ -67,7 +67,7 @@ export const registerStudentAuthAccount = async (identifier, password) => {
  * Generates ready-to-share message for students (e.g. via Zalo or SMS)
  */
 export const generateLoginShareText = (identifier, password, studentName = "Học viên") => {
-  return `Chào ${studentName}! Dưới đây là thông tin đăng nhập Portal Học Viên LMS Thầy Đỗ Tuấn Nam:
+  return `Chào ${studentName}! Dưới đây là thông tin đăng nhập Portal Học Viên LMS Mr. Đỗ Tuấn Nam (TOEIC MR.NAM):
 🔗 Link đăng nhập: https://dotuannam.github.io/lms-toeic-mrnam/
 👤 Tên đăng nhập: ${identifier} (Có thể dùng Số điện thoại hoặc Email)
 🔑 Mật khẩu: ${password}

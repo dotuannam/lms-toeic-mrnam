@@ -1,16 +1,18 @@
 /**
  * Full portfolio data extracted directly from https://dotuannamportfolio.ai.studio/
- * Author: Thầy Đỗ Tuấn Nam - English Teacher & Senior TOEIC Trainer / Language Specialist
+ * Author: Mr. Đỗ Tuấn Nam - Thạc sĩ Ngôn ngữ Anh | TOEIC Trainer
  */
 
 export const TEACHER_PROFILE = {
   name: "ĐỖ TUẤN NAM",
-  shortName: "Thầy Đỗ Tuấn Nam",
+  shortName: "Mr. Đỗ Tuấn Nam",
+  honorific: "Mr. Nam",
   brandName: "TOEIC MR.NAM",
+  academicDegree: "Thạc sĩ Ngôn ngữ Anh (Master of Arts in English Linguistics)",
   titles: [
-    "English Teacher & Senior TOEIC Trainer",
-    "Language Specialist & Senior Educator",
-    "Thạc sĩ Ngôn ngữ Anh (Master of Arts in English Linguistics)"
+    "Thạc sĩ Ngôn ngữ Anh (Master of Arts in English Linguistics)",
+    "TOEIC Trainer",
+    "English Teacher"
   ],
   phone: "077 345 2809",
   email: "Dotuannam63@gmail.com",
@@ -228,7 +230,7 @@ export const STUDENT_TESTIMONIALS = [
     initialScore: "550 TOEIC",
     school: "Đại học Bách Khoa TP.HCM",
     review:
-      "Thầy Nam dạy cực kỳ tận tâm! Phương pháp loại trừ đáp án sai ở Part 5 và kỹ thuật bắt keyword Part 3-4 của thầy giúp em tăng từ 550 lên 870 chỉ sau một khóa học. Nhờ vậy em đã pass hồ sơ vào công ty công nghệ đa quốc gia.",
+      "Mr. Nam dạy cực kỳ tận tâm! Phương pháp loại trừ đáp án sai ở Part 5 và kỹ thuật bắt keyword Part 3-4 của Mr. Nam giúp em tăng từ 550 lên 870 chỉ sau một khóa học. Nhờ vậy em đã pass hồ sơ vào công ty công nghệ đa quốc gia.",
   },
   {
     name: "Phạm Ái Phương",
@@ -236,7 +238,7 @@ export const STUDENT_TESTIMONIALS = [
     initialScore: "Mất gốc",
     school: "Đại học Kinh Tế TP.HCM (UEH)",
     review:
-      "Mất gốc tiếng Anh nhiều năm, sợ nhất là phần Nghe. Được thầy Nam kèm từng chút một về nối âm và ngữ điệu, đồng thời hệ thống LMS giúp làm bài tập rất tiện. Giờ em đã tự tin đạt chuẩn đầu ra đại học vượt kỳ vọng!",
+      "Mất gốc tiếng Anh nhiều năm, sợ nhất là phần Nghe. Được Mr. Nam kèm từng chút một về nối âm và ngữ điệu, đồng thời hệ thống LMS giúp làm bài tập rất tiện. Giờ em đã tự tin đạt chuẩn đầu ra đại học vượt kỳ vọng!",
   },
   {
     name: "Ngọc Ngân",
@@ -244,7 +246,7 @@ export const STUDENT_TESTIMONIALS = [
     initialScore: "480 TOEIC",
     school: "Đại học Sài Gòn",
     review:
-      "Học thầy Nam không hề bị áp lực mà bài giảng rất cuốn hút. Các buổi mock-test hàng tuần trên web app sát 99% với đề thi thật tại IIG, bước vào phòng thi thật cảm giác cực kỳ quen thuộc và tự tin.",
+      "Học cùng Mr. Nam không hề bị áp lực mà bài giảng rất cuốn hút. Các buổi mock-test hàng tuần trên web app sát 99% với đề thi thật tại IIG, bước vào phòng thi thật cảm giác cực kỳ quen thuộc và tự tin.",
   },
 ];
 

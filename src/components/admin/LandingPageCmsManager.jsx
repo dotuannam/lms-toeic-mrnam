@@ -1625,7 +1625,7 @@ export const LandingPageCmsManager = ({
                 </h4>
               </div>
               <p className="text-xs text-stone-600 leading-relaxed">
-                Hệ thống đã tinh gọn: Loại bỏ trường chọn Ngày hẹn & Khung giờ thuận tiện. Mặc định khi học viên điền form, Thầy Đỗ Tuấn Nam sẽ chủ động nhắn tin trực tiếp qua <strong>Zalo</strong> theo số điện thoại học viên đã cung cấp để giải đáp thắc mắc và định hướng lộ trình học tập tối ưu nhất.
+                Hệ thống đã tinh gọn: Loại bỏ trường chọn Ngày hẹn & Khung giờ thuận tiện. Mặc định khi học viên điền form, Mr. Đỗ Tuấn Nam sẽ chủ động nhắn tin trực tiếp qua <strong>Zalo</strong> theo số điện thoại học viên đã cung cấp để giải đáp thắc mắc và định hướng lộ trình học tập tối ưu nhất.
               </p>
             </div>
 

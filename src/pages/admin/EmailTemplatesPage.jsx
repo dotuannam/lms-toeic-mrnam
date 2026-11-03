@@ -171,7 +171,7 @@ export const EmailTemplatesPage = () => {
         code: "TO55001",
         startDate: "2026-10-15",
         schedule: "Thứ 2 - 4 - 6 (18:00 - 19:30)",
-        teacherName: "Thầy Nam",
+        teacherName: "Mr. Đỗ Tuấn Nam",
         tuitionFee: 4500000,
         integrations: {
           googleClassroom: { alternateLink: "https://classroom.google.com" },
@@ -212,7 +212,7 @@ export const EmailTemplatesPage = () => {
       code: "TO55001",
       startDate: "2026-10-15",
       schedule: "Thứ 2 - 4 - 6 (18:00 - 19:30)",
-      teacherName: "Thầy Nam",
+      teacherName: "Mr. Đỗ Tuấn Nam",
       tuitionFee: 4500000,
     }
   );

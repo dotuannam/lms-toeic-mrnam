@@ -103,7 +103,7 @@ export const StudentClassroomRulesTab = () => {
               Cần hỗ trợ về lịch học bù, bảo lưu hoặc thắc mắc bài tập?
             </p>
             <p className="text-amber-800 dark:text-amber-400">
-              Liên hệ trực tiếp với Thầy Đỗ Tuấn Nam hoặc bộ phận học vụ để được giải đáp nhanh nhất.
+              Liên hệ trực tiếp với Mr. Đỗ Tuấn Nam hoặc bộ phận học vụ để được giải đáp nhanh nhất.
             </p>
           </div>
         </div>

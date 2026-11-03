@@ -474,7 +474,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
             </h3>
             <p className="text-xs sm:text-sm text-neutral-300 font-medium leading-relaxed">
               Khảo sát 2 kỹ năng: <strong>Nghe điền từ trực tiếp (Part 3 Cloze - 10 chỗ trống)</strong> và{" "}
-              <strong>Đọc hiểu & Ngữ pháp (Part 5 - 7: 7 câu)</strong>. Hệ thống tự động chấm điểm tức thì và gợi ý lộ trình bứt phá điểm số cùng Thầy Đỗ Tuấn Nam.
+              <strong>Đọc hiểu & Ngữ pháp (Part 5 - 7: 7 câu)</strong>. Hệ thống tự động chấm điểm tức thì và gợi ý lộ trình bứt phá điểm số cùng Mr. Đỗ Tuấn Nam.
             </p>
 
             {/* Disclaimer Callout */}
@@ -592,7 +592,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                     className="mt-0.5 w-4 h-4 text-amber-500 border-neutral-600 rounded focus:ring-amber-400 cursor-pointer shrink-0 bg-neutral-900"
                   />
                   <span className="text-xs text-neutral-200 leading-relaxed font-medium">
-                    Tôi đồng ý cung cấp thông tin để phục vụ chấm điểm và nhận phân tích lộ trình học TOEIC từ Thầy Đỗ Tuấn Nam (tuân thủ <strong>Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15</strong>).
+                    Tôi đồng ý cung cấp thông tin để phục vụ chấm điểm và nhận phân tích lộ trình học TOEIC từ Mr. Đỗ Tuấn Nam (tuân thủ <strong>Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15</strong>).
                   </span>
                 </label>
                 <div className="text-[11px] text-neutral-400 pl-7 flex flex-wrap items-center gap-2">
@@ -1150,7 +1150,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 Đang Chấm Điểm & Phân Tích
               </h4>
               <p className="text-xs text-neutral-300 leading-relaxed font-medium">
-                Hệ thống đang đối chiếu đáp án, tổng hợp kết quả chi tiết và ghi nhận vào hệ thống của Thầy Đỗ Tuấn Nam.
+                Hệ thống đang đối chiếu đáp án, tổng hợp kết quả chi tiết và ghi nhận vào hệ thống của Mr. Đỗ Tuấn Nam.
               </p>
             </div>
 
@@ -1224,14 +1224,14 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
             <div className="flex items-center gap-2 text-amber-300 font-bold font-heading text-sm">
               <span>🎯</span>
               <span className="uppercase tracking-wider">
-                Nhận xét & Lộ trình đề xuất từ Thầy Đỗ Tuấn Nam:
+                Nhận xét & Lộ trình đề xuất từ Mr. Đỗ Tuấn Nam (Thạc sĩ Ngôn ngữ Anh • TOEIC Trainer):
               </span>
             </div>
             <p className="text-neutral-200 font-medium leading-relaxed">
               {testResults.evaluation.desc}
             </p>
             <p className="text-neutral-400 italic text-xs pt-1 border-t border-amber-400/30">
-              * Toàn bộ kết quả và chi tiết câu làm bài của bạn đã được chuyển thẳng tới Thầy Đỗ Tuấn Nam qua Email và kênh điều hành Discord.
+              * Toàn bộ kết quả và chi tiết câu làm bài của bạn đã được chuyển thẳng tới Mr. Đỗ Tuấn Nam qua Email và kênh điều hành Discord.
             </p>
           </div>
 
@@ -1367,7 +1367,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                       {/* Explanation */}
                       <div className="p-3 bg-[#1C1610] rounded-xl border border-neutral-800 text-xs text-neutral-200 space-y-1">
                         <span className="font-bold text-amber-400 block">
-                          💡 Giải thích chi tiết từ Thầy Nam:
+                          💡 Giải thích chi tiết từ Mr. Nam:
                         </span>
                         <p className="leading-relaxed font-medium text-neutral-300">{r.explanation}</p>
                       </div>

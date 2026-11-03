@@ -105,7 +105,7 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
           </h1>
 
           <p className="text-xs sm:text-sm text-neutral-300 font-medium max-w-2xl mx-auto leading-relaxed">
-            Đánh giá toàn diện <strong>Kỹ năng Nghe điền từ công sở (Part 3 Cloze - 10 chỗ trống)</strong> và kỹ năng <strong>Đọc hiểu - Ngữ pháp nâng cao (Part 5, 6, 7: 7 câu)</strong> theo định dạng chuẩn ETS. Sau khi nộp bài, hệ thống sẽ tự động chấm điểm, ước tính cấp độ và gửi kết quả chi tiết tới Thầy Đỗ Tuấn Nam.
+            Đánh giá toàn diện <strong>Kỹ năng Nghe điền từ công sở (Part 3 Cloze - 10 chỗ trống)</strong> và kỹ năng <strong>Đọc hiểu - Ngữ pháp nâng cao (Part 5, 6, 7: 7 câu)</strong> theo định dạng chuẩn ETS. Sau khi nộp bài, hệ thống sẽ tự động chấm điểm, ước tính cấp độ và gửi kết quả chi tiết tới Mr. Đỗ Tuấn Nam.
           </p>
 
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-500/15 border border-amber-400/40 rounded-xl text-xs text-amber-200 font-medium">
@@ -134,7 +134,7 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
             ← Quay lại Trang Chủ
           </button>
           <span>•</span>
-          <span>Thầy Đỗ Tuấn Nam - 077 345 2809</span>
+          <span>Mr. Đỗ Tuấn Nam - 077 345 2809</span>
           <span>•</span>
           <span>Email: dotuannamwork2809@gmail.com</span>
           <span>•</span>
