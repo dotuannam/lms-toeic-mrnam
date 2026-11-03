@@ -61,7 +61,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState(52); // Exactly 52 seconds audio
   const [playbackRate, setPlaybackRate] = useState(1);
   const [audioError, setAudioError] = useState(false);
 
@@ -437,7 +437,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
         <div className="p-6 sm:p-8 md:p-12 max-w-2xl mx-auto space-y-8">
           <div className="text-center space-y-3">
             <span className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-full text-xs font-heading font-black uppercase tracking-wider">
-              <span>⚡</span> Chuẩn ETS 2026 • Khảo Sát Toàn Diện
+              <span>⚡</span> Khảo Sát Toàn Diện 2 Kỹ Năng
             </span>
             <h3 className="text-2xl sm:text-3xl font-serif font-black text-neutral-950 tracking-tight">
               BÀI TEST XẾP LỚP 10 PHÚT
@@ -446,6 +446,14 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               Khảo sát toàn diện <strong>Kỹ năng Nghe điền từ công sở (Part 3 Cloze - 10 câu)</strong> và{" "}
               <strong>Đọc hiểu & Ngữ pháp nâng cao (Part 5 - 7: 7 câu)</strong>. Hệ thống tự động chấm điểm tức thì, xác định lỗ hổng kiến thức và gợi ý lộ trình bứt phá điểm số cùng Thầy Đỗ Tuấn Nam.
             </p>
+
+            {/* Disclaimer Callout */}
+            <div className="p-3.5 bg-amber-50/90 border border-amber-300/80 rounded-2xl flex items-center justify-center gap-2.5 text-xs text-amber-900 font-medium text-left">
+              <span className="text-base shrink-0">ℹ️</span>
+              <p className="leading-relaxed">
+                <strong>Lưu ý quan trọng:</strong> Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.
+              </p>
+            </div>
           </div>
 
           {/* Key Test Specs Badge */}
@@ -623,10 +631,13 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               />
 
               {/* Notice regarding Audio Recording */}
-              <div className="px-3 py-2 bg-amber-500/10 border border-amber-400/40 rounded-xl text-xs text-amber-200 font-medium flex items-start gap-2">
-                <span className="text-amber-400 shrink-0 mt-0.5">🎙️</span>
+              <div className="px-3.5 py-2.5 bg-amber-500/15 border border-amber-400/40 rounded-xl text-xs text-amber-200 font-medium flex items-start gap-2.5">
+                <span className="text-amber-400 shrink-0 mt-0.5 text-base">🎧</span>
                 <div className="leading-relaxed">
-                  <strong>Lưu ý âm thanh:</strong> File thu âm phòng thu chính thức sẽ được cung cấp sau theo thông báo của Thầy Nam. Bạn có thể đọc ngữ cảnh đoạn hội thoại bên dưới và chọn/điền từ vựng phù hợp vào 10 chỗ trống.
+                  <strong>Audio đoạn đối thoại (52 giây):</strong> Bấm nút <em>▶ Bật Âm Thanh Nghe</em> để lắng nghe cuộc trò chuyện giữa hai nhân vật và điền từ thích hợp vào 10 chỗ trống.
+                  <span className="block mt-1 text-[11px] text-amber-300 font-normal">
+                    ⚠️ <em>Chú thích: Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.</em>
+                  </span>
                 </div>
               </div>
 
@@ -1236,6 +1247,11 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                   );
                 })}
             </div>
+          </div>
+
+          {/* Disclaimer Reference Footnote */}
+          <div className="p-4 bg-amber-50/80 border border-amber-200/90 rounded-2xl text-center text-xs text-amber-900 font-medium max-w-2xl mx-auto leading-relaxed">
+            ℹ️ <strong>Lưu ý:</strong> Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.
           </div>
 
           {/* Action CTAs */}

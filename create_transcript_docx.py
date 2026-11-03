@@ -63,10 +63,15 @@ def build_transcript_docx(out_path):
     p_sub = doc.add_paragraph()
     p_sub.paragraph_format.space_before = Pt(3)
     p_sub.paragraph_format.space_after = Pt(12)
-    r_sub = p_sub.add_run("Tài liệu chính thức biên soạn cho học viên và giảng viên TOEIC MR.NAM phục vụ đối chiếu, kiểm tra và nâng cao năng lực nghe hiểu")
+    r_sub = p_sub.add_run("Tài liệu chính thức biên soạn cho học viên và giảng viên TOEIC MR.NAM phục vụ đối chiếu, kiểm tra và nâng cao năng lực nghe hiểu.\n")
     r_sub.font.size = Pt(10)
     r_sub.font.italic = True
     r_sub.font.color.rgb = RGBColor(71, 85, 105)
+
+    r_note = p_sub.add_run("(*) Lưu ý: Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.")
+    r_note.font.size = Pt(9.5)
+    r_note.font.bold = True
+    r_note.font.color.rgb = RGBColor(180, 83, 9) # Amber 700
 
     # Info table
     tbl_meta = doc.add_table(rows=2, cols=4)

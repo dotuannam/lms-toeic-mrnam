@@ -1,6 +1,8 @@
 # ĐỀ THI XẾP LỚP TOEIC - PHẦN THI LISTENING (NGHE ĐIỀN TỪ / DICTATION)
 **Biên soạn & Cập nhật: Thầy Đỗ Tuấn Nam**
 
+> ⚠️ **LƯU Ý:** Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.
+
 ---
 
 ### NỘI DUNG ĐOẠN ĐỐI THOẠI (TRANSCRIPT VỚI 10 CHỖ TRỐNG)

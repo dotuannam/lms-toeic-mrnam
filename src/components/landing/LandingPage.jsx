@@ -1362,6 +1362,10 @@ export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
                         <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-normal">
                           Bài test gồm <strong>17 câu chuẩn hóa bao quát 2 kỹ năng cốt lõi</strong>: Phần Nghe điền từ Part 3 Cloze (10 câu từ vựng công sở) và Phần Đọc hiểu chuẩn ETS (7 câu Part 5, 6, 7). Hệ thống tự động phân loại trình độ của bạn vào 3 cấp độ: <strong>Foundation (&lt; 450)</strong>, <strong>550+</strong>, hoặc <strong>650+</strong> và gửi báo cáo phân tích trực tiếp cho Thầy Đỗ Tuấn Nam.
                         </p>
+                        <div className="p-2.5 bg-amber-500/10 border border-amber-400/30 rounded-xl text-xs text-amber-300/90 font-medium flex items-center gap-2">
+                          <span>ℹ️</span>
+                          <span>Lưu ý: Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.</span>
+                        </div>
                       </div>
 
                       {/* 4 Feature Highlights */}

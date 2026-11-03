@@ -105,6 +105,11 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
           <p className="text-xs sm:text-sm text-neutral-700 font-medium max-w-2xl mx-auto leading-relaxed">
             Đánh giá toàn diện <strong>Kỹ năng Nghe điền từ công sở (Part 3 Cloze - 10 chỗ trống)</strong> và kỹ năng <strong>Đọc hiểu - Ngữ pháp nâng cao (Part 5, 6, 7: 7 câu)</strong> theo định dạng chuẩn ETS. Sau khi nộp bài, hệ thống sẽ tự động chấm điểm, ước tính cấp độ và gửi kết quả chi tiết tới Thầy Đỗ Tuấn Nam.
           </p>
+
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-100/80 border border-amber-300 rounded-xl text-xs text-amber-950 font-medium">
+            <span>ℹ️</span>
+            <span>Lưu ý: Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.</span>
+          </div>
         </div>
       </section>
 
