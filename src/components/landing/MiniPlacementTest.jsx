@@ -240,8 +240,9 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
 
   // Calculate & Submit Test
   const handleFinalSubmit = async () => {
-    setShowConfirmModal(false);
+    if (isSubmitting) return;
     setIsSubmitting(true);
+    setShowConfirmModal(false);
 
     if (audioRef.current) {
       audioRef.current.pause();
@@ -439,6 +440,9 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     } catch (emailErr) {
       console.warn("[PlacementTest] Email notification error (non-blocking):", emailErr);
     }
+
+    // Ensure smooth minimum loading display so candidate clearly sees submission is processing
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     setIsSubmitting(false);
     setIsCompleted(true);
@@ -1074,10 +1078,11 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                   ) : (
                     <button
                       type="button"
+                      disabled={isSubmitting}
                       onClick={() => setShowConfirmModal(true)}
-                      className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition cursor-pointer"
+                      className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition cursor-pointer"
                     >
-                      Xem Lại & Nộp Bài →
+                      {isSubmitting ? "Đang Nộp Bài..." : "Xem Lại & Nộp Bài →"}
                     </button>
                   )}
                 </div>
@@ -1088,7 +1093,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
       )}
 
       {/* 3. CONFIRMATION MODAL BEFORE SUBMISSION */}
-      {showConfirmModal && (
+      {showConfirmModal && !isSubmitting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4">
           <div className="bg-[#1C1610] text-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-neutral-800 space-y-6 animate-scaleUp text-center">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-2xl text-amber-400">
@@ -1130,6 +1135,40 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
         </div>
       )}
 
+      {/* 3.1. SUBMISSION LOADING POPUP MODAL (Ngăn học viên bấm nộp lần 2) */}
+      {isSubmitting && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 select-none">
+          <div className="bg-[#1C1610] text-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border-2 border-amber-500/60 text-center space-y-5 animate-scaleUp">
+            {/* Animated Loading Ring & Icon */}
+            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-4 border-amber-500/20 border-t-amber-400 animate-spin"></div>
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-400/40 flex items-center justify-center text-2xl text-amber-400 shadow-inner">
+                ⏳
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-lg font-heading font-black text-white tracking-wide uppercase">
+                Đang Chấm Điểm & Phân Tích
+              </h4>
+              <p className="text-xs text-neutral-300 leading-relaxed font-medium">
+                Hệ thống đang đối chiếu đáp án, tổng hợp kết quả chi tiết và ghi nhận vào hệ thống của Thầy Đỗ Tuấn Nam.
+              </p>
+            </div>
+
+            {/* Visual Pulse Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500/15 border border-amber-400/40 rounded-full text-[11px] font-bold text-amber-300">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+              <span>Vui lòng đợi trong giây lát...</span>
+            </div>
+
+            <p className="text-[11px] text-neutral-500 italic">
+              * Vui lòng không đóng trình duyệt hoặc tải lại trang trong khi nộp bài.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 4. COMPLETED RESULTS STATE */}
       {isCompleted && testResults && (
         <div className="p-6 md:p-10 space-y-8 animate-fadeIn text-white">
@@ -1146,29 +1185,38 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
             </p>
           </div>
 
-          {/* Score & Evaluation Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            <div className="p-6 bg-[#231C16] rounded-2xl border border-neutral-800 text-center space-y-1 shadow-md">
+          {/* Score & Evaluation Grid (Balanced & Symmetrical Alignment) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto items-stretch">
+            {/* Box 1: Tổng Điểm Đạt Được */}
+            <div className="p-6 bg-[#231C16] rounded-2xl border border-neutral-800 text-center flex flex-col justify-between items-center shadow-md space-y-3 min-h-[175px]">
               <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-400">
                 Tổng Điểm Đạt Được
               </span>
-              <div className="text-4xl sm:text-5xl font-heading font-black text-amber-400">
-                {testResults.score} <span className="text-xl text-neutral-500">/ {totalQuestions}</span>
+              <div className="my-auto py-2">
+                <div className="text-3xl sm:text-4xl font-heading font-black text-amber-400 leading-none">
+                  {testResults.score} <span className="text-lg sm:text-xl text-neutral-500 font-normal">/ {totalQuestions}</span>
+                </div>
               </div>
               <p className="text-xs text-neutral-300 font-bold">
                 Độ chính xác: {testResults.percentage}%
               </p>
             </div>
 
-            <div className="p-6 bg-[#231C16] rounded-2xl border border-neutral-800 text-center space-y-1 shadow-md flex flex-col justify-center">
+            {/* Box 2: Trình Độ Ước Tính */}
+            <div className="p-6 bg-[#231C16] rounded-2xl border border-neutral-800 text-center flex flex-col justify-between items-center shadow-md space-y-3 min-h-[175px]">
               <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-400">
                 Trình Độ Ước Tính
               </span>
-              <div className="text-4xl sm:text-5xl font-heading font-black text-amber-400">
-                {testResults.evaluation.range}
+              <div className="my-auto py-2 space-y-1">
+                <div className="text-2xl sm:text-3xl font-heading font-black text-amber-400 tracking-tight leading-tight">
+                  {testResults.evaluation.range.split("(")[0].trim()}
+                </div>
+                <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-neutral-400 bg-neutral-900/80 px-2.5 py-0.5 rounded-md border border-neutral-800">
+                  {testResults.evaluation.tier.includes("Tier") ? testResults.evaluation.tier : `${testResults.evaluation.tier} Tier`}
+                </span>
               </div>
-              <p className="text-xs text-neutral-300 font-bold">
-                Khóa đề xuất: {testResults.evaluation.recommendedCourse.split("(")[0]}
+              <p className="text-xs text-neutral-300 font-bold truncate max-w-full" title={testResults.evaluation.recommendedCourse}>
+                Khóa đề xuất: {testResults.evaluation.recommendedCourse.split("(")[0].trim()}
               </p>
             </div>
           </div>
