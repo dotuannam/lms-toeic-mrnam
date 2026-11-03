@@ -39,16 +39,16 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-neutral-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#14110E] text-white flex flex-col font-sans">
       {/* 1. TOP HEADER NAVIGATION */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-neutral-200/90 shadow-xs">
+      <header className="sticky top-0 z-40 bg-[#18130E]/95 backdrop-blur-md border-b border-neutral-800 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Back button & Brand */}
           <div className="flex items-center gap-3 sm:gap-4">
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition cursor-pointer border border-neutral-300/80"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#231C16] hover:bg-[#2e241c] text-neutral-200 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition cursor-pointer border border-neutral-700"
               title="Quay lại trang chủ"
             >
               <span>←</span>
@@ -56,17 +56,17 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
               <span className="sm:hidden">Trang Chủ</span>
             </button>
 
-            <div className="h-5 w-px bg-neutral-300 hidden sm:block"></div>
+            <div className="h-5 w-px bg-neutral-700 hidden sm:block"></div>
 
             <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-neutral-950 text-amber-400 font-serif font-black text-sm flex items-center justify-center shadow-xs">
+              <span className="w-8 h-8 rounded-lg bg-neutral-900 text-amber-400 font-serif font-black text-sm flex items-center justify-center shadow-xs border border-amber-500/30">
                 TN
               </span>
               <div>
-                <span className="font-heading font-black text-xs sm:text-sm text-neutral-950 tracking-tight block">
+                <span className="font-heading font-black text-xs sm:text-sm text-white tracking-tight block">
                   {TEACHER_PROFILE.brandName || "TOEIC MR.NAM"}
                 </span>
-                <span className="text-[10px] uppercase tracking-wider text-amber-700 font-extrabold hidden md:block">
+                <span className="text-[10px] uppercase tracking-wider text-amber-400 font-extrabold hidden md:block">
                   Cổng Đánh Giá Năng Lực Trực Tuyến
                 </span>
               </div>
@@ -76,16 +76,16 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
           {/* Right Help info */}
           <div className="flex items-center gap-3">
             <div className="hidden md:flex flex-col text-right">
-              <span className="text-[11px] text-neutral-500 font-medium">Hỗ trợ học viên:</span>
+              <span className="text-[11px] text-neutral-400 font-medium">Hỗ trợ học viên:</span>
               <a
                 href={`tel:${TEACHER_PROFILE.phone?.replace(/\s/g, "") || "0773452809"}`}
-                className="text-xs font-bold text-amber-700 hover:text-amber-800 transition"
+                className="text-xs font-bold text-amber-400 hover:text-amber-300 transition"
               >
                 Hotline: {TEACHER_PROFILE.phone || "077 345 2809"}
               </a>
             </div>
 
-            <span className="px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-full text-[11px] font-extrabold uppercase tracking-wider">
+            <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/40 rounded-full text-[11px] font-extrabold uppercase tracking-wider">
               Chuẩn ETS 2026
             </span>
           </div>
@@ -93,22 +93,22 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
       </header>
 
       {/* 2. SUBPAGE INTRO BANNER */}
-      <section className="bg-gradient-to-b from-white via-amber-50/30 to-[#FAF9F6] border-b border-neutral-200/70 pt-8 pb-6 px-4 sm:px-6 lg:px-8">
+      <section className="bg-gradient-to-b from-[#1C1610] via-[#18130E] to-[#14110E] border-b border-neutral-800 pt-8 pb-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-400/40 rounded-full text-xs font-mono font-black text-amber-900 uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 border border-amber-400/40 rounded-full text-xs font-mono font-black text-amber-400 uppercase tracking-widest">
             <span>🎯</span>
             <span>BÀI TEST XẾP LỚP 10 PHÚT • TOEIC LISTENING & READING (17 CÂU)</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-serif font-bold text-neutral-950 tracking-tight">
+          <h1 className="text-2xl sm:text-4xl font-serif font-bold text-white tracking-tight">
             TOEIC Comprehensive Placement Test
           </h1>
 
-          <p className="text-xs sm:text-sm text-neutral-700 font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-neutral-300 font-medium max-w-2xl mx-auto leading-relaxed">
             Đánh giá toàn diện <strong>Kỹ năng Nghe điền từ công sở (Part 3 Cloze - 10 chỗ trống)</strong> và kỹ năng <strong>Đọc hiểu - Ngữ pháp nâng cao (Part 5, 6, 7: 7 câu)</strong> theo định dạng chuẩn ETS. Sau khi nộp bài, hệ thống sẽ tự động chấm điểm, ước tính cấp độ và gửi kết quả chi tiết tới Thầy Đỗ Tuấn Nam.
           </p>
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-100/80 border border-amber-300 rounded-xl text-xs text-amber-950 font-medium">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-500/15 border border-amber-400/40 rounded-xl text-xs text-amber-200 font-medium">
             <span>ℹ️</span>
             <span>Lưu ý: Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.</span>
           </div>
@@ -119,17 +119,17 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
         <MiniPlacementTest
           onSelectConsultation={handleConsultationFromTest}
-          className="shadow-2xl border-neutral-200"
+          className="shadow-2xl border-neutral-800"
         />
       </main>
 
       {/* 4. FOOTER */}
-      <footer className="bg-white border-t border-neutral-200/90 py-6 text-center text-xs text-neutral-600 space-y-2">
-        <div className="flex flex-wrap items-center justify-center gap-3 font-semibold text-neutral-700">
+      <footer className="bg-[#18130E] border-t border-neutral-800 py-6 text-center text-xs text-neutral-400 space-y-2">
+        <div className="flex flex-wrap items-center justify-center gap-3 font-semibold text-neutral-300">
           <button
             type="button"
             onClick={handleBack}
-            className="hover:text-amber-700 transition cursor-pointer"
+            className="hover:text-amber-400 transition cursor-pointer text-neutral-300"
           >
             ← Quay lại Trang Chủ
           </button>
@@ -141,7 +141,7 @@ export const PlacementTestPage = ({ onBackToHome, onSelectConsultation }) => {
           <button
             type="button"
             onClick={() => setShowPrivacyModal(true)}
-            className="text-amber-800 hover:text-amber-950 underline font-bold cursor-pointer"
+            className="text-amber-400 hover:text-amber-300 underline font-bold cursor-pointer"
           >
             Chính Sách Bảo Mật (Luật 91/2025/QH15)
           </button>

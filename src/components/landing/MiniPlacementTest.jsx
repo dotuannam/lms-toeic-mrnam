@@ -427,25 +427,25 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
 
   return (
     <div
-      className={`bg-white rounded-3xl border border-neutral-200 shadow-xl overflow-hidden ${className}`}
+      className={`bg-[#18130E] text-white rounded-3xl border border-neutral-800 shadow-2xl overflow-hidden ${className}`}
     >
       {/* 1. INITIAL CANDIDATE FORM STATE */}
       {!hasStarted && (
-        <div className="p-6 sm:p-8 md:p-12 max-w-2xl mx-auto space-y-8">
+        <div className="p-6 sm:p-8 md:p-12 max-w-2xl mx-auto space-y-8 text-white">
           <div className="text-center space-y-3">
-            <span className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-full text-xs font-heading font-black uppercase tracking-wider">
+            <span className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/40 rounded-full text-xs font-heading font-black uppercase tracking-wider">
               <span>⚡</span> Khảo Sát Năng Lực Toàn Diện
             </span>
-            <h3 className="text-2xl sm:text-3xl font-serif font-black text-neutral-950 tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-serif font-black text-white tracking-tight">
               BÀI TEST XẾP LỚP 10 PHÚT
             </h3>
-            <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-neutral-300 font-medium leading-relaxed">
               Khảo sát 2 kỹ năng: <strong>Nghe điền từ trực tiếp (Part 3 Cloze - 10 chỗ trống)</strong> và{" "}
               <strong>Đọc hiểu & Ngữ pháp (Part 5 - 7: 7 câu)</strong>. Hệ thống tự động chấm điểm tức thì và gợi ý lộ trình bứt phá điểm số cùng Thầy Đỗ Tuấn Nam.
             </p>
 
             {/* Disclaimer Callout */}
-            <div className="p-3.5 bg-amber-50/90 border border-amber-300/80 rounded-2xl flex items-center justify-center gap-2.5 text-xs text-amber-900 font-medium text-left">
+            <div className="p-3.5 bg-amber-500/15 border border-amber-400/40 rounded-2xl flex items-center justify-center gap-2.5 text-xs text-amber-200 font-medium text-left">
               <span className="text-base shrink-0">ℹ️</span>
               <p className="leading-relaxed">
                 <strong>Lưu ý quan trọng:</strong> Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.
@@ -454,33 +454,33 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           </div>
 
           {/* Key Test Specs Badge */}
-          <div className="grid grid-cols-3 gap-3 p-4 bg-amber-50/60 rounded-2xl border border-amber-200/80 text-center">
+          <div className="grid grid-cols-3 gap-3 p-4 bg-[#231C16] rounded-2xl border border-neutral-800 text-center">
             <div className="space-y-0.5">
-              <span className="text-[10px] uppercase font-bold text-neutral-500 block">Thời gian</span>
-              <span className="text-sm sm:text-base font-black text-neutral-950 font-mono">10 Phút</span>
+              <span className="text-[10px] uppercase font-bold text-neutral-400 block">Thời gian</span>
+              <span className="text-sm sm:text-base font-black text-white font-mono">10 Phút</span>
             </div>
-            <div className="space-y-0.5 border-x border-amber-200">
-              <span className="text-[10px] uppercase font-bold text-neutral-500 block">Số lượng</span>
-              <span className="text-sm sm:text-base font-black text-amber-800 font-mono">17 Câu hỏi</span>
+            <div className="space-y-0.5 border-x border-neutral-800">
+              <span className="text-[10px] uppercase font-bold text-neutral-400 block">Số lượng</span>
+              <span className="text-sm sm:text-base font-black text-amber-400 font-mono">17 Câu hỏi</span>
             </div>
             <div className="space-y-0.5">
-              <span className="text-[10px] uppercase font-bold text-neutral-500 block">Kỹ năng</span>
-              <span className="text-sm sm:text-base font-black text-neutral-950 font-mono">LC + RC</span>
+              <span className="text-[10px] uppercase font-bold text-neutral-400 block">Kỹ năng</span>
+              <span className="text-sm sm:text-base font-black text-white font-mono">LC + RC</span>
             </div>
           </div>
 
           {/* Form */}
           <form onSubmit={handleStartTest} className="space-y-4">
             {infoError && (
-              <div className="p-3 bg-rose-50 border border-rose-300 rounded-xl text-rose-700 text-xs font-semibold animate-shake">
+              <div className="p-3 bg-rose-950/80 border border-rose-500 rounded-xl text-rose-200 text-xs font-semibold animate-shake">
                 {infoError}
               </div>
             )}
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-neutral-800 uppercase tracking-wider mb-1">
-                  Họ và Tên <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-neutral-200 uppercase tracking-wider mb-1">
+                  Họ và Tên <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -490,14 +490,14 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                   onChange={(e) =>
                     setCandidateInfo((prev) => ({ ...prev, fullName: e.target.value }))
                   }
-                  className="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-xl text-sm text-neutral-900 font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-hidden transition"
+                  className="w-full px-4 py-2.5 bg-[#231C16] border border-neutral-700 rounded-xl text-sm text-white placeholder:text-neutral-500 font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-hidden transition"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-neutral-800 uppercase tracking-wider mb-1">
-                    Số Điện Thoại / Zalo <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-neutral-200 uppercase tracking-wider mb-1">
+                    Số Điện Thoại / Zalo <span className="text-rose-400">*</span>
                   </label>
                   <input
                     type="tel"
@@ -507,12 +507,12 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                     onChange={(e) =>
                       setCandidateInfo((prev) => ({ ...prev, phone: e.target.value }))
                     }
-                    className="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-xl text-sm text-neutral-900 font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-hidden transition"
+                    className="w-full px-4 py-2.5 bg-[#231C16] border border-neutral-700 rounded-xl text-sm text-white placeholder:text-neutral-500 font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-hidden transition font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-neutral-800 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-neutral-200 uppercase tracking-wider mb-1">
                     Email (Nhận kết quả)
                   </label>
                   <input
@@ -522,13 +522,13 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                     onChange={(e) =>
                       setCandidateInfo((prev) => ({ ...prev, email: e.target.value }))
                     }
-                    className="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-xl text-sm text-neutral-900 font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-hidden transition"
+                    className="w-full px-4 py-2.5 bg-[#231C16] border border-neutral-700 rounded-xl text-sm text-white placeholder:text-neutral-500 font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-hidden transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-neutral-800 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-neutral-200 uppercase tracking-wider mb-1">
                   Mục Tiêu Điểm Số TOEIC Của Bạn
                 </label>
                 <select
@@ -536,10 +536,10 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                   onChange={(e) =>
                     setCandidateInfo((prev) => ({ ...prev, targetGoal: e.target.value }))
                   }
-                  className="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-xl text-sm text-neutral-900 font-semibold focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-hidden transition"
+                  className="w-full px-4 py-2.5 bg-[#231C16] border border-neutral-700 rounded-xl text-sm text-white font-semibold focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-hidden transition"
                 >
                   {TARGET_GOAL_OPTIONS.map((goal, idx) => (
-                    <option key={idx} value={goal}>
+                    <option key={idx} value={goal} className="bg-[#1C1610] text-white">
                       {goal}
                     </option>
                   ))}
@@ -547,7 +547,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               </div>
 
               {/* Consent Checkbox compliant with Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 */}
-              <div className="p-3.5 bg-amber-50/80 border border-amber-300 rounded-2xl space-y-2">
+              <div className="p-3.5 bg-[#231C16] border border-neutral-700 rounded-2xl space-y-2">
                 <label className="flex items-start gap-3 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -556,18 +556,18 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                       setConsentGiven(e.target.checked);
                       if (e.target.checked && infoError.includes("đồng ý")) setInfoError("");
                     }}
-                    className="mt-0.5 w-4 h-4 text-amber-600 border-neutral-300 rounded-md focus:ring-amber-500 cursor-pointer shrink-0"
+                    className="mt-0.5 w-4 h-4 text-amber-500 border-neutral-600 rounded focus:ring-amber-400 cursor-pointer shrink-0 bg-neutral-900"
                   />
-                  <span className="text-xs text-neutral-800 leading-relaxed font-medium">
+                  <span className="text-xs text-neutral-200 leading-relaxed font-medium">
                     Tôi đồng ý cung cấp thông tin để phục vụ chấm điểm và nhận phân tích lộ trình học TOEIC từ Thầy Đỗ Tuấn Nam (tuân thủ <strong>Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15</strong>).
                   </span>
                 </label>
-                <div className="text-[11px] text-neutral-600 pl-7 flex flex-wrap items-center gap-2">
+                <div className="text-[11px] text-neutral-400 pl-7 flex flex-wrap items-center gap-2">
                   <span>🔒 Thông tin được bảo mật tuyệt đối, không chia sẻ cho bên thứ ba.</span>
                   <button
                     type="button"
                     onClick={() => setShowPrivacyModal(true)}
-                    className="text-amber-800 underline font-bold hover:text-amber-900 cursor-pointer"
+                    className="text-amber-400 underline font-bold hover:text-amber-300 cursor-pointer"
                   >
                     Xem chính sách bảo mật
                   </button>
@@ -630,7 +630,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           </div>
 
           {/* Section Navigation Tabs */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 pb-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-2">
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -638,11 +638,11 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 className={`px-4 py-2.5 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2 ${
                   activeSection === "listening"
                     ? "bg-amber-500 text-slate-950 shadow-md ring-2 ring-amber-300"
-                    : "bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
+                    : "bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700"
                 }`}
               >
                 <span>🎧 Phần 1: Nghe Điền Từ</span>
-                <span className="px-1.5 py-0.5 rounded-md bg-black/10 text-[10px] font-mono">
+                <span className="px-1.5 py-0.5 rounded-md bg-black/30 text-[10px] font-mono text-inherit">
                   {answeredListeningCount}/10
                 </span>
               </button>
@@ -653,17 +653,17 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 className={`px-4 py-2.5 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2 ${
                   activeSection === "reading"
                     ? "bg-amber-500 text-slate-950 shadow-md ring-2 ring-amber-300"
-                    : "bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
+                    : "bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700"
                 }`}
               >
                 <span>📖 Phần 2: Đọc Hiểu & Ngữ Pháp</span>
-                <span className="px-1.5 py-0.5 rounded-md bg-black/10 text-[10px] font-mono">
+                <span className="px-1.5 py-0.5 rounded-md bg-black/30 text-[10px] font-mono text-inherit">
                   {answeredReadingCount}/7
                 </span>
               </button>
             </div>
 
-            <span className="text-xs text-neutral-500 font-medium hidden sm:inline">
+            <span className="text-xs text-neutral-400 font-medium hidden sm:inline">
               Tổng số: {totalAnsweredCount}/{totalQuestions} câu
             </span>
           </div>
@@ -674,17 +674,17 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           {activeSection === "listening" && (
             <div className="space-y-6">
               {/* Audio Player Card with LOCKED SEEKING (Khóa tua sau khi bấm Play) */}
-              <div className="bg-neutral-900 text-white p-4 sm:p-5 rounded-2xl border border-amber-500/40 space-y-3 shadow-md">
+              <div className="bg-[#1C1610] text-white p-4 sm:p-5 rounded-2xl border border-amber-500/40 space-y-3 shadow-md">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-2.5">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-1 bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-md">
                       🎧 Listening Audio
                     </span>
-                    <span className="text-xs text-neutral-300 font-semibold">
+                    <span className="text-xs text-neutral-200 font-semibold">
                       Part 3: Đoạn Đối Thoại Hội Thoại (52 Giây)
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
+                  <div className="flex items-center gap-2 text-xs font-mono text-neutral-300">
                     <span>{formatTime(currentTime)}</span>
                     <span>/</span>
                     <span>{duration ? formatTime(duration) : "00:52"}</span>
@@ -745,27 +745,27 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 </div>
               </div>
 
-              {/* LISTENING CONVERSATION BOX WITH DIRECT INLINE INPUTS */}
-              <div className="bg-gradient-to-br from-amber-50/50 via-white to-amber-50/30 border-2 border-amber-300 rounded-3xl p-5 sm:p-7 space-y-5 shadow-sm">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200 pb-3">
+              {/* LISTENING CONVERSATION BOX WITH DIRECT INLINE INPUTS (DARK THEME + WHITE TEXT) */}
+              <div className="bg-[#1C1610] text-white border-2 border-amber-500/50 rounded-3xl p-5 sm:p-7 space-y-5 shadow-2xl">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">💬</span>
                     <div>
-                      <h4 className="font-heading font-black text-sm sm:text-base text-neutral-950 uppercase tracking-wide">
+                      <h4 className="font-heading font-black text-sm sm:text-base text-white uppercase tracking-wide">
                         Đoạn Đối Thoại Hội Thoại — Điền Từ Trực Tiếp Vào 10 Chỗ Trống
                       </h4>
-                      <p className="text-xs text-neutral-600">
+                      <p className="text-xs text-neutral-300">
                         Gõ từ tiếng Anh bạn nghe được vào ô tương ứng trong từng câu thoại (có thể nhấn phím <strong>Tab</strong> để chuyển nhanh sang chỗ trống tiếp theo):
                       </p>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-amber-900 bg-amber-100 px-3 py-1 rounded-full border border-amber-300 shrink-0">
+                  <span className="text-xs font-mono font-bold text-amber-300 bg-amber-500/20 px-3 py-1 rounded-full border border-amber-400/40 shrink-0">
                     Đã điền: {answeredListeningCount} / 10 từ
                   </span>
                 </div>
 
                 {/* 10 Dialogue Lines with Inline Text Input Fields */}
-                <div className="space-y-3.5 font-sans text-xs sm:text-sm text-neutral-900 leading-loose">
+                <div className="space-y-3.5 font-sans text-xs sm:text-sm text-white leading-loose">
                   {PLACEMENT_LISTENING_CONVERSATION.map((item) => {
                     const blankIdx = item.blankNum - 1;
                     const parts = item.text.split(`(${item.blankNum}) ________`);
@@ -774,24 +774,24 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                     return (
                       <div
                         key={item.blankNum}
-                        className="p-3.5 sm:p-4 rounded-2xl bg-white border border-neutral-200/90 shadow-xs hover:border-amber-300 transition-all flex flex-col sm:flex-row items-start gap-2.5 sm:gap-3"
+                        className="p-3.5 sm:p-4 rounded-2xl bg-[#282017] border border-[#3E3224] shadow-sm hover:border-amber-500/60 transition-all flex flex-col sm:flex-row items-start gap-2.5 sm:gap-3"
                       >
                         <div className="shrink-0 flex items-center gap-1.5 mt-0.5">
-                          <span className="font-heading font-black text-xs px-2.5 py-1 bg-neutral-900 text-amber-400 rounded-lg">
+                          <span className="font-heading font-black text-xs px-2.5 py-1 bg-amber-500 text-slate-950 rounded-lg shadow-xs">
                             {item.speakerName}
                           </span>
                         </div>
 
-                        <div className="flex-1 leading-loose text-neutral-900 font-medium">
-                          <span>{parts[0]}</span>
+                        <div className="flex-1 leading-loose text-white font-medium text-xs sm:text-sm">
+                          <span className="text-white">{parts[0]}</span>
                           <span className="inline-flex items-center mx-1.5 align-baseline">
-                            <span className="text-xs font-mono font-bold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-l-xl border-y border-l border-amber-300 select-none">
+                            <span className="text-xs font-mono font-black text-amber-400 bg-neutral-900 px-2.5 py-1 rounded-l-xl border-y border-l border-amber-500/60 select-none">
                               ({item.blankNum})
                             </span>
                             <input
                               type="text"
                               id={`blank-input-${item.blankNum}`}
-                              placeholder="gõ từ nghe được..."
+                              placeholder="gõ từ..."
                               value={val}
                               autoComplete="off"
                               spellCheck="false"
@@ -804,14 +804,14 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                                   if (nextInput) nextInput.focus();
                                 }
                               }}
-                              className={`w-36 sm:w-48 px-3 py-1 text-xs sm:text-sm font-bold text-neutral-950 bg-white border-y border-r rounded-r-xl outline-hidden transition shadow-xs text-center focus:ring-2 focus:ring-amber-400 ${
+                              className={`w-36 sm:w-48 px-3 py-1 text-xs sm:text-sm font-bold font-mono text-center rounded-r-xl border-y border-r outline-hidden transition shadow-inner focus:ring-2 focus:ring-amber-400 ${
                                 val.trim()
-                                  ? "border-emerald-500 bg-emerald-50/50 text-emerald-950 font-mono"
-                                  : "border-amber-400 focus:border-amber-600"
+                                  ? "border-emerald-400 bg-emerald-950 text-emerald-200"
+                                  : "border-amber-500/60 bg-[#16120D] text-white placeholder:text-neutral-500 focus:border-amber-400"
                               }`}
                             />
                           </span>
-                          <span>{parts[1]}</span>
+                          <span className="text-white">{parts[1]}</span>
                         </div>
                       </div>
                     );
@@ -819,8 +819,8 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 </div>
 
                 {/* Navigation CTA: Proceed to Section 2 Reading */}
-                <div className="pt-4 border-t border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <span className="text-xs text-neutral-600 font-medium">
+                <div className="pt-4 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <span className="text-xs text-neutral-400 font-medium">
                     * Bạn có thể quay lại sửa các từ nghe bất kỳ lúc nào trước khi nộp bài.
                   </span>
                   <button
@@ -845,10 +845,10 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           {activeSection === "reading" && (
             <div className="space-y-6">
               {/* Reading Questions Jump Palette (11 to 17) */}
-              <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-200 space-y-2">
-                <div className="flex items-center justify-between text-xs text-neutral-700 font-bold">
+              <div className="p-4 bg-[#1C1610] rounded-2xl border border-neutral-800 space-y-2 text-white">
+                <div className="flex items-center justify-between text-xs font-bold text-neutral-200">
                   <span>Phần 2: Đọc Hiểu & Ngữ Pháp (Câu 11 — 17):</span>
-                  <span className="text-neutral-500 font-normal">
+                  <span className="text-neutral-400 font-normal">
                     {answeredReadingCount}/7 câu đã chọn
                   </span>
                 </div>
@@ -861,13 +861,13 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                       userAnswers[qIdx]?.choiceIdx !== null &&
                       userAnswers[qIdx]?.choiceIdx !== undefined;
 
-                    let pillStyle = "bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100";
+                    let pillStyle = "bg-neutral-800 text-neutral-300 border-neutral-700 hover:bg-neutral-700";
                     if (isAnswered) {
-                      pillStyle = "bg-emerald-100 text-emerald-900 border-emerald-400 font-bold";
+                      pillStyle = "bg-emerald-950 text-emerald-300 border-emerald-600 font-bold";
                     }
                     if (isCurrent) {
                       pillStyle =
-                        "bg-amber-500 text-slate-950 border-amber-600 font-black shadow-md ring-2 ring-amber-300";
+                        "bg-amber-500 text-slate-950 border-amber-400 font-black shadow-md ring-2 ring-amber-300";
                     }
 
                     return (
@@ -886,40 +886,40 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               </div>
 
               {/* Current Reading Question Card */}
-              <div className="border-2 border-neutral-200 rounded-3xl p-5 sm:p-7 space-y-6 bg-white shadow-xs">
+              <div className="border-2 border-amber-500/40 rounded-3xl p-5 sm:p-7 space-y-6 bg-[#1C1610] text-white shadow-xl">
                 {/* Header: Part badge & Question Number */}
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 pb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-neutral-900 text-white font-heading font-black text-xs uppercase tracking-wider rounded-lg">
+                    <span className="px-3 py-1 bg-amber-500 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-lg">
                       {currentReadingQ.part}
                     </span>
-                    <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                    <span className="text-xs font-bold text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-400/40">
                       {currentReadingQ.tier}
                     </span>
                   </div>
 
-                  <span className="text-xs text-neutral-600 font-mono font-bold">
+                  <span className="text-xs text-neutral-400 font-mono font-bold">
                     Câu {currentReadingIndex + 1} / {totalQuestions}
                   </span>
                 </div>
 
                 {/* Part 6 & 7: Reading Passage Text */}
                 {currentReadingQ.passage && (
-                  <div className="p-5 bg-neutral-50 rounded-2xl border border-neutral-300 font-mono text-xs sm:text-sm text-neutral-900 leading-relaxed whitespace-pre-wrap max-h-72 overflow-y-auto">
+                  <div className="p-5 bg-[#120F0C] rounded-2xl border border-neutral-800 font-mono text-xs sm:text-sm text-neutral-100 leading-relaxed whitespace-pre-wrap max-h-72 overflow-y-auto">
                     {currentReadingQ.passage}
                   </div>
                 )}
 
                 {/* Question Stem */}
-                <div className="p-4 bg-neutral-50/80 rounded-2xl border border-neutral-200">
-                  <p className="font-heading font-bold text-neutral-950 text-sm sm:text-base leading-relaxed">
+                <div className="p-4 bg-[#282017] rounded-2xl border border-[#3E3224]">
+                  <p className="font-heading font-bold text-white text-sm sm:text-base leading-relaxed">
                     {currentReadingQ.question}
                   </p>
                 </div>
 
                 {/* Multiple-Choice Options */}
                 <div className="space-y-3">
-                  <div className="text-xs font-bold text-neutral-600 uppercase tracking-wider">
+                  <div className="text-xs font-bold text-neutral-300 uppercase tracking-wider">
                     Chọn đáp án đúng (A, B, C, D):
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -928,10 +928,10 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                       const isSelected = userAnswers[currentReadingIndex]?.choiceIdx === optIdx;
 
                       let optClass =
-                        "bg-white border-2 border-neutral-200 hover:border-amber-400 hover:bg-amber-50/30 text-neutral-900";
+                        "bg-[#282017] border-2 border-[#3E3224] hover:border-amber-500/60 hover:bg-[#32281d] text-white";
                       if (isSelected) {
                         optClass =
-                          "bg-amber-50 border-2 border-amber-500 text-amber-950 font-bold shadow-xs";
+                          "bg-amber-500/20 border-2 border-amber-400 text-amber-200 font-bold shadow-md";
                       }
 
                       return (
@@ -946,12 +946,14 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                               className={`w-8 h-8 rounded-lg flex items-center justify-center font-mono font-black text-xs ${
                                 isSelected
                                   ? "bg-amber-500 text-slate-950 shadow-xs"
-                                  : "bg-neutral-200 text-neutral-800"
+                                  : "bg-neutral-800 text-amber-300"
                               }`}
                             >
                               {letter}
                             </span>
-                            <span className="font-medium text-neutral-900">{option}</span>
+                            <span className={`font-semibold ${isSelected ? "text-amber-200" : "text-white"}`}>
+                              {option}
+                            </span>
                           </div>
 
                           {isSelected && (
@@ -966,12 +968,12 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 </div>
 
                 {/* Previous / Next Controls */}
-                <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
+                <div className="flex items-center justify-between pt-4 border-t border-neutral-800">
                   {currentReadingIndex === 10 ? (
                     <button
                       type="button"
                       onClick={() => setActiveSection("listening")}
-                      className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
+                      className="px-5 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer border border-neutral-700"
                     >
                       ← Về Phần 1: Nghe Điền Từ
                     </button>
@@ -979,7 +981,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                     <button
                       type="button"
                       onClick={() => setCurrentReadingIndex((prev) => Math.max(10, prev - 1))}
-                      className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
+                      className="px-5 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer border border-neutral-700"
                     >
                       ← Câu Trước
                     </button>
@@ -989,7 +991,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                     <button
                       type="button"
                       onClick={() => setCurrentReadingIndex((prev) => Math.min(totalQuestions - 1, prev + 1))}
-                      className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl transition cursor-pointer shadow-sm"
+                      className="px-6 py-2.5 bg-white hover:bg-neutral-200 text-neutral-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl transition cursor-pointer shadow-md"
                     >
                       Câu Tiếp Theo →
                     </button>
@@ -1011,20 +1013,20 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
 
       {/* 3. CONFIRMATION MODAL BEFORE SUBMISSION */}
       {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-neutral-200 space-y-6 animate-scaleUp text-center">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4">
+          <div className="bg-[#1C1610] text-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-neutral-800 space-y-6 animate-scaleUp text-center">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-2xl text-amber-400">
               📝
             </div>
 
             <div className="space-y-2">
-              <h4 className="text-xl font-heading font-black text-neutral-950">
+              <h4 className="text-xl font-heading font-black text-white">
                 Xác Nhận Nộp Bài Thi
               </h4>
-              <p className="text-sm text-neutral-700">
+              <p className="text-sm text-neutral-300">
                 Bạn đã hoàn thành <strong>{totalAnsweredCount}</strong> / {totalQuestions} câu hỏi.
                 {totalAnsweredCount < totalQuestions && (
-                  <span className="block mt-1 text-rose-700 font-bold text-xs">
+                  <span className="block mt-1 text-rose-400 font-bold text-xs">
                     ⚠️ Còn {totalQuestions - totalAnsweredCount} câu chưa điền hoặc chưa chọn đáp án. Các câu chưa làm sẽ tính là 0 điểm.
                   </span>
                 )}
@@ -1035,7 +1037,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               <button
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
-                className="flex-1 py-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
+                className="flex-1 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer border border-neutral-700"
               >
                 Tiếp tục làm bài
               </button>
@@ -1054,76 +1056,76 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
 
       {/* 4. COMPLETED RESULTS STATE */}
       {isCompleted && testResults && (
-        <div className="p-6 md:p-10 space-y-8 animate-fadeIn">
+        <div className="p-6 md:p-10 space-y-8 animate-fadeIn text-white">
           {/* Header Badge */}
           <div className="text-center space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-900 font-extrabold text-xs uppercase tracking-wider rounded-full border border-emerald-300">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 text-emerald-300 font-extrabold text-xs uppercase tracking-wider rounded-full border border-emerald-400/40">
               <span>✓</span> Hoàn Thành TOEIC Mini Placement Test
             </span>
-            <h3 className="text-2xl sm:text-3xl font-heading font-black text-neutral-950">
+            <h3 className="text-2xl sm:text-3xl font-heading font-black text-white">
               Bảng Đánh Giá Năng Lực & Phân Tích Lộ Trình
             </h3>
-            <p className="text-xs sm:text-sm text-neutral-600 font-medium max-w-lg mx-auto">
-              Thí sinh: <strong>{candidateInfo.fullName}</strong> • SĐT: <strong>{candidateInfo.phone}</strong> • Thời gian làm bài: <strong>{formatTime(testResults.timeSpent)}</strong>
+            <p className="text-xs sm:text-sm text-neutral-300 font-medium max-w-lg mx-auto">
+              Thí sinh: <strong className="text-white">{candidateInfo.fullName}</strong> • SĐT: <strong className="text-white">{candidateInfo.phone}</strong> • Thời gian làm bài: <strong className="text-amber-400">{formatTime(testResults.timeSpent)}</strong>
             </p>
           </div>
 
           {/* Score & Evaluation Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            <div className="p-6 bg-neutral-50 rounded-2xl border border-neutral-200 text-center space-y-1 shadow-xs">
-              <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-700">
+            <div className="p-6 bg-[#231C16] rounded-2xl border border-neutral-800 text-center space-y-1 shadow-md">
+              <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-400">
                 Tổng Điểm Đạt Được
               </span>
-              <div className="text-4xl sm:text-5xl font-heading font-black text-amber-600">
+              <div className="text-4xl sm:text-5xl font-heading font-black text-amber-400">
                 {testResults.score} <span className="text-xl text-neutral-500">/ {totalQuestions}</span>
               </div>
-              <p className="text-xs text-neutral-700 font-bold">
+              <p className="text-xs text-neutral-300 font-bold">
                 Độ chính xác: {testResults.percentage}%
               </p>
             </div>
 
             <div
-              className={`p-6 rounded-2xl border-2 ${testResults.evaluation.color} space-y-1 text-center shadow-xs flex flex-col justify-center`}
+              className={`p-6 rounded-2xl border-2 ${testResults.evaluation.color} space-y-1 text-center shadow-md flex flex-col justify-center bg-[#231C16]`}
             >
-              <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-700">
+              <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-400">
                 Trình Độ Ước Tính
               </span>
-              <div className="text-2xl font-heading font-black text-neutral-950">
+              <div className="text-2xl font-heading font-black text-white">
                 {testResults.evaluation.range}
               </div>
-              <span className="text-xs font-bold block text-neutral-800">
+              <span className="text-xs font-bold block text-amber-300">
                 Khóa đề xuất: {testResults.evaluation.recommendedCourse.split("(")[0]}
               </span>
             </div>
           </div>
 
           {/* Teacher Recommendation Box */}
-          <div className="p-5 bg-amber-50 rounded-2xl border border-amber-200 text-xs sm:text-sm space-y-2 max-w-2xl mx-auto">
-            <div className="flex items-center gap-2 text-amber-950 font-bold font-heading text-sm">
+          <div className="p-5 bg-amber-500/15 rounded-2xl border border-amber-400/40 text-xs sm:text-sm space-y-2 max-w-2xl mx-auto">
+            <div className="flex items-center gap-2 text-amber-300 font-bold font-heading text-sm">
               <span>🎯</span>
               <span className="uppercase tracking-wider">
                 Nhận xét & Lộ trình đề xuất từ Thầy Đỗ Tuấn Nam:
               </span>
             </div>
-            <p className="text-neutral-800 font-medium leading-relaxed">
+            <p className="text-neutral-200 font-medium leading-relaxed">
               {testResults.evaluation.desc}
             </p>
-            <p className="text-neutral-600 italic text-xs pt-1 border-t border-amber-200/80">
+            <p className="text-neutral-400 italic text-xs pt-1 border-t border-amber-400/30">
               * Toàn bộ kết quả và chi tiết câu làm bài của bạn đã được chuyển thẳng tới Thầy Đỗ Tuấn Nam qua Email và kênh điều hành Discord.
             </p>
           </div>
 
           {/* Download Word DOCX Transcript CTA */}
-          <div className="max-w-2xl mx-auto p-4 bg-sky-50 border-2 border-sky-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+          <div className="max-w-2xl mx-auto p-4 bg-sky-950/50 border-2 border-sky-600/60 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-xl shrink-0">
                 📄
               </div>
               <div>
-                <h5 className="font-heading font-black text-xs sm:text-sm text-sky-950">
+                <h5 className="font-heading font-black text-xs sm:text-sm text-white">
                   Tải Bản Word Transcript & Đáp Án Giải Thích Chi Tiết
                 </h5>
-                <p className="text-[11px] text-sky-800">
+                <p className="text-[11px] text-sky-200">
                   Bao gồm đoạn hội thoại song ngữ Part 3 điền từ, đáp án 10 từ vựng và giải thích Part 5 - 7 (.docx)
                 </p>
               </div>
@@ -1131,16 +1133,16 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
             <a
               href={getAssetUrl("/TOEIC_Placement_Test_Listening_Transcript.docx")}
               download="TOEIC_Placement_Test_Listening_Transcript.docx"
-              className="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-xs transition whitespace-nowrap"
+              className="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-xs transition whitespace-nowrap"
             >
               Tải File Word ↓
             </a>
           </div>
 
           {/* Question Review Section with Filter */}
-          <div className="max-w-3xl mx-auto space-y-4 pt-4 border-t border-neutral-200">
+          <div className="max-w-3xl mx-auto space-y-4 pt-4 border-t border-neutral-800">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h4 className="font-heading font-black text-neutral-950 text-base">
+              <h4 className="font-heading font-black text-white text-base">
                 Chi Tiết Đáp Án & Lời Giải {totalQuestions} Câu
               </h4>
               <div className="flex items-center gap-1.5 text-xs">
@@ -1149,8 +1151,8 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                   onClick={() => setReviewFilter("all")}
                   className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
                     reviewFilter === "all"
-                      ? "bg-neutral-950 text-white"
-                      : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                      ? "bg-white text-neutral-950"
+                      : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
                   }`}
                 >
                   Tất cả ({totalQuestions})
@@ -1161,7 +1163,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                   className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
                     reviewFilter === "incorrect"
                       ? "bg-rose-600 text-white"
-                      : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                      : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
                   }`}
                 >
                   Câu sai ({totalQuestions - testResults.score})
@@ -1172,7 +1174,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                   className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
                     reviewFilter === "correct"
                       ? "bg-emerald-600 text-white"
-                      : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                      : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
                   }`}
                 >
                   Câu đúng ({testResults.score})
@@ -1194,8 +1196,8 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                       key={r.qNum}
                       className={`p-5 rounded-2xl border-2 transition-all space-y-3 ${
                         r.isCorrect
-                          ? "bg-emerald-50/40 border-emerald-300"
-                          : "bg-rose-50/40 border-rose-300"
+                          ? "bg-emerald-950/40 border-emerald-600/70"
+                          : "bg-rose-950/40 border-rose-600/70"
                       }`}
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1207,47 +1209,47 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                           >
                             {r.isCorrect ? "✓" : "✗"}
                           </span>
-                          <span className="font-heading font-black text-sm text-neutral-950">
+                          <span className="font-heading font-black text-sm text-white">
                             Câu {r.qNum}: {r.part}
                           </span>
                         </div>
 
                         <div className="flex items-center gap-2 text-xs font-bold">
-                          <span className="text-neutral-600">
+                          <span className="text-neutral-300">
                             Bạn điền:{" "}
-                            <strong className={r.isCorrect ? "text-emerald-700" : "text-rose-700"}>
+                            <strong className={r.isCorrect ? "text-emerald-400" : "text-rose-400"}>
                               {r.userChoice}
                             </strong>
                           </span>
                           <span>•</span>
-                          <span className="text-neutral-900">
-                            Đáp án: <strong className="text-sky-700">{r.correctChoice}</strong>
+                          <span className="text-neutral-200">
+                            Đáp án: <strong className="text-amber-300">{r.correctChoice}</strong>
                           </span>
                         </div>
                       </div>
 
-                      <p className="text-xs sm:text-sm font-semibold text-neutral-900">
+                      <p className="text-xs sm:text-sm font-semibold text-white">
                         {r.question}
                       </p>
 
                       {/* Cloze Vocabulary Meaning */}
                       {r.targetWord && r.meaning && (
-                        <div className="p-3 bg-white/90 rounded-xl border border-neutral-200 text-xs text-neutral-800 space-y-1">
-                          <span className="font-bold text-sky-800 block">
+                        <div className="p-3 bg-[#1C1610] rounded-xl border border-neutral-800 text-xs text-neutral-200 space-y-1">
+                          <span className="font-bold text-sky-400 block">
                             🔑 Từ vựng cốt lõi & Dịch nghĩa:
                           </span>
-                          <p className="text-neutral-700 font-medium">
-                            <strong>{r.targetWord}</strong>: {r.meaning}
+                          <p className="text-neutral-300 font-medium">
+                            <strong className="text-white">{r.targetWord}</strong>: {r.meaning}
                           </p>
                         </div>
                       )}
 
                       {/* Explanation */}
-                      <div className="p-3 bg-amber-50/90 rounded-xl border border-amber-200 text-xs text-neutral-900 space-y-1">
-                        <span className="font-bold text-amber-900 block">
+                      <div className="p-3 bg-[#1C1610] rounded-xl border border-neutral-800 text-xs text-neutral-200 space-y-1">
+                        <span className="font-bold text-amber-400 block">
                           💡 Giải thích chi tiết từ Thầy Nam:
                         </span>
-                        <p className="leading-relaxed font-medium">{r.explanation}</p>
+                        <p className="leading-relaxed font-medium text-neutral-300">{r.explanation}</p>
                       </div>
                     </div>
                   );
@@ -1256,12 +1258,12 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           </div>
 
           {/* Disclaimer Reference Footnote */}
-          <div className="p-4 bg-amber-50/80 border border-amber-200/90 rounded-2xl text-center text-xs text-amber-900 font-medium max-w-2xl mx-auto leading-relaxed">
+          <div className="p-4 bg-amber-500/15 border border-amber-400/40 rounded-2xl text-center text-xs text-amber-200 font-medium max-w-2xl mx-auto leading-relaxed">
             ℹ️ <strong>Lưu ý:</strong> Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn.
           </div>
 
           {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-neutral-200 max-w-2xl mx-auto">
+          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-neutral-800 max-w-2xl mx-auto">
             <button
               onClick={() => {
                 if (onSelectConsultation) {
@@ -1291,7 +1293,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                 setTimeLeft(600);
                 setHasPlayed(false);
               }}
-              className="py-4 px-5 border border-neutral-300 text-neutral-800 hover:bg-neutral-100 font-bold text-xs rounded-xl transition cursor-pointer"
+              className="py-4 px-5 border border-neutral-700 text-neutral-200 hover:bg-neutral-800 font-bold text-xs rounded-xl transition cursor-pointer"
             >
               Làm lại bài test
             </button>
