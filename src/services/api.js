@@ -53,6 +53,7 @@ export const callGasApi = async (action, data = {}) => {
       },
       body: JSON.stringify(payload),
       redirect: "follow",
+      keepalive: true,
     });
 
     if (!response.ok) {
@@ -183,13 +184,14 @@ export const inviteStudentToClassroom = async ({ courseId, studentEmail, folderI
  * @param {string} params.htmlBody - Formatted HTML email body
  * @param {string} [params.replyTo] - Optional reply-to address
  */
-export const sendEmailNotification = async ({ to, subject, htmlBody, replyTo, senderName }) => {
+export const sendEmailNotification = async ({ to, subject, htmlBody, body, replyTo, senderName }) => {
+  const finalHtml = htmlBody || body || "";
   return await callGasApi("sendEmail", {
     to,
     subject,
-    htmlBody,
+    htmlBody: finalHtml,
     replyTo,
-    senderName,
+    senderName: senderName || "TOEIC MR.NAM LMS",
   });
 };
 

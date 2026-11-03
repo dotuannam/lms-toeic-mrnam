@@ -315,9 +315,79 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
       localStorage.setItem("toeic_last_placement_result", JSON.stringify(resultPayload));
     } catch (e) {}
 
-    // 2. Save Submission to Firestore: 'placement_test_submissions'
-    try {
-      await addDoc(collection(db, "placement_test_submissions"), {
+    // 2. Prepare HTML Email Notification for Teacher (dotuannamwork2809@gmail.com)
+    const emailRecipient = TEACHER_PROFILE?.adminEmail || "dotuannamwork2809@gmail.com";
+    const tableRowsHtml = detailedResults
+      .map((r) => {
+        const rowBg = r.isCorrect ? "#f0fdf4" : "#fef2f2";
+        const statusText = r.isCorrect ? "✅ ĐÚNG" : "❌ SAI";
+        const userColor = r.isCorrect ? "#15803d" : "#b91c1c";
+        return `
+          <tr style="background-color: ${rowBg}; border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: #0f172a;">Câu ${r.qNum}</td>
+            <td style="padding: 10px 8px; color: #334155;"><strong>${r.part}</strong></td>
+            <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: ${userColor}; font-size: 14px;">${r.userChoice}</td>
+            <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: #0284c7; font-size: 14px;">${r.correctChoice}</td>
+            <td style="padding: 10px 8px; text-align: center; font-weight: bold; font-size: 13px;">${statusText}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    const emailHtmlBody = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; background-color: #faf9f6; border: 1px solid #e7e5e4; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+        <div style="background-color: #1c1610; padding: 26px 24px; text-align: center; border-bottom: 4px solid #c27803;">
+          <h2 style="color: #ffffff; margin: 0 0 6px; font-size: 21px; font-weight: 800; letter-spacing: 0.5px;">TOEIC MR.NAM — HỆ THỐNG LMS</h2>
+          <p style="color: #f59e0b; margin: 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Thí Sinh Vừa Nộp Bài Mini Placement Test (17 Câu)</p>
+        </div>
+        
+        <div style="padding: 24px;">
+          <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 12px; color: #0f172a; font-size: 15px; border-bottom: 2px solid #f8fafc; padding-bottom: 8px;">👤 Thông Tin Thí Sinh</h3>
+            <table style="width: 100%; font-size: 14px; line-height: 1.6; border-collapse: collapse;">
+              <tr><td style="padding: 5px 0; color: #64748b; width: 35%;">Họ và tên:</td><td style="padding: 5px 0; color: #0f172a; font-weight: bold; font-size: 15px;">${candidateInfo.fullName.trim()}</td></tr>
+              <tr><td style="padding: 5px 0; color: #64748b;">Số điện thoại:</td><td style="padding: 5px 0; color: #0f172a; font-weight: bold;"><a href="tel:${candidateInfo.phone.trim()}" style="color: #0284c7; text-decoration: none;">${candidateInfo.phone.trim()}</a></td></tr>
+              <tr><td style="padding: 5px 0; color: #64748b;">Email:</td><td style="padding: 5px 0; color: #0f172a; font-weight: bold;"><a href="mailto:${candidateInfo.email.trim()}" style="color: #0284c7; text-decoration: none;">${candidateInfo.email.trim() || "Chưa cung cấp"}</a></td></tr>
+              <tr><td style="padding: 5px 0; color: #64748b;">Mục tiêu mong muốn:</td><td style="padding: 5px 0; color: #d97706; font-weight: bold;">${candidateInfo.targetGoal}</td></tr>
+              <tr><td style="padding: 5px 0; color: #64748b;">Thời gian hoàn thành:</td><td style="padding: 5px 0; color: #0f172a;">${formatTime(timeSpent)} / 10 phút</td></tr>
+              <tr><td style="padding: 5px 0; color: #64748b;">Thời điểm nộp:</td><td style="padding: 5px 0; color: #0f172a;">${new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}</td></tr>
+            </table>
+          </div>
+
+          <div style="background-color: #fefce8; border: 2px solid #f59e0b; border-radius: 14px; padding: 18px 20px; text-align: center; margin-bottom: 22px;">
+            <div style="font-size: 12px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Điểm Số & Xếp Lớp Năng Lực</div>
+            <div style="font-size: 36px; font-weight: 900; color: #b45309; margin: 6px 0;">${correctCount} <span style="font-size: 18px; color: #78716c;">/ ${totalQuestions}</span></div>
+            <div style="font-size: 14px; font-weight: bold; color: #0f172a; margin-bottom: 8px;">Độ chính xác: ${Math.round((correctCount / totalQuestions) * 100)}% • Trình độ ước tính: <span style="color: #0369a1;">${evaluation.range}</span></div>
+            <div style="display: inline-block; background-color: #ffffff; border: 1px solid #fbbf24; border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: bold; color: #78350f;">
+              Khóa học đề xuất: ${evaluation.recommendedCourse}
+            </div>
+          </div>
+
+          <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 12px; color: #0f172a; font-size: 15px; border-bottom: 2px solid #f8fafc; padding-bottom: 8px;">📊 Chi Tiết Bài Làm 17 Câu</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <thead>
+                <tr style="background-color: #f1f5f9; color: #475569; text-transform: uppercase; font-size: 11px;">
+                  <th style="padding: 8px;">Câu</th>
+                  <th style="padding: 8px; text-align: left;">Phần thi</th>
+                  <th style="padding: 8px;">Thí sinh chọn</th>
+                  <th style="padding: 8px;">Đáp án đúng</th>
+                  <th style="padding: 8px;">Kết quả</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 3. Ultra-fast parallel execution: Firestore save + Discord Bot trigger + Email dispatch
+    Promise.allSettled([
+      // Task A: Save Submission to Firestore: 'placement_test_submissions'
+      addDoc(collection(db, "placement_test_submissions"), {
         candidateName: candidateInfo.fullName.trim(),
         phone: candidateInfo.phone.trim(),
         email: candidateInfo.email.trim(),
@@ -332,14 +402,10 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
         submittedAt: serverTimestamp(),
         createdAt: new Date().toISOString(),
         source: "landing_placement_test",
-      });
-    } catch (saveErr) {
-      console.warn("[PlacementTest] Firestore save error (non-blocking):", saveErr);
-    }
+      }),
 
-    // 3. Write to Firestore 'activity_logs' to trigger Discord Bot listener
-    try {
-      await logActivity({
+      // Task B: Write to Firestore 'activity_logs' to trigger Discord Bot listener
+      logActivity({
         action: ACTION_TYPES.PLACEMENT_TEST_SUBMISSION || "PLACEMENT_TEST_SUBMISSION",
         resource: "placement_test",
         targetName: candidateInfo.fullName.trim(),
@@ -357,92 +423,24 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
           results: detailedResults,
           timeSpentSeconds: timeSpent,
         },
-      });
-    } catch (logErr) {
-      console.warn("[PlacementTest] Activity log error (non-blocking):", logErr);
-    }
+      }),
 
-    // 4. Send Email Notification to Teacher (dotuannamwork2809@gmail.com)
-    try {
-      const emailRecipient = TEACHER_PROFILE?.adminEmail || "dotuannamwork2809@gmail.com";
-      const tableRowsHtml = detailedResults
-        .map((r) => {
-          const rowBg = r.isCorrect ? "#f0fdf4" : "#fef2f2";
-          const statusText = r.isCorrect ? "✅ ĐÚNG" : "❌ SAI";
-          const userColor = r.isCorrect ? "#15803d" : "#b91c1c";
-          return `
-            <tr style="background-color: ${rowBg}; border-bottom: 1px solid #e2e8f0;">
-              <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: #0f172a;">Câu ${r.qNum}</td>
-              <td style="padding: 10px 8px; color: #334155;"><strong>${r.part}</strong></td>
-              <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: ${userColor}; font-size: 14px;">${r.userChoice}</td>
-              <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: #0284c7; font-size: 14px;">${r.correctChoice}</td>
-              <td style="padding: 10px 8px; text-align: center; font-weight: bold; font-size: 13px;">${statusText}</td>
-            </tr>
-          `;
-        })
-        .join("");
-
-      const emailHtmlBody = `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; background-color: #faf9f6; border: 1px solid #e7e5e4; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-          <div style="background-color: #1c1610; padding: 26px 24px; text-align: center; border-bottom: 4px solid #c27803;">
-            <h2 style="color: #ffffff; margin: 0 0 6px; font-size: 21px; font-weight: 800; letter-spacing: 0.5px;">TOEIC MR.NAM — HỆ THỐNG LMS</h2>
-            <p style="color: #f59e0b; margin: 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Thí Sinh Vừa Nộp Bài Mini Placement Test (17 Câu)</p>
-          </div>
-          
-          <div style="padding: 24px;">
-            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; margin-bottom: 20px;">
-              <h3 style="margin: 0 0 12px; color: #0f172a; font-size: 15px; border-bottom: 2px solid #f8fafc; padding-bottom: 8px;">👤 Thông Tin Thí Sinh</h3>
-              <table style="width: 100%; font-size: 14px; line-height: 1.6; border-collapse: collapse;">
-                <tr><td style="padding: 5px 0; color: #64748b; width: 35%;">Họ và tên:</td><td style="padding: 5px 0; color: #0f172a; font-weight: bold; font-size: 15px;">${candidateInfo.fullName.trim()}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">Số điện thoại:</td><td style="padding: 5px 0; color: #0f172a; font-weight: bold;"><a href="tel:${candidateInfo.phone.trim()}" style="color: #0284c7; text-decoration: none;">${candidateInfo.phone.trim()}</a></td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">Email:</td><td style="padding: 5px 0; color: #0f172a; font-weight: bold;"><a href="mailto:${candidateInfo.email.trim()}" style="color: #0284c7; text-decoration: none;">${candidateInfo.email.trim() || "Chưa cung cấp"}</a></td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">Mục tiêu mong muốn:</td><td style="padding: 5px 0; color: #d97706; font-weight: bold;">${candidateInfo.targetGoal}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">Thời gian hoàn thành:</td><td style="padding: 5px 0; color: #0f172a;">${formatTime(timeSpent)} / 10 phút</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">Thời điểm nộp:</td><td style="padding: 5px 0; color: #0f172a;">${new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}</td></tr>
-              </table>
-            </div>
-
-            <div style="background-color: #fefce8; border: 2px solid #f59e0b; border-radius: 14px; padding: 18px 20px; text-align: center; margin-bottom: 22px;">
-              <div style="font-size: 12px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Điểm Số & Xếp Lớp Năng Lực</div>
-              <div style="font-size: 36px; font-weight: 900; color: #b45309; margin: 6px 0;">${correctCount} <span style="font-size: 18px; color: #78716c;">/ ${totalQuestions}</span></div>
-              <div style="font-size: 14px; font-weight: bold; color: #0f172a; margin-bottom: 8px;">Độ chính xác: ${Math.round((correctCount / totalQuestions) * 100)}% • Trình độ ước tính: <span style="color: #0369a1;">${evaluation.range}</span></div>
-              <div style="display: inline-block; background-color: #ffffff; border: 1px solid #fbbf24; border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: bold; color: #78350f;">
-                Khóa học đề xuất: ${evaluation.recommendedCourse}
-              </div>
-            </div>
-
-            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; margin-bottom: 20px;">
-              <h3 style="margin: 0 0 12px; color: #0f172a; font-size: 15px; border-bottom: 2px solid #f8fafc; padding-bottom: 8px;">📊 Chi Tiết Bài Làm 17 Câu</h3>
-              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                <thead>
-                  <tr style="background-color: #f1f5f9; color: #475569; text-transform: uppercase; font-size: 11px;">
-                    <th style="padding: 8px;">Câu</th>
-                    <th style="padding: 8px; text-align: left;">Phần thi</th>
-                    <th style="padding: 8px;">Thí sinh chọn</th>
-                    <th style="padding: 8px;">Đáp án đúng</th>
-                    <th style="padding: 8px;">Kết quả</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${tableRowsHtml}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      `;
-
-      await sendEmailNotification({
+      // Task C: Send HTML Email to dotuannamwork2809@gmail.com
+      sendEmailNotification({
         to: emailRecipient,
         subject: `[LMS TOEIC] Thí sinh ${candidateInfo.fullName.trim()} vừa nộp bài Placement Test: ${correctCount}/${totalQuestions} câu (${evaluation.tier})`,
+        htmlBody: emailHtmlBody,
         body: emailHtmlBody,
-      });
-    } catch (emailErr) {
-      console.warn("[PlacementTest] Email notification error (non-blocking):", emailErr);
-    }
+        senderName: "TOEIC MR.NAM LMS",
+      }),
+    ]).then((results) => {
+      console.log("[PlacementTest] Async notification dispatches completed:", results);
+    }).catch((dispatchErr) => {
+      console.warn("[PlacementTest] Background dispatch warning:", dispatchErr);
+    });
 
-    // Ensure smooth minimum loading display so candidate clearly sees submission is processing
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    // 4. Ultra-snappy transition (350ms): Smooth visual grading without blocking the user
+    await new Promise((resolve) => setTimeout(resolve, 350));
 
     setIsSubmitting(false);
     setIsCompleted(true);
