@@ -510,6 +510,7 @@ export const MINI_PLACEMENT_TEST_QUESTIONS = [
     id: 15,
     part: "Part 6: Text Completion",
     section: "reading",
+    passage: "MEMORANDUM\nTo: All Department Supervisors\nFrom: Human Resources\nSubject: Annual Employee Performance Evaluations\n\nPlease be reminded that all annual staff performance reviews must be finalized by Friday, November 15. It is essential that each supervisor _______ [14] with team members individually to discuss professional milestones and performance objectives. _______ [15], please submit all completed and signed evaluation forms directly to the Human Resources portal by the end of the day.",
     question: "15. Chọn liên từ thích hợp nhất điền vào chỗ trống [15] trong đoạn văn bản Memorandum:",
     options: ["(A) In addition", "(B) However", "(C) In contrast", "(D) Otherwise"],
     answer: 0,
@@ -536,6 +537,7 @@ export const MINI_PLACEMENT_TEST_QUESTIONS = [
     id: 17,
     part: "Part 7: Reading Comprehension",
     section: "reading",
+    passage: "================================================================================\nCLOVERDALE BUSINESS EXPO - PARKING NOTICE\n================================================================================\nDue to scheduled maintenance resurfacing in the Main Visitor Garage, reserved parking will be temporarily relocated to the South Lot from October 12 through October 16.\n\nExhibitors displaying valid vendor permits may park in the South Lot free of charge. All other general attendees will incur a daily flat parking fee of $10.00.\n\nA complimentary shuttle bus service will operate continuously between the South Lot and the main exhibition hall entrance every fifteen minutes from 8:00 A.M. to 6:00 P.M. We appreciate your understanding as we complete these essential facility upgrades.\n================================================================================",
     question: "17. What is indicated about the shuttle service?",
     options: [
       "(A) It requires an additional surcharge of $10.00.",

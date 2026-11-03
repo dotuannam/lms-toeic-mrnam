@@ -63,13 +63,18 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [reviewFilter, setReviewFilter] = useState("all"); // 'all' | 'incorrect' | 'correct'
 
-  // Audio Player State: Khóa tua sau khi bấm play
+  // Audio Player State: Khóa tua sau khi bấm play + tối đa 2 lần nghe
+  const MAX_LISTENS = 2;
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false); // Once played, seeking is locked!
+  const [listenCount, setListenCount] = useState(0); // 0 (chưa nghe), 1 (lần 1), 2 (lần 2)
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(52); // Exact 52 seconds audio
   const lastAllowedTimeRef = useRef(0);
+
+  const isAudioAtEnd = currentTime >= (duration || 52) - 0.5;
+  const isMaxListensReached = listenCount >= MAX_LISTENS && isAudioAtEnd;
 
   // Countdown Timer
   useEffect(() => {
@@ -132,21 +137,46 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
   }, [hasStarted, hasPlayed]);
 
   const toggleAudio = () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+
     if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      // If audio already reached the end, restart from the beginning cleanly
-      if (audioRef.current.currentTime >= (duration || 52) - 0.5) {
-        lastAllowedTimeRef.current = 0;
-        audioRef.current.currentTime = 0;
-      }
-      audioRef.current.play().then(() => {
-        setHasPlayed(true);
-      }).catch((e) => {
-        console.warn("[Audio] Playback notice:", e);
-      });
+      audio.pause();
+      return;
     }
+
+    if (isAudioAtEnd) {
+      if (listenCount >= MAX_LISTENS) return;
+      // Start 2nd listen
+      setListenCount(2);
+      lastAllowedTimeRef.current = 0;
+      audio.currentTime = 0;
+      audio.play().then(() => {
+        setIsPlaying(true);
+        setHasPlayed(true);
+      }).catch((e) => console.warn("[Audio] Playback notice:", e));
+    } else {
+      // First start or resume
+      if (listenCount === 0) {
+        setListenCount(1);
+      }
+      audio.play().then(() => {
+        setIsPlaying(true);
+        setHasPlayed(true);
+      }).catch((e) => console.warn("[Audio] Playback notice:", e));
+    }
+  };
+
+  const handleStartSecondListen = () => {
+    const audio = audioRef.current;
+    if (!audio || listenCount >= MAX_LISTENS) return;
+    setListenCount(2);
+    lastAllowedTimeRef.current = 0;
+    audio.currentTime = 0;
+    audio.play().then(() => {
+      setIsPlaying(true);
+      setHasPlayed(true);
+    }).catch((e) => console.warn("[Audio] Playback notice:", e));
   };
 
   // Format time mm:ss
@@ -180,6 +210,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
     setIsCompleted(false);
     setTestResults(null);
     setHasPlayed(false);
+    setListenCount(0);
   };
 
   // Handle direct text typing in Listening blanks (0 to 9)
@@ -673,7 +704,7 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               ========================================================================= */}
           {activeSection === "listening" && (
             <div className="space-y-6">
-              {/* Audio Player Card with LOCKED SEEKING (Khóa tua sau khi bấm Play) */}
+              {/* Audio Player Card with LOCKED SEEKING + MAXIMUM 2 LISTENS */}
               <div className="bg-[#1C1610] text-white p-4 sm:p-5 rounded-2xl border border-amber-500/40 space-y-3 shadow-md">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 pb-2.5">
                   <div className="flex items-center gap-2">
@@ -684,10 +715,25 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                       Part 3: Đoạn Đối Thoại Hội Thoại (52 Giây)
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs font-mono text-neutral-300">
-                    <span>{formatTime(currentTime)}</span>
-                    <span>/</span>
-                    <span>{duration ? formatTime(duration) : "00:52"}</span>
+                  <div className="flex items-center gap-2.5">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border ${
+                      listenCount === 0
+                        ? "bg-neutral-800 text-neutral-300 border-neutral-700"
+                        : listenCount === 1
+                        ? "bg-amber-500/20 text-amber-300 border-amber-400/40"
+                        : isAudioAtEnd
+                        ? "bg-rose-500/20 text-rose-300 border-rose-400/40"
+                        : "bg-amber-500/20 text-amber-300 border-amber-400/40"
+                    }`}>
+                      {listenCount === 0 && "Lượt nghe: 0 / 2"}
+                      {listenCount === 1 && "Lượt nghe: 1 / 2"}
+                      {listenCount === 2 && (isAudioAtEnd ? "Đã hết 2 / 2 lượt" : "Lượt nghe: 2 / 2 (Lượt cuối)")}
+                    </span>
+                    <div className="text-xs font-mono text-neutral-300">
+                      <span>{formatTime(currentTime)}</span>
+                      <span>/</span>
+                      <span>{duration ? formatTime(duration) : "00:52"}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -703,27 +749,57 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
                   <span className="text-amber-400 shrink-0 mt-0.5 text-base">ℹ️</span>
                   <div className="leading-relaxed space-y-1">
                     <p>
-                      <strong>Hướng dẫn:</strong> Bấm nút <em>▶ Bật Âm Thanh Nghe</em> để bắt đầu bài nghe 52 giây. Bạn hãy gõ trực tiếp từ nghe được vào các ô chỗ trống tương ứng bên dưới.
+                      <strong>Quy định bài nghe:</strong> Bạn được nghe <strong>tối đa 2 lần</strong> toàn bộ đoạn hội thoại 52 giây. Tính năng tua âm thanh bị <strong>khóa tuyệt đối (🔒 Khóa tua)</strong> theo quy chế thi.
                     </p>
                     <p className="text-[11px] text-amber-300 font-normal">
-                      ⚠️ <em>Lưu ý: Bài kiểm tra này chỉ mang tính chất tham khảo và đánh giá năng lực sơ bộ, không phải format bài thi tiêu chuẩn. Tính năng tua âm thanh sẽ được tự động khóa sau khi phát.</em>
+                      {listenCount === 0 && "👉 Bấm nút bên dưới để bắt đầu Lượt nghe 1 (1/2)."}
+                      {listenCount === 1 && !isAudioAtEnd && "🎧 Đang phát Lượt nghe 1 (1/2). Khi nghe xong bạn có thể bấm phát lại Lần 2 (lượt cuối)."}
+                      {listenCount === 1 && isAudioAtEnd && "✅ Bạn đã hoàn thành Lượt nghe 1. Bấm nút bên dưới để nghe Lần 2 (lượt cuối cùng)."}
+                      {listenCount === 2 && !isAudioAtEnd && "⚠️ Đang phát Lượt nghe 2 (2/2 - Lượt cuối cùng)."}
+                      {listenCount >= 2 && isAudioAtEnd && "🔒 Bạn đã sử dụng hết 2/2 lượt nghe cho phép. Vui lòng kiểm tra lại 10 ô trống và chuyển sang Phần 2."}
                     </p>
                   </div>
                 </div>
 
                 {/* Player Controls Bar */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={toggleAudio}
-                    className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm shrink-0 ${
-                      isPlaying
-                        ? "bg-amber-600 hover:bg-amber-700 text-white"
-                        : "bg-neutral-800 hover:bg-neutral-700 text-neutral-100"
-                    }`}
-                  >
-                    <span>{isPlaying ? "⏸ Tạm Dừng" : "▶ Bật Âm Thanh Nghe"}</span>
-                  </button>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <button
+                      type="button"
+                      disabled={isMaxListensReached}
+                      onClick={toggleAudio}
+                      className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm shrink-0 ${
+                        isMaxListensReached
+                          ? "bg-neutral-800 text-neutral-500 border border-neutral-700 cursor-not-allowed opacity-60"
+                          : isPlaying
+                          ? "bg-amber-600 hover:bg-amber-700 text-white"
+                          : listenCount === 1 && isAudioAtEnd
+                          ? "bg-amber-500 hover:bg-amber-600 text-slate-950 font-black shadow-lg animate-pulse"
+                          : "bg-neutral-800 hover:bg-neutral-700 text-neutral-100"
+                      }`}
+                    >
+                      <span>
+                        {isMaxListensReached && "🔒 Đã Hết 2 Lượt Nghe"}
+                        {!isMaxListensReached && isPlaying && "⏸ Tạm Dừng"}
+                        {!isMaxListensReached && !isPlaying && listenCount === 0 && "▶ Bật Âm Thanh Nghe (Lần 1 / 2)"}
+                        {!isMaxListensReached && !isPlaying && listenCount === 1 && !isAudioAtEnd && "▶ Tiếp Tục Nghe (Lần 1 / 2)"}
+                        {!isMaxListensReached && !isPlaying && listenCount === 1 && isAudioAtEnd && "🔄 Phát Lại Lần 2 (Lượt Cuối)"}
+                        {!isMaxListensReached && !isPlaying && listenCount === 2 && !isAudioAtEnd && "▶ Tiếp Tục Nghe (Lần 2 / 2)"}
+                      </span>
+                    </button>
+
+                    {/* Secondary early restart if user wishes to use second attempt early */}
+                    {listenCount === 1 && !isAudioAtEnd && currentTime > 3 && (
+                      <button
+                        type="button"
+                        onClick={handleStartSecondListen}
+                        className="text-[11px] font-bold text-amber-400 hover:text-amber-300 underline cursor-pointer shrink-0"
+                        title="Bắt đầu lượt nghe thứ 2 từ đầu"
+                      >
+                        Phát lại lượt 2 ↺
+                      </button>
+                    )}
+                  </div>
 
                   {/* Non-scrubbable Visual Progress Bar (KHÓA TUA TUYỆT ĐỐI) */}
                   <div className="w-full flex items-center gap-3">
@@ -1084,18 +1160,16 @@ export const MiniPlacementTest = ({ onSelectConsultation, className = "" }) => {
               </p>
             </div>
 
-            <div
-              className={`p-6 rounded-2xl border-2 ${testResults.evaluation.color} space-y-1 text-center shadow-md flex flex-col justify-center bg-[#231C16]`}
-            >
+            <div className="p-6 bg-[#231C16] rounded-2xl border border-neutral-800 text-center space-y-1 shadow-md flex flex-col justify-center">
               <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-400">
                 Trình Độ Ước Tính
               </span>
-              <div className="text-2xl font-heading font-black text-white">
+              <div className="text-4xl sm:text-5xl font-heading font-black text-amber-400">
                 {testResults.evaluation.range}
               </div>
-              <span className="text-xs font-bold block text-amber-300">
+              <p className="text-xs text-neutral-300 font-bold">
                 Khóa đề xuất: {testResults.evaluation.recommendedCourse.split("(")[0]}
-              </span>
+              </p>
             </div>
           </div>
 
