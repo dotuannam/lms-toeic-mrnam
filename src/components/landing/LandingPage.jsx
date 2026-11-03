@@ -11,7 +11,6 @@ import {
   STUDENT_TESTIMONIALS,
   CONSULTATION_TIME_SLOTS,
 } from "../../data/portfolioData";
-import { MiniPlacementTest } from "./MiniPlacementTest";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { sendEmailNotification } from "../../services/api";
@@ -208,7 +207,7 @@ const IconInfo = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
-export const LandingPage = ({ onGoToPortal }) => {
+export const LandingPage = ({ onGoToPortal, onNavigateToPlacementTest }) => {
   const { currentUser, role, isStaff, loginWithEmail, loginWithGoogle, resetPassword } = useAuth();
   const { centerConfig, landingPageContent } = useSettings();
 
@@ -225,7 +224,7 @@ export const LandingPage = ({ onGoToPortal }) => {
     badge: "Thạc sĩ Ngôn ngữ Anh • TOEIC 980 / 990 IIG Vietnam",
     headline: "Chinh Phục TOEIC Bằng Phương Pháp Khoa Học & Trải Nghiệm Thực Chiến.",
     subHeadline: teacher.bioShort,
-    primaryCta: "Làm Mini Test 3 Phút →",
+    primaryCta: "Đánh giá năng lực của bạn ngay! →",
     secondaryCta: "Hẹn Lịch Tư Vấn 1-1",
     commitments: [
       "Cam kết chuẩn đầu ra văn bản",
@@ -265,6 +264,21 @@ export const LandingPage = ({ onGoToPortal }) => {
   const [showCvModal, setShowCvModal] = useState(false);
   const [activeTabCareer, setActiveTabCareer] = useState(0);
 
+  // Navigate to Placement Test (handles both standalone and GitHub Pages subpath)
+  const handleOpenPlacementTest = () => {
+    if (onNavigateToPlacementTest) {
+      onNavigateToPlacementTest();
+    } else {
+      const base =
+        typeof window !== "undefined" && window.location.pathname.startsWith("/lms-toeic-mrnam")
+          ? "/lms-toeic-mrnam"
+          : "";
+      window.history.pushState(null, "", `${base}/placement-test`);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   // Login Form State
   const [loginTab, setLoginTab] = useState("student"); // "student" | "admin"
   const [loginEmail, setLoginEmail] = useState("");
@@ -284,9 +298,35 @@ export const LandingPage = ({ onGoToPortal }) => {
     program: "TOEIC - THE NOTE (Khóa học TOEIC 500+)",
     notes: "",
   });
-  const [quizResult, setQuizResult] = useState(null);
+  const [quizResult, setQuizResult] = useState(() => {
+    try {
+      const saved = localStorage.getItem("toeic_last_placement_result");
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
+  });
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+
+  // Sync test result from localStorage on mount or storage update
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("toeic_last_placement_result");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed) {
+          setQuizResult(parsed);
+          setBookingData((prev) => ({
+            ...prev,
+            name: parsed.candidateName || parsed.name || prev.name,
+            phone: parsed.phone || prev.phone,
+            email: parsed.email || prev.email,
+            program: parsed.evaluation?.recommendedCourse || parsed.recommendedCourse || prev.program,
+          }));
+        }
+      }
+    } catch (e) {}
+  }, []);
 
   // Contact Message State
   const [contactData, setContactData] = useState({
@@ -749,10 +789,10 @@ export const LandingPage = ({ onGoToPortal }) => {
             </button>
             {toggles.showPlacementTest !== false && (
               <button
-                onClick={() => openAndScrollTo("placementTest", placementTestRef)}
+                onClick={handleOpenPlacementTest}
                 className="text-amber-800 hover:text-amber-950 font-extrabold transition cursor-pointer"
               >
-                Mini Placement Test
+                Đánh Giá Năng Lực
               </button>
             )}
             {toggles.showBookingForm !== false && (
@@ -832,11 +872,11 @@ export const LandingPage = ({ onGoToPortal }) => {
               <div className="flex flex-wrap gap-3.5 pt-2">
                 {toggles.showPlacementTest !== false && (
                   <button
-                    onClick={() => openAndScrollTo("placementTest", placementTestRef)}
+                    onClick={handleOpenPlacementTest}
                     className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl shadow-lg hover:shadow-amber-500/30 transition-all transform hover:-translate-y-0.5 cursor-pointer flex items-center gap-2.5"
                   >
                     <IconClipboardCheck className="w-4 h-4 text-slate-950" />
-                    <span>{hero.primaryCta || "Làm Mini Test 3 Phút →"}</span>
+                    <span>{hero.primaryCta || "Đánh giá năng lực của bạn ngay! →"}</span>
                   </button>
                 )}
 
@@ -1286,7 +1326,7 @@ export const LandingPage = ({ onGoToPortal }) => {
       </div>
 
       {/* =========================================================================
-          7. MINI PLACEMENT TEST SECTION (CLICK TO SHOW)
+          7. MINI PLACEMENT TEST SHOWCASE SECTION (CLICK TO SHOW)
       ========================================================================= */}
       {toggles.showPlacementTest !== false && (
         <div className="border-b border-neutral-200/80">
@@ -1296,35 +1336,114 @@ export const LandingPage = ({ onGoToPortal }) => {
             refObj: placementTestRef,
             icon: <IconClipboardCheck className="w-6 h-6 text-amber-900" />,
             badge: "Định Vị Năng Lực Nhanh",
-            title: "Mini Placement Test (5 Câu Rút Gọn Chuẩn ETS)",
-            summary: "Bài kiểm tra nhanh trắc nghiệm 3 phút giúp định vị trình độ hiện tại và gợi ý khóa học phù hợp",
+            title: "TOEIC Placement Test (10 Phút - Chuẩn ETS 7 Parts)",
+            summary: "Đánh giá toàn diện 7 Parts Listening & Reading trong 10 phút, tự động chấm điểm và gợi ý lộ trình bứt phá điểm số",
           })}
 
           {expandedSections.placementTest && (
             <div className="py-12 md:py-16 bg-gradient-to-b from-white to-[#FAF9F6] border-t border-neutral-200/60 animate-fadeIn">
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-                <div className="text-center space-y-3">
-                  <span className="text-xs font-mono uppercase tracking-widest text-amber-900 font-extrabold">
-                    Kiểm Tra Năng Lực Trực Tuyến
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-serif font-bold text-neutral-950">
-                    Mini Placement Test (5 Câu Rút Gọn)
-                  </h2>
-                  <p className="text-sm text-neutral-800 font-medium max-w-lg mx-auto">
-                    Được thiết kế dựa trên các bẫy ngữ pháp và từ vựng cốt lõi nhất của đề thi thật ETS, giúp bạn định vị năng lực chỉ trong 3 phút.
-                  </p>
-                </div>
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                <div className="bg-gradient-to-br from-[#1C1610] to-[#2B2015] rounded-3xl p-6 sm:p-10 md:p-12 text-white shadow-2xl border border-amber-500/30 overflow-hidden relative">
+                  {/* Decorative Amber Glow */}
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
 
-                <MiniPlacementTest
-                  onSelectConsultation={(res) => {
-                    setQuizResult(res);
-                    setBookingData((prev) => ({
-                      ...prev,
-                      program: res.recommendedCourse,
-                    }));
-                    openAndScrollTo("booking", bookingRef);
-                  }}
-                />
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                    {/* Left Column: Information & Main CTA */}
+                    <div className="lg:col-span-7 space-y-6 text-left">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 border border-amber-400/40 rounded-full text-xs font-mono font-black text-amber-400 uppercase tracking-widest">
+                        <span>🎯</span>
+                        <span>ĐÁNH GIÁ NĂNG LỰC TRỰC TUYẾN 2026</span>
+                      </div>
+
+                      <div className="space-y-3">
+                        <h3 className="text-2xl sm:text-4xl font-serif font-bold text-white tracking-tight leading-tight">
+                          Kiểm Tra Trình Độ TOEIC Của Bạn Chỉ Trong 10 Phút
+                        </h3>
+                        <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-normal">
+                          Bài test được thiết kế tinh gọn gồm <strong>15 câu chọn lọc bao quát đủ 7 Parts</strong> (Nghe audio Part 1 - 4 & Đọc hiểu Part 5 - 7). Hệ thống tự động phân loại trình độ của bạn vào 3 cấp độ: <strong>Foundation (&lt; 450)</strong>, <strong>550+</strong>, hoặc <strong>650+</strong> và gửi báo cáo phân tích trực tiếp cho Thầy Đỗ Tuấn Nam.
+                        </p>
+                      </div>
+
+                      {/* 4 Feature Highlights */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5">
+                          <span className="text-lg text-amber-400">⏱️</span>
+                          <span className="text-neutral-200">10 phút đếm ngược tự động</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5">
+                          <span className="text-lg text-sky-400">🎧</span>
+                          <span className="text-neutral-200">Đầy đủ 7 Parts: Nghe & Đọc</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5">
+                          <span className="text-lg text-emerald-400">📊</span>
+                          <span className="text-neutral-200">Báo cáo & Xếp lớp tức thì</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5">
+                          <span className="text-lg text-amber-400">📥</span>
+                          <span className="text-neutral-200">Tặng file Word Transcript (.docx)</span>
+                        </div>
+                      </div>
+
+                      {/* Audio Note */}
+                      <p className="text-xs text-amber-300/80 italic">
+                        * Audio mô phỏng phòng thi ETS (Bản thu âm studio chính thức từ Thầy Nam sẽ được cập nhật sớm).
+                      </p>
+
+                      {/* Prominent CTA Button */}
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          onClick={handleOpenPlacementTest}
+                          className="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-heading font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl hover:shadow-amber-500/30 transition-all transform hover:-translate-y-0.5 cursor-pointer inline-flex items-center gap-3"
+                        >
+                          <span>Đánh giá năng lực của bạn ngay!</span>
+                          <span className="text-xl font-bold">→</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Right Column: Visual Exam Structure Card */}
+                    <div className="lg:col-span-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 space-y-4 text-left">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span className="text-xs uppercase tracking-wider font-mono font-bold text-amber-400">
+                          Cấu Trúc Đề Thi 15 Câu
+                        </span>
+                        <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 text-[11px] font-bold rounded-full">
+                          Chuẩn ETS 2026
+                        </span>
+                      </div>
+
+                      <div className="space-y-2.5 text-xs">
+                        <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
+                          <span className="font-bold text-white">Section 1: Listening (Câu 1 - 8)</span>
+                          <span className="text-amber-400 font-mono font-bold">Part 1, 2, 3, 4</span>
+                        </div>
+                        <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
+                          <span className="font-bold text-white">Section 2: Reading (Câu 9 - 15)</span>
+                          <span className="text-sky-400 font-mono font-bold">Part 5, 6, 7</span>
+                        </div>
+                        <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
+                          <span className="font-bold text-white">Hình thức làm bài</span>
+                          <span className="text-neutral-300 font-medium">Trắc nghiệm Online</span>
+                        </div>
+                        <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
+                          <span className="font-bold text-white">Báo cáo kết quả</span>
+                          <span className="text-emerald-400 font-bold">Email & Discord Realtime</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          onClick={handleOpenPlacementTest}
+                          className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-heading font-black text-xs uppercase tracking-wider rounded-xl transition shadow-md cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <span>Mở Trang Làm Bài Thi →</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {renderBottomCollapseButton("placementTest", "placement-test")}
               </div>

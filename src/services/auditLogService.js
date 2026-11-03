@@ -40,6 +40,9 @@ export const ACTION_TYPES = {
   // Learning / Vocab
   VOCAB_PRACTICE: "VOCAB_PRACTICE",
 
+  // Placement Test
+  PLACEMENT_TEST_SUBMISSION: "PLACEMENT_TEST_SUBMISSION",
+
   // Generic
   GENERIC_ACTION: "GENERIC_ACTION",
 };

@@ -19,9 +19,96 @@ export const COLORS = {
 };
 
 /**
+ * Embed for TOEIC Placement Test Submission
+ */
+export const buildPlacementTestEmbed = (log) => {
+  const meta = log.metadata || {};
+  const candidateName = meta.candidateName || log.targetName || "Thí sinh";
+  const phone = meta.phone || "Chưa cung cấp";
+  const email = meta.email || "Chưa cung cấp";
+  const score = meta.score ?? 0;
+  const total = meta.totalQuestions || 15;
+  const tier = meta.tier || "Foundation";
+  const course = meta.recommendedCourse || "Khóa học TOEIC Foundation";
+  const percent = Math.round((score / total) * 100);
+
+  const color = score >= 12 ? COLORS.SUCCESS : score >= 7 ? COLORS.PRIMARY : COLORS.WARNING;
+
+  const embed = new EmbedBuilder()
+    .setTitle("🎯 THÍ SINH VỪA NỘP BÀI MINI PLACEMENT TEST!")
+    .setColor(color)
+    .setDescription(
+      `Thí sinh **${candidateName}** vừa hoàn thành bài kiểm tra TOEIC Mini Placement Test 15 câu trên Landing Page!\n` +
+      `⏱️ Điểm số: **${score}/${total}** (${percent}%) • Xếp lớp: **${tier}**`
+    )
+    .addFields(
+      {
+        name: "👤 Thông tin thí sinh",
+        value: `• **Họ và tên:** ${candidateName}\n• **Số điện thoại:** \`${phone}\`\n• **Email:** \`${email}\``,
+        inline: true,
+      },
+      {
+        name: "📊 Đánh giá năng lực",
+        value: `• **Kết quả:** ${score}/${total} câu đúng (${percent}%)\n• **Cấp độ:** ${tier}\n• **Khóa đề xuất:** ${course}`,
+        inline: true,
+      }
+    )
+    .setTimestamp(
+      log.createdAt?.toDate ? log.createdAt.toDate() : new Date(log.timestamp || Date.now())
+    )
+    .setFooter({
+      text: "TOEIC MR.NAM Placement Monitor • LMS Realtime",
+    });
+
+  const results = meta.results || [];
+  if (results.length > 0) {
+    const listeningLines = results
+      .filter((r) => r.qNum <= 8)
+      .map((r) => {
+        const icon = r.isCorrect ? "✅" : "❌";
+        const answerInfo = r.isCorrect
+          ? `[${r.userChoice}] (Đúng)`
+          : `[${r.userChoice || "Trống"}] (Sai - ĐA: ${r.correctChoice})`;
+        return `${icon} **Câu ${r.qNum}** (${r.part.split(":")[0]}): ${answerInfo}`;
+      })
+      .join("\n");
+
+    const readingLines = results
+      .filter((r) => r.qNum > 8)
+      .map((r) => {
+        const icon = r.isCorrect ? "✅" : "❌";
+        const answerInfo = r.isCorrect
+          ? `[${r.userChoice}] (Đúng)`
+          : `[${r.userChoice || "Trống"}] (Sai - ĐA: ${r.correctChoice})`;
+        return `${icon} **Câu ${r.qNum}** (${r.part.split(":")[0]}): ${answerInfo}`;
+      })
+      .join("\n");
+
+    if (listeningLines) {
+      embed.addFields({
+        name: "🎧 Section 1: Listening (Câu 1 - 8)",
+        value: listeningLines,
+      });
+    }
+    if (readingLines) {
+      embed.addFields({
+        name: "📖 Section 2: Reading (Câu 9 - 15)",
+        value: readingLines,
+      });
+    }
+  }
+
+  return embed;
+};
+
+/**
  * Embed for real-time Audit Log
  */
 export const buildAuditLogEmbed = (log) => {
+  if (log.action === "PLACEMENT_TEST_SUBMISSION") {
+    return buildPlacementTestEmbed(log);
+  }
+
   const actionLabel = translateAction(log.action);
   const roleLabel = translateRole(log.actor?.role);
   const isDanger =

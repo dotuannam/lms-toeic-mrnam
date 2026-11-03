@@ -18,12 +18,78 @@ import { LearningResourcesPage } from "./pages/admin/LearningResourcesPage";
 import { VocabGamesAdminPage } from "./pages/admin/VocabGamesAdminPage";
 import { StudentDashboard } from "./pages/student/StudentDashboard";
 import { LandingPage } from "./components/landing/LandingPage";
+import { PlacementTestPage } from "./pages/placement/PlacementTestPage";
 import { GlobalAnnouncementBanner } from "./components/common/GlobalAnnouncementBanner";
 
 const AppContent = () => {
   const { currentUser, role, isStaff, userProfile, loading } = useAuth();
   const [adminTab, setAdminTab] = useState(() => (role === "instructor" ? "classes" : "students"));
   const [viewMode, setViewMode] = useState("admin"); // 'admin' | 'student_preview' | 'landing'
+
+  // Subpage Route tracking for Placement Test (/placement-test)
+  const [currentRoute, setCurrentRoute] = useState(() => {
+    const path = (typeof window !== "undefined" ? window.location.pathname : "").toLowerCase();
+    const hash = (typeof window !== "undefined" ? window.location.hash : "").toLowerCase();
+    const search = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+    if (
+      path.includes("placement-test") ||
+      hash.includes("placement-test") ||
+      search?.get("page") === "placement-test"
+    ) {
+      return "placement-test";
+    }
+    return "home";
+  });
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const path = (window.location.pathname || "").toLowerCase();
+      const hash = (window.location.hash || "").toLowerCase();
+      const search = new URLSearchParams(window.location.search);
+      if (
+        path.includes("placement-test") ||
+        hash.includes("placement-test") ||
+        search.get("page") === "placement-test"
+      ) {
+        setCurrentRoute("placement-test");
+      } else {
+        setCurrentRoute("home");
+      }
+    };
+
+    window.addEventListener("popstate", handleLocationChange);
+    window.addEventListener("hashchange", handleLocationChange);
+    return () => {
+      window.removeEventListener("popstate", handleLocationChange);
+      window.removeEventListener("hashchange", handleLocationChange);
+    };
+  }, []);
+
+  const getBasePath = () => {
+    if (typeof window === "undefined") return "";
+    return window.location.pathname.startsWith("/lms-toeic-mrnam") ? "/lms-toeic-mrnam" : "";
+  };
+
+  const navigateToPlacementTest = () => {
+    const base = getBasePath();
+    window.history.pushState(null, "", `${base}/placement-test`);
+    setCurrentRoute("placement-test");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const navigateToHome = (hash = "") => {
+    const base = getBasePath();
+    window.history.pushState(null, "", `${base}/` + (hash ? `#${hash}` : ""));
+    setCurrentRoute("home");
+    if (hash) {
+      setTimeout(() => {
+        const el = document.getElementById(hash);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Update tab default if instructor logs in
   useEffect(() => {
@@ -41,12 +107,30 @@ const AppContent = () => {
     );
   }
 
+  // 1. Subpage: Placement Test (/placement-test)
+  if (currentRoute === "placement-test") {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <GlobalAnnouncementBanner />
+        <PlacementTestPage
+          onBackToHome={navigateToHome}
+          onSelectConsultation={(res) => {
+            navigateToHome("booking");
+          }}
+        />
+      </div>
+    );
+  }
+
   // Unauthenticated -> Render Landing Page with Global Announcement & Integrated Login
   if (!currentUser) {
     return (
       <div className="min-h-screen flex flex-col">
         <GlobalAnnouncementBanner />
-        <LandingPage onGoToPortal={() => {}} />
+        <LandingPage
+          onGoToPortal={() => {}}
+          onNavigateToPlacementTest={navigateToPlacementTest}
+        />
       </div>
     );
   }
@@ -70,7 +154,10 @@ const AppContent = () => {
             Quay lại Portal Dashboard →
           </button>
         </div>
-        <LandingPage onGoToPortal={() => setViewMode(isStaff ? "admin" : "student")} />
+        <LandingPage
+          onGoToPortal={() => setViewMode(isStaff ? "admin" : "student")}
+          onNavigateToPlacementTest={navigateToPlacementTest}
+        />
       </div>
     );
   }

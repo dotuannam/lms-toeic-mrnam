@@ -249,91 +249,231 @@ export const STUDENT_TESTIMONIALS = [
 ];
 
 export const MINI_PLACEMENT_TEST_QUESTIONS = [
+  // SECTION 1: LISTENING (Questions 1 - 8)
   {
     id: 1,
-    question:
-      "Choose the correct option: The marketing team has _______ the promotional launch until next Monday due to technical difficulties.",
-    options: ["postponed", "cancelled", "originated", "advertised"],
+    part: "Part 1: Photographs",
+    section: "listening",
+    question: "1. Quan sát bức tranh và nghe 4 câu miêu tả. Chọn câu miêu tả đúng nhất những gì diễn ra trong tranh:",
+    image: "/images/part1_question_1.png",
+    options: ["(A)", "(B)", "(C)", "(D)"],
     answer: 0,
-    explanation:
-      "'Postponed' (hoãn lại) là từ phù hợp nhất trong ngữ cảnh này vì có trạng từ chỉ thời gian 'until next Monday' (cho đến thứ Hai tới).",
+    transcript: "(A) He is holding a tray of drinks. (B) He is setting a table outdoors. (C) He is wiping down a counter. (D) He is taking an order from a customer.",
+    explanation: "Trong bức ảnh, nam nhân viên phục vụ đang bưng một khay đựng đồ uống (holding a tray of drinks). Các phương án B (kê dọn bàn), C (lau quầy bar), D (nhận gọi món) đều là bẫy hành động không diễn ra trong hình.",
+    tier: "Foundation Tier",
   },
   {
     id: 2,
-    question:
-      "Select the best word: Employees are strictly prohibited _______ entering the server room without proper security clearance.",
-    options: ["to", "from", "for", "with"],
+    part: "Part 2: Question - Response",
+    section: "listening",
+    question: "2. Nghe câu hỏi và chọn câu phản hồi phù hợp nhất (Mark your answer on your answer sheet):",
+    options: ["(A)", "(B)", "(C)"],
     answer: 1,
-    explanation:
-      "Cấu trúc chuẩn trong tiếng Anh thương mại là 'prohibit someone from doing something' (ngăn cấm ai đó làm điều gì).",
+    transcript: "Question: \"Where did you leave the meeting agenda?\" - (A) At three o'clock. (B) On the conference table. (C) Yes, I enjoyed the presentation.",
+    explanation: "Câu hỏi bắt đầu bằng Where hỏi về vị trí -> chọn nơi chốn (On the conference table). Phương án (A) là bẫy thời gian (When), (C) là bẫy Yes/No cho câu hỏi WH.",
+    tier: "Foundation Tier",
   },
   {
     id: 3,
-    question:
-      "Identify the correct form: Mr. Harrison requested that all project managers _______ their budget estimates by 5 PM tomorrow.",
-    options: ["submitting", "submit", "submitted", "submits"],
-    answer: 1,
-    explanation:
-      "Đây là cấu trúc giả định (Subjunctive Mood) với động từ 'requested'. Công thức: S + request / suggest / recommend + that + S + V-infinitive (V nguyên mẫu không chia 's/es' hay thì quá khứ).",
+    part: "Part 2: Question - Response",
+    section: "listening",
+    question: "3. Nghe câu hỏi và chọn câu phản hồi phù hợp nhất (Mark your answer on your answer sheet):",
+    options: ["(A)", "(B)", "(C)"],
+    answer: 0,
+    transcript: "Question: \"Would you like me to help you carry those boxes?\" - (A) Thanks, but they are not that heavy. (B) In the mailroom downstairs. (C) About fifty copies, please.",
+    explanation: "Lời đề nghị giúp đỡ lịch sự (Would you like me to...) -> Đáp lại bằng lời từ chối lịch sự kèm lý do (Thanks, but they're not that heavy).",
+    tier: "550+ Tier",
   },
   {
     id: 4,
-    question:
-      "Choose the word with the closest meaning: The CEO gave an *unprecedented* presentation about the company's expansion plans.",
-    options: ["never done before", "highly boring", "very expensive", "briefly scheduled"],
+    part: "Part 2: Question - Response",
+    section: "listening",
+    question: "4. Nghe câu hỏi và chọn câu phản hồi phù hợp nhất (Mark your answer on your answer sheet):",
+    options: ["(A)", "(B)", "(C)"],
     answer: 0,
-    explanation:
-      "'Unprecedented' có nghĩa là 'chưa từng có tiền lệ', tương đương với 'never done or known before'.",
+    transcript: "Question: \"Didn't Mr. Tanaka say he would arrive by noon?\" - (A) His flight from Tokyo was delayed. (B) Yes, he does. (C) Room 302 on the third floor.",
+    explanation: "Câu hỏi phủ định kiểm tra lý do -> Phản hồi gián tiếp bằng lý do khách quan (Chuyến bay từ Tokyo của ông ấy bị hoãn). Đây là câu hỏi phân loại 650+.",
+    tier: "650+ Tier",
   },
   {
     id: 5,
-    question:
-      "Choose the correct preposition: Despite the unfavorable weather conditions, the construction project was completed right _______ schedule.",
-    options: ["at", "on", "for", "by"],
+    part: "Part 3: Short Conversations",
+    section: "listening",
+    passageTitle: "Context: Customer Service Order Conversation (Questions 5 & 6)",
+    question: "5. Why is the man calling customer service?",
+    options: [
+      "(A) To inquire about store operating hours",
+      "(B) To cancel an existing annual subscription",
+      "(C) To report a damaged merchandise item",
+      "(D) To request a billing address modification",
+    ],
+    answer: 2,
+    transcript: "Man: \"...when I opened the parcel this morning, the glass shade was cracked.\"",
+    explanation: "Người đàn ông gọi phàn nàn: 'when I opened the parcel, the glass shade was cracked' (chao đèn bị nứt vỡ) -> Báo cáo hàng hóa bị hư hại (report a damaged merchandise item).",
+    tier: "550+ Tier",
+  },
+  {
+    id: 6,
+    part: "Part 3: Short Conversations",
+    section: "listening",
+    passageTitle: "Context: Customer Service Order Conversation (Questions 5 & 6)",
+    question: "6. What does the woman offer to do for the customer?",
+    options: [
+      "(A) Issue a full monetary refund",
+      "(B) Dispatch a replacement item by express courier",
+      "(C) Provide a promotional discount voucher",
+      "(D) Arrange for a technician to repair the item",
+    ],
     answer: 1,
-    explanation:
-      "Thành ngữ cố định 'on schedule' mang nghĩa là 'đúng thời hạn / đúng tiến độ đề ra'.",
+    transcript: "Woman: \"I will immediately dispatch a free replacement for you... via express courier.\"",
+    explanation: "Nhân viên đề xuất: 'I will immediately dispatch a free replacement... via express courier' -> Gửi hàng thay thế miễn phí bằng dịch vụ chuyển phát hỏa tốc.",
+    tier: "650+ Tier",
+  },
+  {
+    id: 7,
+    part: "Part 4: Short Talks",
+    section: "listening",
+    passageTitle: "Context: Airport Terminal PA Announcement (Questions 7 & 8)",
+    question: "7. What is the primary purpose of the announcement?",
+    options: [
+      "(A) To announce a gate change",
+      "(B) To report a flight departure delay",
+      "(C) To introduce a new airline route",
+      "(D) To issue severe weather warnings",
+    ],
+    answer: 1,
+    transcript: "Speaker: \"Flight 418 to Chicago has been delayed by approximately forty-five minutes.\"",
+    explanation: "Người phát thanh nêu rõ: 'Due to unexpected resurfacing maintenance work... Flight 418 to Chicago has been delayed' -> Thông báo chuyến bay bị hoãn khởi hành.",
+    tier: "550+ Tier",
+  },
+  {
+    id: 8,
+    part: "Part 4: Short Talks",
+    section: "listening",
+    passageTitle: "Context: Airport Terminal PA Announcement (Questions 7 & 8)",
+    question: "8. What can passengers collect at the customer service desk?",
+    options: [
+      "(A) Updated boarding passes",
+      "(B) Free parking permits",
+      "(C) Baggage claim tickets",
+      "(D) Complimentary snack vouchers",
+    ],
+    answer: 3,
+    transcript: "Speaker: \"...airline representatives are distributing complimentary snack and beverage vouchers at the customer service desk.\"",
+    explanation: "Thông báo hướng dẫn: 'airline representatives are distributing complimentary snack and beverage vouchers at the customer service desk' -> Phiếu đồ ăn và thức uống miễn phí.",
+    tier: "550+ Tier",
+  },
+
+  // SECTION 2: READING (Questions 9 - 15)
+  {
+    id: 9,
+    part: "Part 5: Incomplete Sentences",
+    section: "reading",
+    question: "9. Ms. Chen reviewed the quarterly financial report _______ before submitting it to the board of directors.",
+    options: ["(A) careful", "(B) carefully", "(C) care", "(D) carefulness"],
+    answer: 1,
+    explanation: "Cấu trúc S + V + O + Adv. Động từ 'reviewed' cần trạng từ thể cách bổ nghĩa -> Chọn 'carefully'.",
+    tier: "Foundation Tier",
+  },
+  {
+    id: 10,
+    part: "Part 5: Incomplete Sentences",
+    section: "reading",
+    question: "10. _______ the inclement weather conditions, the outdoor marketing festival will proceed as scheduled.",
+    options: ["(A) Although", "(B) Despite", "(C) Because", "(D) Even"],
+    answer: 1,
+    explanation: "Phía sau là cụm danh từ 'the inclement weather conditions'. Để chỉ sự nhượng bộ (mặc dù thời tiết xấu), dùng giới từ 'Despite' (+ Noun phrase).",
+    tier: "550+ Tier",
+  },
+  {
+    id: 11,
+    part: "Part 5: Incomplete Sentences",
+    section: "reading",
+    question: "11. _______ you require any additional documentation regarding the corporate merger, please contact the legal department.",
+    options: ["(A) Should", "(B) If", "(C) Were", "(D) Had"],
+    answer: 0,
+    explanation: "Đảo ngữ câu điều kiện loại 1 trong tiếng Anh thương mại trang trọng: Should + S + V_0 thay thế cho 'If you require'.",
+    tier: "650+ Tier",
+  },
+  {
+    id: 12,
+    part: "Part 6: Text Completion",
+    section: "reading",
+    passage: "MEMORANDUM\nTo: All Department Supervisors\nFrom: Human Resources\nSubject: Annual Employee Performance Evaluations\n\nPlease be reminded that all annual staff performance reviews must be finalized by Friday, November 15. It is essential that each supervisor _______ [12] with team members individually to discuss professional milestones and performance objectives. _______ [13], please submit all completed and signed evaluation forms directly to the Human Resources portal by the end of the day.",
+    question: "12. Chọn từ thích hợp nhất điền vào chỗ trống [12]:",
+    options: ["(A) meet", "(B) met", "(C) meeting", "(D) to meet"],
+    answer: 0,
+    explanation: "Cấu trúc thể giả định (Subjunctive): It is essential that + S + V_0 (nguyên mẫu không chia) -> Chọn 'meet'.",
+    tier: "550+ Tier",
+  },
+  {
+    id: 13,
+    part: "Part 6: Text Completion",
+    section: "reading",
+    question: "13. Chọn liên từ thích hợp nhất điền vào chỗ trống [13]:",
+    options: ["(A) In addition", "(B) However", "(C) In contrast", "(D) Otherwise"],
+    answer: 0,
+    explanation: "Liên từ liên kết mang tính bổ sung thêm nhiệm vụ tiếp theo (sau khi họp, nộp biểu mẫu lên cổng HR) -> Chọn 'In addition' (Ngoài ra / Hơn nữa).",
+    tier: "650+ Tier",
+  },
+  {
+    id: 14,
+    part: "Part 7: Reading Comprehension",
+    section: "reading",
+    passage: "================================================================================\nCLOVERDALE BUSINESS EXPO - PARKING NOTICE\n================================================================================\nDue to scheduled maintenance resurfacing in the Main Visitor Garage, reserved parking will be temporarily relocated to the South Lot from October 12 through October 16.\n\nExhibitors displaying valid vendor permits may park in the South Lot free of charge. All other general attendees will incur a daily flat parking fee of $10.00.\n\nA complimentary shuttle bus service will operate continuously between the South Lot and the main exhibition hall entrance every fifteen minutes from 8:00 A.M. to 6:00 P.M. We appreciate your understanding as we complete these essential facility upgrades.\n================================================================================",
+    question: "14. Who is entitled to park in the South Lot without paying a fee?",
+    options: [
+      "(A) Construction resurfacing workers",
+      "(B) Exhibitors with valid vendor permits",
+      "(C) All registered expo attendees",
+      "(D) Shuttle bus operators",
+    ],
+    answer: 1,
+    explanation: "Bài đọc ghi rõ: 'Exhibitors displaying valid vendor permits may park in the South Lot free of charge' -> Đơn vị triển lãm có giấy phép hợp lệ.",
+    tier: "Foundation / 550+ Tier",
+  },
+  {
+    id: 15,
+    part: "Part 7: Reading Comprehension",
+    section: "reading",
+    question: "15. What is indicated about the shuttle service?",
+    options: [
+      "(A) It requires an additional surcharge of $10.00.",
+      "(B) It operates throughout the night.",
+      "(C) It provides free transportation to the exhibition hall.",
+      "(D) It requires attendees to make advance reservations.",
+    ],
+    answer: 2,
+    explanation: "Bài đọc nêu: 'A complimentary shuttle bus service...' -> Tính từ 'complimentary' có nghĩa là miễn phí (free transportation).",
+    tier: "650+ Tier",
   },
 ];
 
 export const getPlacementScoreEvaluation = (score) => {
-  if (score === 5) {
+  if (score >= 12) {
     return {
-      range: "700+ TOEIC",
-      recommendedCourse: "TOEIC - THE SONG (Khóa học TOEIC 700+ - 850+)",
-      desc: "Bạn có nền tảng ngữ pháp và từ vựng phong phú, phản xạ đọc tốt. Bạn nên tập trung rèn chiến thuật xử lý bẫy Part 7 và tối ưu tốc độ làm bài để chinh phục 850+.",
-      color: "text-emerald-600 bg-emerald-50 border-emerald-200",
+      tier: "TOEIC 650+",
+      range: "650 – 800+ TOEIC (Advanced Tier)",
+      recommendedCourse: "TOEIC 650+ Intensive (Chinh phục 750 - 850+)",
+      desc: "Năng lực xuất sắc! Bạn có phản xạ nghe câu hỏi gián tiếp rất nhạy bén, ngữ pháp nâng cao vững chắc (đảo ngữ, thể giả định) và khả năng suy luận đọc hiểu tốt. Bạn phù hợp bước ngay vào Chặng 3 hoặc Khóa luyện đề Full Tests để bứt phá mốc 800+.",
+      color: "text-emerald-700 bg-emerald-50 border-emerald-300",
     };
   }
-  if (score === 4) {
+  if (score >= 7) {
     return {
-      range: "500 — 600+ TOEIC",
-      recommendedCourse: "TOEIC - THE CHORD (Khóa học TOEIC 600+)",
-      desc: "Bạn có nền tảng ổn định và hiểu các cấu trúc ngữ pháp quan trọng. Bạn cần luyện tập chuyên sâu với đề thi thật để nâng cao tốc độ đọc hiểu và phản xạ nghe đoạn văn dài.",
-      color: "text-sky-600 bg-sky-50 border-sky-200",
-    };
-  }
-  if (score === 3) {
-    return {
-      range: "400 — 500 TOEIC",
-      recommendedCourse: "TOEIC - THE NOTE (Khóa học TOEIC 500+)",
-      desc: "Bạn đang dần quen với đề thi TOEIC nhưng dễ bị bẫy ở các câu hỏi ngữ cảnh và từ vựng đồng nghĩa. Bạn cần hệ thống hóa chiến thuật cho từng Part.",
-      color: "text-amber-600 bg-amber-50 border-amber-200",
-    };
-  }
-  if (score === 2) {
-    return {
-      range: "300 — 400 TOEIC",
-      recommendedCourse: "TOEIC Exam Preparation (Khóa căn bản cho người mất gốc)",
-      desc: "Bạn có nền tảng căn bản nhưng còn hổng ngữ pháp cốt lõi và thiếu từ vựng chuyên môn TOEIC. Cần củng cố gốc trước khi bước vào luyện đề.",
-      color: "text-orange-600 bg-orange-50 border-orange-200",
+      tier: "TOEIC 550+",
+      range: "450 – 645 TOEIC (Intermediate Tier)",
+      recommendedCourse: "TOEIC 550+ (Bứt phá 550 - 650+)",
+      desc: "Nền tảng khá tốt! Bạn đã nắm chắc các câu hỏi cơ bản và từ loại, nhưng dễ bị bẫy ở phản hồi gián tiếp Part 2, phân tán thông tin Part 3/4 và ngữ pháp nâng cao Part 5. Khóa học TOEIC 550+ (Chặng 1 & Chặng 2) sẽ giúp bạn lấp đầy các bẫy này.",
+      color: "text-sky-700 bg-sky-50 border-sky-300",
     };
   }
   return {
-    range: "Dưới 300 (Beginner)",
-    recommendedCourse: "TOEIC Exam Preparation (Khóa căn bản cho người mất gốc)",
-    desc: "Nên tập trung củng cố lại toàn bộ nền tảng phát âm chuẩn, ngữ pháp cốt lõi và 600 từ vựng căn bản trước khi bắt đầu luyện đề thi.",
-    color: "text-rose-600 bg-rose-50 border-rose-200",
+    tier: "Foundation",
+    range: "Dưới 450 TOEIC (Foundation Tier)",
+    recommendedCourse: "Khóa học TOEIC Foundation (24 Buổi)",
+    desc: "Bạn cần củng cố lại từ đầu: chuẩn hóa phát âm IPA, từ vựng cốt lõi Part 1 và kỹ năng bắt từ khóa câu hỏi WH Part 2, cùng nền tảng ngữ pháp câu cơ bản trước khi bước vào luyện đề thi.",
+    color: "text-amber-700 bg-amber-50 border-amber-300",
   };
 };
 

@@ -87,6 +87,7 @@ export const translateAction = (action) => {
     PAYMENT_RECORD: "💰 Thu học phí",
     LEDGER_ADD: "📒 Ghi sổ Thu/Chi",
     VOCAB_PRACTICE: "📚 Luyện tập từ vựng",
+    PLACEMENT_TEST_SUBMISSION: "🎯 Nộp bài Mini Placement Test",
     GENERIC_ACTION: "⚙️ Thao tác hệ thống",
   };
   return map[action] || `⚡ ${action}`;
